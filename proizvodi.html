@@ -4,7 +4,7 @@
  
 <head>
  
-    <title>proizvodi</title>
+    <title>light</title>
  
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
@@ -89,6 +89,32 @@ img {
   background: var(--dark);
   color: var(--light);
 }
+
+.main-nava ul {
+  display: grid;
+  grid-gap: 20px;
+  padding: 0;
+  list-style: none;
+  grid-template-columns:   repeat(7, 1fr) ;
+}
+
+.main-nava a {
+  background: var(--primary);
+  display: block;
+  text-decoration: none;
+  padding: 0.8rem;
+  text-align: center;
+  color: var(--dark);
+  text-transform: uppercase;
+  font-size: 1.1rem;
+  box-shadow: var(--shadow);
+}
+
+.main-nava a:hover {
+  background: var(--dark);
+  color: var(--light);
+}
+
 
 /* Top Container */
 .top-container {
@@ -257,57 +283,51 @@ footer {
       </ul>
     </nav>
 
-
-
-    <!-- Info Section -->
-    <section class="info">
-      <img src="ref.png" alt="">
-      <div>
-        <h2>Reflektor</h2>
-        <p>Weiss light je prva srpska fabrika LED sijalica i jedina kompanija u regionu kojoj je primarna delatnost proizvodnja LED rasvete.
-		Budući da se kompletna proizvodnja odvija u našim pogonima sa ponosom ističemo da su Weiss light proizvodi 100% domaći.
-		Nakon decenije rada, razvijanja i sticanja iskustva danas smo u mogućnosti da ponudimo koncipirana rešenja LED osvetljenja za stambene prostore, kompanije, proizvodne pogone, hale, hotele, uličnu rasvetu.
-		Naši stručni timovi specijalizovani su za projektovanje i izgradnju sistema rasvete za osvetljavanje svih površina i objekata.
-		Posedujemo laboratoriju za istraživanje i razvoj, koja nam omogućava da isprojektujemo sve komponente gotovih proizvoda, uz izradu prototipa i preliminarno testiranje.
-		Nakon projektovanja dolazimo do proizvodnje i asemblaze elektronskih sklopova.
-        Svaki od naših sektora u mogucnosti je da pruza samostalne I nezavisne usluge u domenima svojih podrucja rada.
-        Weiss light je tu da klijentima omoguci kompletnu uslugu i profesionalne savete, kako bi zadovoljili sve njihove želje i potrebe.</p>
-        <a href="#" class="btn">naruci</a>
+    <!-- Top Container -->
+    <section class="top-container">
+      <header class="showcase"><br><br><br><br><br><br><br>
+        <h1>Weiss Light</h1>
+        <p>drugo ime za svetlost</p>
+      </header>
+      <div class="top-box top-box-a">
+        <h2>Garancija</h2>
+        <h1>2 godine</h1>
+        <a href="" class="btn">Saznaj Vise</a>
+      </div>
+      <div class="top-box top-box-b">
+        <h2>LED rasveta</h2>
+         <h1>Od 1W Do 300W</h1>
+        <a href="katalog.html" class="btn">Katalog</a>
       </div>
     </section>
 
-    <section class="info">
-      <img src="zvo.png" alt="">
-      <div>
-        <h2>Zvono</h2>
-        <p>Weiss light je prva srpska fabrika LED sijalica i jedina kompanija u regionu kojoj je primarna delatnost proizvodnja LED rasvete.
-		Budući da se kompletna proizvodnja odvija u našim pogonima sa ponosom ističemo da su Weiss light proizvodi 100% domaći.
-		Nakon decenije rada, razvijanja i sticanja iskustva danas smo u mogućnosti da ponudimo koncipirana rešenja LED osvetljenja za stambene prostore, kompanije, proizvodne pogone, hale, hotele, uličnu rasvetu.
-		Naši stručni timovi specijalizovani su za projektovanje i izgradnju sistema rasvete za osvetljavanje svih površina i objekata.
-		Posedujemo laboratoriju za istraživanje i razvoj, koja nam omogućava da isprojektujemo sve komponente gotovih proizvoda, uz izradu prototipa i preliminarno testiranje.
-		Nakon projektovanja dolazimo do proizvodnje i asemblaze elektronskih sklopova.
-        Svaki od naših sektora u mogucnosti je da pruza samostalne I nezavisne usluge u domenima svojih podrucja rada.
-        Weiss light je tu da klijentima omoguci kompletnu uslugu i profesionalne savete, kako bi zadovoljili sve njihove želje i potrebe.</p>
-        <a href="#" class="btn">naruci</a>
-      </div>
-    </section>
-	
-	    <section class="info">
-      <img src="https://image.ibb.co/j4Qz8x/pic1.jpg" alt="">
-      <div>
-        <h2>Prva Srpska Fabrika Sijalica</h2>
-        <p>Weiss light je prva srpska fabrika LED sijalica i jedina kompanija u regionu kojoj je primarna delatnost proizvodnja LED rasvete.
-		Budući da se kompletna proizvodnja odvija u našim pogonima sa ponosom ističemo da su Weiss light proizvodi 100% domaći.
-		Nakon decenije rada, razvijanja i sticanja iskustva danas smo u mogućnosti da ponudimo koncipirana rešenja LED osvetljenja za stambene prostore, kompanije, proizvodne pogone, hale, hotele, uličnu rasvetu.
-		Naši stručni timovi specijalizovani su za projektovanje i izgradnju sistema rasvete za osvetljavanje svih površina i objekata.
-		Posedujemo laboratoriju za istraživanje i razvoj, koja nam omogućava da isprojektujemo sve komponente gotovih proizvoda, uz izradu prototipa i preliminarno testiranje.
-		Nakon projektovanja dolazimo do proizvodnje i asemblaze elektronskih sklopova.
-        Svaki od naših sektora u mogucnosti je da pruza samostalne I nezavisne usluge u domenima svojih podrucja rada.
-        Weiss light je tu da klijentima omoguci kompletnu uslugu i profesionalne savete, kako bi zadovoljili sve njihove želje i potrebe.</p>
-        <a href="#" class="btn">O nama</a>
-      </div>
-    </section>
-	
+    <nav class="main-nava">
+      <ul>
+        <li>
+          <a href="index.html">e 27</a>
+        </li>
+        <li>
+          <a href="index.html">gu 10</a>
+        </li>
+        <li>
+          <a href="index.html">e 14</a>
+        </li>
+        <li>
+          <a href="index.html">led cevi</a>
+        </li>
+        <li>
+          <a href="index.html">reflektori</a>
+        </li>
+        <li>
+          <a href="index.html">paneli</a>
+        </li>
+        <li>
+          <a href="index.html">napajanja</a>
+        </li>		
+      </ul>
+    </nav>   
+
+
 
     <!-- Footer -->
     <footer>

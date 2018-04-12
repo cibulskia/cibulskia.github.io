@@ -55,6 +55,15 @@ body {
   border: 0;
 }
 
+.btna {
+  font-size: 1.5rem;
+  background: var(--primary);
+  color: var(--dark);
+  padding: 0.6rem 1.3rem;
+  text-decoration: none;
+  border: 0;
+}
+
 img {
   max-width: 100%;
 }
@@ -90,6 +99,32 @@ img {
   color: var(--light);
 }
 
+.main-nava ul {
+  display: grid;
+  grid-gap: 20px;
+  padding: 0;
+  list-style: none;
+  grid-template-columns: repeat(6, 1fr) ;
+}
+
+.main-nava a {
+  background: var(--primary);
+  display: block;
+  text-decoration: none;
+  padding: 0.8rem;
+  text-align: center;
+  color: var(--dark);
+  text-transform: uppercase;
+  font-size: 1.1rem;
+  box-shadow: var(--shadow);
+}
+
+.main-nava a:hover {
+  background: var(--dark);
+  color: var(--light);
+}
+
+
 /* Top Container */
 .top-container {
   display: grid;
@@ -103,7 +138,7 @@ img {
 .showcase {
   grid-area: showcase;
   min-height: 400px;
-  background: url(lus.png);
+  background: url(image/lus.png);
   background-size: cover;
   background-position: center;
   padding: 3rem;
@@ -209,6 +244,10 @@ footer {
     grid-template-columns: 1fr;
   }
 
+  .main-nava ul {
+    grid-template-columns: 1fr;
+  }  
+  
   .info {
     grid-template-columns: 1fr;
   }
@@ -236,7 +275,7 @@ footer {
  
 <body>
 
-<p style="text-align:right"><a href="index.html"><img src="rs.png" alt=""></a>&nbsp<a href="index.html"><img src="en.png" alt=""></a>&nbsp<a href="index.html"><img src="de.png" alt=""></a></p>
+<p style="text-align:right"><a href="index.html"><img src="zas/rs.png" alt="RS"></a>&nbsp<a href="index.html"><img src="zas/en.png" alt="EN"></a>&nbsp<a href="index.html"><img src="zas/de.png" alt="DE"></a></p>
 
 <div class="wrapper">
     <!-- Navigation -->
@@ -261,7 +300,7 @@ footer {
 
     <!-- Info Section -->
     <section class="info">
-      <img src="driver.png" alt="">
+      <img src="image/driver.png" alt="">
       <div>
         <h2>Prva Srpska Fabrika Sijalica</h2>
         <p>Weiss light je prva srpska fabrika LED sijalica i jedina kompanija u regionu kojoj je primarna delatnost proizvodnja LED rasvete.
@@ -272,12 +311,45 @@ footer {
 		Nakon projektovanja dolazimo do proizvodnje i asemblaze elektronskih sklopova.
         Svaki od naših sektora u mogucnosti je da pruza samostalne I nezavisne usluge u domenima svojih podrucja rada.
         Weiss light je tu da klijentima omoguci kompletnu uslugu i profesionalne savete, kako bi zadovoljili sve njihove želje i potrebe.</p>
-        <a href="#" class="btn">Prodajna Mesta</a>
+        <a href="proizvodnja.html" class="btn">Proizvodnja</a>
       </div>
     </section>
 
+    <nav class="main-nava">
+      <ul>
+        <li>
+          <a href="index.html">projektovanje</a>
+        </li>
+        <li>
+          <a href="index.html">proizvodnja</a>
+        </li>
+        <li>
+          <a href="index.html">reparacija</a>
+        </li>
+        <li>
+          <a href="index.html">kontrola kvaliteta</a>
+        </li>
+        <li>
+          <a href="index.html">reciklaza</a>
+        </li>
+        <li>
+          <a href="index.html">montaza</a>
+        </li>		
+      </ul>
+    </nav>
 
-
+    <!-- Portfolio -->
+    <section class="portfolio">
+      <img src="port/2.png" alt="">
+      <img src="port/1.png" alt="">
+      <img src="port/8.png" alt="">
+      <img src="port/6.png" alt="">
+      <img src="port/4.png" alt="">
+      <img src="port/3.png" alt="">
+      <img src="port/7.png" alt="">
+      <img src="port/5.png" alt="">
+    </section>	
+	
     <!-- Footer -->
     <footer>
       <p>Weiss Light &copy; 2018</p>

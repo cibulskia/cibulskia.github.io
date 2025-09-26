@@ -1,54 +1,24 @@
-const inputField = document.getElementById('inputField');
-const submitButton = document.getElementById('submitButton');
-const googleLoginButton = document.getElementById('googleLoginButton');
-const responseArea = document.getElementById('responseArea');
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GitHub Hosted App</title>
+    <style>
+        .input-group {
+            margin-bottom: 10px;
+        }
+        #submitButton:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div id="inputFieldsContainer"></div>
+    <button id="submitButton" disabled>Pošalji</button> <!-- Dugme je inicijalno onemogućeno -->
+    <div id="googleLoginButton"></div>
+    <div id="responseArea"></div>
 
-// Google OAuth konfiguracija
-function handleCredentialResponse(response) {
-    fetch('https://botanica.ngrok.app/oauth_callback', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ credential: response.credential })
-    })
-    .then(response => response.json())
-    .then(data => {
-        responseArea.innerText = 'Google prijava: ' + JSON.stringify(data);
-    })
-    .catch(error => {
-        console.error('Greška pri Google prijavi:', error);
-        responseArea.innerText = 'Greška pri Google prijavi.';
-    });
-}
-
-window.onload = function () {
-    google.accounts.id.initialize({
-        client_id: "748161753679-207vasmi8poi0lc0gqvmqv9fphrv6op1.apps.googleusercontent.com", // Zamenite sa vašim Client ID-jem
-        callback: handleCredentialResponse
-    });
-    google.accounts.id.renderButton(
-        document.getElementById("googleLoginButton"),
-        { theme: "outline", size: "large" }
-    );
-    google.accounts.id.prompt();
-};
-
-submitButton.addEventListener('click', () => {
-    const data = inputField.value;
-    fetch('https://botanica.ngrok.app/submit', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'text/plain'
-        },
-        body: data
-    })
-    .then(response => response.text())
-    .then(result => {
-        responseArea.innerText = 'Odgovor servera: ' + result;
-    })
-    .catch(error => {
-        console.error('Greška pri slanju:', error);
-        responseArea.innerText = 'Greška pri slanju.';
-    });
-});
+    <script src="script.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</body>
+</html>

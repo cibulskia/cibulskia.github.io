@@ -3,138 +3,122 @@
 <head>
     <title>GitHub Hosted App</title>
     <style>
-        /* Osnovni stilovi */
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-
         .input-group {
             margin-bottom: 10px;
         }
-
+        .row {
+            display: flex;
+            gap: 10px; /* Razmak između polja u redu */
+            margin-bottom: 10px;
+        }
+        .row input {
+            flex: 1; /* Omogućava da se polja rastežu i skupljaju */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #submitButton {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            margin-bottom: 20px; /* Dodato malo margina ispod dugmeta */
+        }
         #submitButton:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
         }
-
-        /* Raspored elemenata */
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        /* Google dugme na vrhu */
         #googleLoginButton {
-            margin-bottom: 10px;
+            margin-bottom: 20px; /* Razmak između Google dugmeta i ostalih elemenata */
         }
-
-        /* Dugme Pošalji odmah ispod */
-        #submitButton {
-            margin-bottom: 15px;
-        }
-
-        /* Pet polja u jednom redu */
-        #inputFieldsContainer {
-            display: flex;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-
-        #inputFieldsContainer .input-group {
-            flex: 0 0 calc(20% - 10px); /* 5 polja po redu sa razmakom */
-            margin-right: 10px;
-        }
-
-        #inputFieldsContainer .input-group:nth-child(5n) {
-            margin-right: 0;
-        }
-
-        /* Sedam redova po 6 polja - koristi dodatni div u JS ili HTML */
-        #gridContainer {
-            display: flex;
-            flex-wrap: wrap;
-        }
-
-        #gridContainer .input-group {
-            flex: 0 0 calc(16.666% - 10px); /* 6 polja po redu sa razmakom */
-            margin-right: 10px;
-            margin-bottom: 5px;
-        }
-
-        #gridContainer .input-group:nth-child(6n) {
-            margin-right: 0;
+        #responseArea {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #eee;
+            background-color: #f9f9f9;
         }
     </style>
 </head>
 <body>
-    <!-- Google dugme na vrhu -->
     <div id="googleLoginButton"></div>
 
-    <!-- Dugme Pošalji -->
-    <button id="submitButton" disabled>Pošalji</button>
+    <button id="submitButton" disabled>Pošalji</button> <!-- Dugme je inicijalno onemogućeno -->
 
-    <!-- Pet polja u jednom redu -->
-    <div id="inputFieldsContainer">
-        <div class="input-group"><input type="text" placeholder="Polje 1"></div>
-        <div class="input-group"><input type="text" placeholder="Polje 2"></div>
-        <div class="input-group"><input type="text" placeholder="Polje 3"></div>
-        <div class="input-group"><input type="text" placeholder="Polje 4"></div>
-        <div class="input-group"><input type="text" placeholder="Polje 5"></div>
+    <!-- Prvi red sa 5 polja -->
+    <div class="row" id="firstRowInputFields">
+        <input type="text" placeholder="Polje 1.1">
+        <input type="text" placeholder="Polje 1.2">
+        <input type="text" placeholder="Polje 1.3">
+        <input type="text" placeholder="Polje 1.4">
+        <input type="text" placeholder="Polje 1.5">
     </div>
 
     <!-- Sedam redova po 6 polja -->
-    <div id="gridContainer">
-        <!-- Primer: 7*6=42 polja -->
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
-        <div class="input-group"><input type="text"></div>
+    <div id="sevenRowsOfSixFields">
+        <div class="row">
+            <input type="text" placeholder="Polje 2.1">
+            <input type="text" placeholder="Polje 2.2">
+            <input type="text" placeholder="Polje 2.3">
+            <input type="text" placeholder="Polje 2.4">
+            <input type="text" placeholder="Polje 2.5">
+            <input type="text" placeholder="Polje 2.6">
+        </div>
+        <div class="row">
+            <input type="text" placeholder="Polje 3.1">
+            <input type="text" placeholder="Polje 3.2">
+            <input type="text" placeholder="Polje 3.3">
+            <input type="text" placeholder="Polje 3.4">
+            <input type="text" placeholder="Polje 3.5">
+            <input type="text" placeholder="Polje 3.6">
+        </div>
+        <div class="row">
+            <input type="text" placeholder="Polje 4.1">
+            <input type="text" placeholder="Polje 4.2">
+            <input type="text" placeholder="Polje 4.3">
+            <input type="text" placeholder="Polje 4.4">
+            <input type="text" placeholder="Polje 4.5">
+            <input type="text" placeholder="Polje 4.6">
+        </div>
+        <div class="row">
+            <input type="text" placeholder="Polje 5.1">
+            <input type="text" placeholder="Polje 5.2">
+            <input type="text" placeholder="Polje 5.3">
+            <input type="text" placeholder="Polje 5.4">
+            <input type="text" placeholder="Polje 5.5">
+            <input type="text" placeholder="Polje 5.6">
+        </div>
+        <div class="row">
+            <input type="text" placeholder="Polje 6.1">
+            <input type="text" placeholder="Polje 6.2">
+            <input type="text" placeholder="Polje 6.3">
+            <input type="text" placeholder="Polje 6.4">
+            <input type="text" placeholder="Polje 6.5">
+            <input type="text" placeholder="Polje 6.6">
+        </div>
+        <div class="row">
+            <input type="text" placeholder="Polje 7.1">
+            <input type="text" placeholder="Polje 7.2">
+            <input type="text" placeholder="Polje 7.3">
+            <input type="text" placeholder="Polje 7.4">
+            <input type="text" placeholder="Polje 7.5">
+            <input type="text" placeholder="Polje 7.6">
+        </div>
+        <div class="row">
+            <input type="text" placeholder="Polje 8.1">
+            <input type="text" placeholder="Polje 8.2">
+            <input type="text" placeholder="Polje 8.3">
+            <input type="text" placeholder="Polje 8.4">
+            <input type="text" placeholder="Polje 8.5">
+            <input type="text" placeholder="Polje 8.6">
+        </div>
     </div>
 
     <div id="responseArea"></div>

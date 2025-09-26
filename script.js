@@ -1,116 +1,54 @@
+const inputField = document.getElementById('inputField');
 const submitButton = document.getElementById('submitButton');
+const googleLoginButton = document.getElementById('googleLoginButton');
 const responseArea = document.getElementById('responseArea');
-const loggedInContent = document.getElementById('loggedInContent');
-const loginStatus = document.getElementById('loginStatus');
 
-// --- Stanje prijave ---
-let isAuthenticated = false;
-let googleIdToken = null;
-
-// --- Ažuriranje UI ---
-function updateUI(loggedIn) {
-    if (loggedIn) {
-        loggedInContent.style.display = 'block';
-        loginStatus.innerText = `Prijavljeni ste kao: ${isAuthenticated.user_email}`;
-    } else {
-        loggedInContent.style.display = 'none';
-        loginStatus.innerText = 'Molimo prijavite se putem Google-a da biste koristili aplikaciju.';
-    }
-}
-
-// --- Google OAuth ---
+// Google OAuth konfiguracija
 function handleCredentialResponse(response) {
-    googleIdToken = response.credential;
-
     fetch('https://botanica.ngrok.app/oauth_callback', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ credential: googleIdToken })
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ credential: response.credential })
     })
-    .then(serverResponse => serverResponse.json())
+    .then(response => response.json())
     .then(data => {
-        if (data.status === 'success') {
-            isAuthenticated = data;
-            updateUI(true);
-            responseArea.innerText = 'Google prijava: ' + JSON.stringify(data);
-            localStorage.setItem('google_id_token', googleIdToken);
-        } else {
-            isAuthenticated = false;
-            updateUI(false);
-            loginStatus.innerText = 'Greška pri prijavi: ' + (data.message || 'Nepoznata greška');
-            localStorage.removeItem('google_id_token');
-        }
+        responseArea.innerText = 'Google prijava: ' + JSON.stringify(data);
     })
     .catch(error => {
         console.error('Greška pri Google prijavi:', error);
-        isAuthenticated = false;
-        updateUI(false);
-        loginStatus.innerText = 'Greška pri Google prijavi. Proverite konzolu.';
-        localStorage.removeItem('google_id_token');
+        responseArea.innerText = 'Greška pri Google prijavi.';
     });
 }
 
 window.onload = function () {
     google.accounts.id.initialize({
-        client_id: "VAŠ_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
+        client_id: "748161753679-207vasmi8poi0lc0gqvmqv9fphrv6op1.apps.googleusercontent.com", // Zamenite sa vašim Client ID-jem
         callback: handleCredentialResponse
     });
-
-    const storedToken = localStorage.getItem('google_id_token');
-    if (storedToken) {
-        loginStatus.innerText = "Proveravam status prijave...";
-        handleCredentialResponse({ credential: storedToken });
-    } else {
-        google.accounts.id.prompt(notification => {
-            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                console.log("Google One Tap prompt nije prikazan:", notification.getMomentReason());
-                updateUI(false);
-            }
-        });
-        updateUI(false);
-    }
+    google.accounts.id.renderButton(
+        document.getElementById("googleLoginButton"),
+        { theme: "outline", size: "large" }
+    );
+    google.accounts.id.prompt();
 };
 
-// --- Slanje podataka ---
 submitButton.addEventListener('click', () => {
-    if (!isAuthenticated || !googleIdToken) {
-        responseArea.innerText = 'Morate biti prijavljeni na Google da biste poslali podatke!';
-        return;
-    }
-
-    // Prikupljanje svih 48 input polja
-    const payload = {};
-    for (let i = 1; i <= 48; i++) {
-        const field = document.getElementById(`input${i}`);
-        payload[`field${i}`] = field ? field.value : "";
-    }
-
+    const data = inputField.value;
     fetch('https://botanica.ngrok.app/submit', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${googleIdToken}`
+            'Content-Type': 'text/plain'
         },
-        body: JSON.stringify(payload)
+        body: data
     })
-    .then(response => {
-        if (response.status === 401) {
-            isAuthenticated = false;
-            googleIdToken = null;
-            localStorage.removeItem('google_id_token');
-            updateUI(false);
-            responseArea.innerText = 'Vaša prijava je istekla ili je nevažeća. Molimo prijavite se ponovo.';
-            return Promise.reject('Unauthorized');
-        }
-        return response.text();
-    })
+    .then(response => response.text())
     .then(result => {
         responseArea.innerText = 'Odgovor servera: ' + result;
     })
     .catch(error => {
         console.error('Greška pri slanju:', error);
-        if (error !== 'Unauthorized') {
-            responseArea.innerText = 'Greška pri slanju podataka.';
-        }
+        responseArea.innerText = 'Greška pri slanju.';
     });
 });

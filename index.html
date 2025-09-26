@@ -2,19 +2,11 @@
 <html>
 <head>
     <title>GitHub Hosted App</title>
-    <style>
-        .input-group {
-            margin-bottom: 10px;
-        }
-        #submitButton:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css"> <!-- Link to your CSS file -->
 </head>
 <body>
-    <div id="inputFieldsContainer"></div>
-    <button id="submitButton" disabled>Pošalji</button> <!-- Dugme je inicijalno onemogućeno -->
+    <div id="inputFieldsContainer" class="grid-container"></div>
+    <button id="submitButton" disabled>Pošalji</button>
     <div id="googleLoginButton"></div>
     <div id="responseArea"></div>
 

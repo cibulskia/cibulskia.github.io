@@ -1,9 +1,23 @@
-const inputField = document.getElementById('inputField');
 const submitButton = document.getElementById('submitButton');
 const googleLoginButton = document.getElementById('googleLoginButton');
 const responseArea = document.getElementById('responseArea');
+const inputFieldsContainer = document.getElementById('inputFieldsContainer');
 
-// Google OAuth konfiguracija
+const numberOfFields = 47;
+let inputFields = [];
+
+for (let i = 0; i < numberOfFields; i++) {
+    const div = document.createElement('div');
+    div.classList.add('input-group');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = `inputField_${i}`;
+    input.placeholder = `Unesite tekst za polje ${i + 1}`;
+    div.appendChild(input);
+    inputFieldsContainer.appendChild(div);
+    inputFields.push(input);
+}
+
 function handleCredentialResponse(response) {
     fetch('https://botanica.ngrok.app/oauth_callback', {
         method: 'POST',
@@ -24,7 +38,7 @@ function handleCredentialResponse(response) {
 
 window.onload = function () {
     google.accounts.id.initialize({
-        client_id: "748161753679-207vasmi8poi0lc0gqvmqv9fphrv6op1.apps.googleusercontent.com", // Zamenite sa vašim Client ID-jem
+        client_id: "748161753679-207vasmi8poi0lc0gqvmqv9fphrv6op1.apps.googleusercontent.com",
         callback: handleCredentialResponse
     });
     google.accounts.id.renderButton(
@@ -35,13 +49,15 @@ window.onload = function () {
 };
 
 submitButton.addEventListener('click', () => {
-    const data = inputField.value;
+    const allData = inputFields.map(field => field.value);
+    const dataToSend = JSON.stringify(allData);
+
     fetch('https://botanica.ngrok.app/submit', {
         method: 'POST',
         headers: {
-            'Content-Type': 'text/plain'
+            'Content-Type': 'application/json'
         },
-        body: data
+        body: dataToSend
     })
     .then(response => response.text())
     .then(result => {

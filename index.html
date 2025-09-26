@@ -38,6 +38,9 @@
         }
         #googleLoginButton {
             margin-bottom: 20px; /* Razmak između Google dugmeta i ostalih elemenata */
+            /* Stil za centriranje Google dugmeta ako je potrebno */
+            display: flex;
+            justify-content: center;
         }
         #responseArea {
             margin-top: 20px;
@@ -50,7 +53,7 @@
 <body>
     <div id="googleLoginButton"></div>
 
-    <button id="submitButton" disabled>Pošalji</button> <!-- Dugme je inicijalno onemogućeno -->
+    <button id="submitButton" disabled>Pošalji</button>
 
     <!-- Prvi red sa 5 polja -->
     <div class="row" id="firstRowInputFields">
@@ -123,7 +126,7 @@
 
     <div id="responseArea"></div>
 
-    <script src="script.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="script.js"></script>
 </body>
 </html>

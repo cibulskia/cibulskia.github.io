@@ -5,27 +5,25 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
+            margin: 20px;
         }
-        #googleLoginButton {
-            margin-bottom: 20px;
-        }
-        #submitButton {
-            margin-bottom: 20px;
-            padding: 10px 20px;
+        .input-group {
+            margin: 5px;
         }
         #submitButton:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
         }
-        .input-row {
+        .row {
             display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
-        .input-row input {
-            padding: 5px;
-            width: 60px;
+        .row .input-group {
+            flex: 1;
+            margin-right: 5px;
+        }
+        .row .input-group:last-child {
+            margin-right: 0;
         }
     </style>
 </head>
@@ -37,44 +35,55 @@
     <button id="submitButton" disabled>Pošalji</button>
 
     <!-- Pet polja u jednom redu -->
-    <div class="input-row" id="firstRow">
-        <input type="text" placeholder="Polje 1">
-        <input type="text" placeholder="Polje 2">
-        <input type="text" placeholder="Polje 3">
-        <input type="text" placeholder="Polje 4">
-        <input type="text" placeholder="Polje 5">
+    <div class="row" id="firstRow">
+        <div class="input-group"><input type="text" placeholder="Polje 1"></div>
+        <div class="input-group"><input type="text" placeholder="Polje 2"></div>
+        <div class="input-group"><input type="text" placeholder="Polje 3"></div>
+        <div class="input-group"><input type="text" placeholder="Polje 4"></div>
+        <div class="input-group"><input type="text" placeholder="Polje 5"></div>
     </div>
 
     <!-- Sedam redova po 6 polja -->
     <div id="gridRows">
-        <!-- Redovi će biti generisani pomoću JS -->
+        <!-- Generisano u JS -->
     </div>
 
     <div id="responseArea"></div>
 
     <script>
-        // Generisanje 7 redova po 6 polja
-        const gridContainer = document.getElementById('gridRows');
+        // Generiši 7 redova po 6 polja
+        const gridContainer = document.getElementById("gridRows");
         for (let i = 0; i < 7; i++) {
-            const row = document.createElement('div');
-            row.className = 'input-row';
+            const row = document.createElement("div");
+            row.className = "row";
             for (let j = 0; j < 6; j++) {
-                const input = document.createElement('input');
-                input.type = 'text';
+                const inputGroup = document.createElement("div");
+                inputGroup.className = "input-group";
+                const input = document.createElement("input");
+                input.type = "text";
                 input.placeholder = `R${i+1}P${j+1}`;
-                row.appendChild(input);
+                inputGroup.appendChild(input);
+                row.appendChild(inputGroup);
             }
             gridContainer.appendChild(row);
         }
 
-        // Primer aktiviranja dugmeta kada se neko polje popuni
-        const allInputs = document.querySelectorAll('input');
-        allInputs.forEach(input => {
-            input.addEventListener('input', () => {
-                const anyFilled = Array.from(allInputs).some(i => i.value.trim() !== '');
-                document.getElementById('submitButton').disabled = !anyFilled;
+        // Primer inicijalizacije Google dugmeta (koristi svoj client_id)
+        window.onload = function () {
+            google.accounts.id.initialize({
+                client_id: "YOUR_GOOGLE_CLIENT_ID",
+                callback: handleCredentialResponse
             });
-        });
+            google.accounts.id.renderButton(
+                document.getElementById("googleLoginButton"),
+                { theme: "outline", size: "large" }
+            );
+        };
+
+        function handleCredentialResponse(response) {
+            console.log("Google credential:", response);
+            document.getElementById("submitButton").disabled = false; // Omogući dugme
+        }
     </script>
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>

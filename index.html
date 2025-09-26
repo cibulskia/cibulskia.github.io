@@ -1,43 +1,82 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Demo Layout</title>
+    <title>GitHub Hosted App</title>
     <style>
+        /* Osnovni stilovi */
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-        button, input {
-            padding: 5px 10px;
-            margin: 2px;
+
+        .input-group {
+            margin-bottom: 10px;
         }
+
         #submitButton:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
         }
-        .row {
+
+        /* Raspored elemenata */
+        body {
             display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        /* Google dugme na vrhu */
+        #googleLoginButton {
+            margin-bottom: 10px;
+        }
+
+        /* Dugme Pošalji odmah ispod */
+        #submitButton {
+            margin-bottom: 15px;
+        }
+
+        /* Pet polja u jednom redu */
+        #inputFieldsContainer {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        #inputFieldsContainer .input-group {
+            flex: 0 0 calc(20% - 10px); /* 5 polja po redu sa razmakom */
+            margin-right: 10px;
+        }
+
+        #inputFieldsContainer .input-group:nth-child(5n) {
+            margin-right: 0;
+        }
+
+        /* Sedam redova po 6 polja - koristi dodatni div u JS ili HTML */
+        #gridContainer {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        #gridContainer .input-group {
+            flex: 0 0 calc(16.666% - 10px); /* 6 polja po redu sa razmakom */
+            margin-right: 10px;
             margin-bottom: 5px;
         }
-        .row .input-group {
-            margin-right: 5px;
-        }
-        .row .input-group:last-child {
+
+        #gridContainer .input-group:nth-child(6n) {
             margin-right: 0;
         }
     </style>
 </head>
 <body>
-    <!-- Google dugme -->
-    <div id="googleLoginButton" style="height: 40px; width: 200px; background: lightblue; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
-        Google Login
-    </div>
+    <!-- Google dugme na vrhu -->
+    <div id="googleLoginButton"></div>
 
     <!-- Dugme Pošalji -->
     <button id="submitButton" disabled>Pošalji</button>
 
     <!-- Pet polja u jednom redu -->
-    <div class="row">
+    <div id="inputFieldsContainer">
         <div class="input-group"><input type="text" placeholder="Polje 1"></div>
         <div class="input-group"><input type="text" placeholder="Polje 2"></div>
         <div class="input-group"><input type="text" placeholder="Polje 3"></div>
@@ -46,64 +85,61 @@
     </div>
 
     <!-- Sedam redova po 6 polja -->
-    <div>
-        <!-- Redovi -->
-        <div class="row">
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-        </div>
-        <div class="row">
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-        </div>
-        <div class="row">
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-        </div>
-        <div class="row">
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-        </div>
-        <div class="row">
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-        </div>
-        <div class="row">
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-        </div>
-        <div class="row">
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-            <div class="input-group"><input type="text"></div>
-        </div>
+    <div id="gridContainer">
+        <!-- Primer: 7*6=42 polja -->
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
+        <div class="input-group"><input type="text"></div>
     </div>
+
+    <div id="responseArea"></div>
+
+    <script src="script.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </body>
 </html>

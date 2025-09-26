@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>GitHub Hosted App</title>
+    <title>Demo Layout</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-        .input-group {
-            margin: 5px;
+        button, input {
+            padding: 5px 10px;
+            margin: 2px;
         }
         #submitButton:disabled {
             background-color: #cccccc;
@@ -19,7 +20,6 @@
             margin-bottom: 5px;
         }
         .row .input-group {
-            flex: 1;
             margin-right: 5px;
         }
         .row .input-group:last-child {
@@ -29,13 +29,15 @@
 </head>
 <body>
     <!-- Google dugme -->
-    <div id="googleLoginButton"></div>
+    <div id="googleLoginButton" style="height: 40px; width: 200px; background: lightblue; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+        Google Login
+    </div>
 
     <!-- Dugme Pošalji -->
     <button id="submitButton" disabled>Pošalji</button>
 
     <!-- Pet polja u jednom redu -->
-    <div class="row" id="firstRow">
+    <div class="row">
         <div class="input-group"><input type="text" placeholder="Polje 1"></div>
         <div class="input-group"><input type="text" placeholder="Polje 2"></div>
         <div class="input-group"><input type="text" placeholder="Polje 3"></div>
@@ -44,48 +46,64 @@
     </div>
 
     <!-- Sedam redova po 6 polja -->
-    <div id="gridRows">
-        <!-- Generisano u JS -->
+    <div>
+        <!-- Redovi -->
+        <div class="row">
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+        </div>
+        <div class="row">
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+        </div>
+        <div class="row">
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+        </div>
+        <div class="row">
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+        </div>
+        <div class="row">
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+        </div>
+        <div class="row">
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+        </div>
+        <div class="row">
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+            <div class="input-group"><input type="text"></div>
+        </div>
     </div>
-
-    <div id="responseArea"></div>
-
-    <script>
-        // Generiši 7 redova po 6 polja
-        const gridContainer = document.getElementById("gridRows");
-        for (let i = 0; i < 7; i++) {
-            const row = document.createElement("div");
-            row.className = "row";
-            for (let j = 0; j < 6; j++) {
-                const inputGroup = document.createElement("div");
-                inputGroup.className = "input-group";
-                const input = document.createElement("input");
-                input.type = "text";
-                input.placeholder = `R${i+1}P${j+1}`;
-                inputGroup.appendChild(input);
-                row.appendChild(inputGroup);
-            }
-            gridContainer.appendChild(row);
-        }
-
-        // Primer inicijalizacije Google dugmeta (koristi svoj client_id)
-        window.onload = function () {
-            google.accounts.id.initialize({
-                client_id: "YOUR_GOOGLE_CLIENT_ID",
-                callback: handleCredentialResponse
-            });
-            google.accounts.id.renderButton(
-                document.getElementById("googleLoginButton"),
-                { theme: "outline", size: "large" }
-            );
-        };
-
-        function handleCredentialResponse(response) {
-            console.log("Google credential:", response);
-            document.getElementById("submitButton").disabled = false; // Omogući dugme
-        }
-    </script>
-
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </body>
 </html>

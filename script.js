@@ -1,6 +1,6 @@
 const inputField = document.getElementById('inputField');
 const submitButton = document.getElementById('submitButton');
-const googleLoginButton = document.getElementById('googleLoginButton');
+// const googleLoginButton = document.getElementById('googleLoginButton'); // Ova linija više nije potrebna
 const responseArea = document.getElementById('responseArea');
 
 // Google OAuth konfiguracija
@@ -24,14 +24,11 @@ function handleCredentialResponse(response) {
 
 window.onload = function () {
     google.accounts.id.initialize({
-        client_id: "748161753679-207vasmi8poi0lc0gqvmqv9fphrv6op1.apps.googleusercontent.com", // Zamenite sa vašim Client ID-jem
+        client_id: "VAŠ_GOOGLE_CLIENT_ID.apps.googleusercontent.com", // Zamenite sa vašim Client ID-jem
         callback: handleCredentialResponse
     });
-    google.accounts.id.renderButton(
-        document.getElementById("googleLoginButton"),
-        { theme: "outline", size: "large" }
-    );
-    google.accounts.id.prompt();
+    // google.accounts.id.renderButton (...) // Ova funkcija više nije potrebna
+    google.accounts.id.prompt(); // Ovo će pokrenuti automatski prompt
 };
 
 submitButton.addEventListener('click', () => {

@@ -3,19 +3,60 @@
 <head>
     <title>GitHub Hosted App</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
         .input-group {
             margin-bottom: 10px;
         }
-        #submitButton:disabled {
+        input[type="text"] {
+            width: 300px;
+            padding: 8px;
+            margin-bottom: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
+        }
+        #responseArea {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #e9e9e9;
+            border-radius: 4px;
+        }
+        #googleLoginButton {
+            margin-top: 20px;
+            margin-bottom: 20px; /* Dodajte malo prostora */
         }
     </style>
 </head>
 <body>
+    <h1>Moja Aplikacija</h1>
+
+    <div id="googleLoginButton"></div> <!-- Google Login dugme -->
+
     <div id="inputFieldsContainer"></div>
-    <button id="submitButton" disabled>Pošalji</button> <!-- Dugme je inicijalno onemogućeno -->
-    <div id="googleLoginButton"></div>
+    <button id="submitButton" disabled>Pošalji Podatke</button> <!-- Dugme je inicijalno onemogućeno -->
+    
     <div id="responseArea"></div>
 
     <script src="script.js"></script>

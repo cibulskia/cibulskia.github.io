@@ -24,7 +24,7 @@ function handleCredentialResponse(response) {
 
 window.onload = function () {
     google.accounts.id.initialize({
-        client_id: "VAŠ_GOOGLE_CLIENT_ID.apps.googleusercontent.com", // Zamenite sa vašim Client ID-jem
+        client_id: "748161753679-207vasmi8poi0lc0gqvmqv9fphrv6op1.apps.googleusercontent.com", // Zamenite sa vašim Client ID-jem
         callback: handleCredentialResponse
     });
     google.accounts.id.renderButton(

@@ -1,86 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Botanica Demo</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        button { margin: 5px 0; padding: 8px 12px; }
-        textarea { width: 100%; max-width: 400px; }
-        #response { margin-top: 20px; color: green; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo App</title>
 </head>
 <body>
-    <h2>Botanica Demo</h2>
+    <h1>Demo Chat</h1>
+    <input type="text" id="userInput" placeholder="Upiši poruku">
+    <button id="sendBtn">Pošalji</button>
+    <button id="googleLoginBtn">Login sa Google</button>
+    <div id="responseArea"></div>
 
-    <button id="loginButton">Login sa Google</button>
-    <br><br>
-
-    <button id="actionButton" disabled>Pritisni dugme</button>
-    <br><br>
-
-    <label for="userInput">Unesi tekst:</label><br>
-    <textarea id="userInput" rows="4" cols="50"></textarea>
-    <br><br>
-
-    <p id="response"></p>
-
-    <script>
-        const BASE_URL = 'https://botanica.ngrok.app'; // tvoj ngrok URL
-
-        // --- Postavljanje tokena ---
-        function setToken() {
-            $.ajax({
-                url: BASE_URL + '/set_token',
-                type: 'GET',
-                xhrFields: { withCredentials: true },
-                success: function(data){
-                    console.log(data.message);
-                    $('#actionButton').prop('disabled', false);
-                    $('#response').text('Token postavljen, dugme aktivno.');
-                },
-                error: function(){
-                    $('#response').text('Greška pri dobijanju tokena.');
-                }
-            });
-        }
-
-        // --- Slanje unosa sa frontenda ---
-        $('#actionButton').click(function(){
-            const unos = $('#userInput').val();
-            $.ajax({
-                url: BASE_URL + '/button_press',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ tekst: unos }),
-                xhrFields: { withCredentials: true },
-                success: function(response){
-                    $('#response').text(response.message);
-                },
-                error: function(jqXHR){
-                    $('#response').text('Došlo je do greške: ' + jqXHR.responseText);
-                }
-            });
-        });
-
-        // --- Google login ---
-        $('#loginButton').click(function(){
-            $.get(BASE_URL + '/auth/url', function(data){
-                if (data.auth_url) {
-                    window.location.href = data.auth_url; // prebacuje na Google login
-                } else {
-                    $('#response').text('Greška pri dobavljanju auth URL-a.');
-                }
-            }).fail(function(){
-                $('#response').text('Greška: server nedostupan.');
-            });
-        });
-
-        // --- Inicijalno postavljanje tokena ---
-        $(document).ready(function(){
-            setToken();
-        });
-    </script>
+    <script src="script.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </body>
 </html>

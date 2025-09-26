@@ -2,11 +2,16 @@
 <html>
 <head>
     <title>GitHub Hosted App</title>
+    <style>
+        .input-group {
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
-    <input type="text" id="inputField" placeholder="Unesite tekst">
+    <div id="inputFieldsContainer"></div>
     <button id="submitButton">Pošalji</button>
-    <button id="googleLoginButton">Prijavi se sa Google-om</button>
+    <div id="googleLoginButton"></div>
     <div id="responseArea"></div>
 
     <script src="script.js"></script>

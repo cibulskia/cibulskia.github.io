@@ -5,6 +5,7 @@ const inputFieldsContainer = document.getElementById('inputFieldsContainer');
 
 const numberOfFields = 47;
 let inputFields = [];
+let currentUserGoogleId = null; // Ovde ćemo čuvati Google ID korisnika
 
 for (let i = 0; i < numberOfFields; i++) {
     const div = document.createElement('div');
@@ -28,7 +29,14 @@ function handleCredentialResponse(response) {
     })
     .then(response => response.json())
     .then(data => {
-        responseArea.innerText = 'Google prijava: ' + JSON.stringify(data);
+        if (data.status === 'success') {
+            responseArea.innerText = `Google prijava: Dobrodošli, ${data.user_name} (${data.user_email})`;
+            currentUserGoogleId = data.user_id; // Sačuvaj Google ID
+            console.log("Prijavljeni korisnik ID:", currentUserGoogleId);
+            // Opcionalno: Prikaži nešto korisniku što ukazuje da je prijavljen
+        } else {
+            responseArea.innerText = 'Greška pri Google prijavi: ' + data.message;
+        }
     })
     .catch(error => {
         console.error('Greška pri Google prijavi:', error);
@@ -50,14 +58,19 @@ window.onload = function () {
 
 submitButton.addEventListener('click', () => {
     const allData = inputFields.map(field => field.value);
-    const dataToSend = JSON.stringify(allData);
+    
+    // Dodajemo Google ID ako je korisnik prijavljen
+    const dataToSend = {
+        google_user_id: currentUserGoogleId, // Biće null ako nije prijavljen
+        fields_data: allData
+    };
 
     fetch('https://botanica.ngrok.app/submit', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: dataToSend
+        body: JSON.stringify(dataToSend) // Šaljemo JSON objekat
     })
     .then(response => response.text())
     .then(result => {

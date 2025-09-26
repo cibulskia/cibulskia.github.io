@@ -1,44 +1,140 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centriranje sadržaja horizontalno */
+    min-height: 100vh; /* Osigurava da body zauzme celu visinu viewporta */
+}
+
 .grid-container {
     display: grid;
-    grid-template-columns: repeat(6, 1fr); /* 6 columns, equal width */
-    gap: 10px; /* Space between fields */
-    margin-bottom: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Fleksibilnije kolone, min širina 280px */
+    gap: 20px; /* Povećan razmak između polja */
+    margin-bottom: 30px; /* Povećan razmak ispod grida */
+    width: 100%; /* Da zauzme dostupnu širinu */
+    max-width: 1400px; /* Ograničenje maksimalne širine za bolji izgled */
+    padding: 30px; /* Povećan padding unutar kontejnera */
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); /* Izraženija senka */
+    box-sizing: border-box; /* Da padding ne dodaje širinu/visinu */
 }
 
 .input-group {
-    /* Basic styling for input fields if needed, they will now be arranged by the grid */
+    /* Uklanjamo display: flex odavde kako bi se inputi ponašali kao blok elementi */
+    /* i kako bi se lakše uklopili u grid ćelije */
+    margin-bottom: 0; /* Uklanjamo marginu jer grid već ima gap */
+}
+
+.input-group label {
+    display: block; /* Osigurava da labela zauzima svoju liniju */
+    font-size: 0.95em; /* Malo veći font za labelu */
+    margin-bottom: 8px; /* Razmak između labele i inputa */
+    color: #555;
+    font-weight: 600;
+}
+
+.input-group input[type="text"] {
+    width: 100%; /* Osigurava da input zauzima celu širinu svoje grid ćelije */
+    padding: 12px 15px; /* Povećan padding za veća polja */
+    font-size: 1.1em; /* Veći font unutar inputa */
+    border: 1px solid #dcdcdc; /* Suptilan border */
+    border-radius: 8px; /* Zaobljeni uglovi */
+    outline: none; /* Uklanja default outline */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Glatka tranzicija */
+    background-color: #f9f9f9;
+    box-sizing: border-box; /* Da padding ne dodaje širinu/visinu */
+}
+
+.input-group input[type="text"]:focus {
+    border-color: #007bff; /* Plavi border na fokus */
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Suptilna senka na fokus */
+    background-color: #ffffff;
 }
 
 #submitButton {
-    padding: 10px 20px;
-    font-size: 16px;
+    padding: 14px 28px; /* Veći padding za dugme */
+    font-size: 1.15em; /* Veći font za dugme */
     cursor: pointer;
     background-color: #007bff;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px; /* Zaobljeni uglovi za dugme */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Glatka tranzicija */
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); /* Senka za dugme */
+    margin-top: 20px; /* Razmak iznad dugmeta */
+}
+
+#submitButton:hover:not(:disabled) {
+    background-color: #0056b3; /* Tamnija plava na hover */
+    transform: translateY(-2px); /* Mali efekat "podizanja" */
 }
 
 #submitButton:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
+    box-shadow: none; /* Uklanja senku kada je onemogućeno */
+    transform: translateY(0);
 }
 
-/* Optional: Adjust for smaller screens */
+#responseArea {
+    margin-top: 25px;
+    font-size: 1.1em;
+    color: #007bff;
+    font-weight: 500;
+    padding: 10px 15px; /* Malo veći padding */
+    border: 1px solid #e9ecef;
+    border-radius: 5px;
+    background-color: #eaf6ff;
+    text-align: center;
+    max-width: 600px; /* Ograniči širinu za bolju čitljivost */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Suptilna senka */
+}
+
+/* Prilagođeni medijski upiti za responzivnost */
+@media (max-width: 1400px) {
+    .grid-container {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); /* Manja min širina */
+    }
+}
+
 @media (max-width: 1200px) {
     .grid-container {
-        grid-template-columns: repeat(4, 1fr); /* 4 columns on medium screens */
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* Još manja min širina */
+        gap: 15px;
+        padding: 25px;
+    }
+}
+
+@media (max-width: 992px) {
+    .grid-container {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     }
 }
 
 @media (max-width: 768px) {
     .grid-container {
-        grid-template-columns: repeat(3, 1fr); /* 3 columns on tablets */
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* 2-3 kolone na tabletima */
+        gap: 10px;
+        padding: 20px;
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 576px) {
     .grid-container {
-        grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile */
+        grid-template-columns: 1fr; /* Jedna kolona na mobilnim uređajima */
+        gap: 15px;
+        padding: 15px;
+    }
+    .input-group input[type="text"] {
+        padding: 10px 12px;
+        font-size: 1em;
+    }
+    #submitButton {
+        padding: 12px 20px;
+        font-size: 1em;
     }
 }

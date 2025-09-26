@@ -1,0 +1,44 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); /* 6 columns, equal width */
+    gap: 10px; /* Space between fields */
+    margin-bottom: 20px;
+}
+
+.input-group {
+    /* Basic styling for input fields if needed, they will now be arranged by the grid */
+}
+
+#submitButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+#submitButton:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+/* Optional: Adjust for smaller screens */
+@media (max-width: 1200px) {
+    .grid-container {
+        grid-template-columns: repeat(4, 1fr); /* 4 columns on medium screens */
+    }
+}
+
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: repeat(3, 1fr); /* 3 columns on tablets */
+    }
+}
+
+@media (max-width: 480px) {
+    .grid-container {
+        grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile */
+    }
+}

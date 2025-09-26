@@ -7,6 +7,10 @@ const numberOfFields = 47;
 let inputFields = [];
 let currentUserGoogleId = null; // Ovde ćemo čuvati Google ID korisnika
 
+// Inicijalno onemogući dugme za slanje
+submitButton.disabled = true;
+responseArea.innerText = "Molimo prijavite se putem Google-a da biste slali podatke.";
+
 for (let i = 0; i < numberOfFields; i++) {
     const div = document.createElement('div');
     div.classList.add('input-group');
@@ -30,17 +34,19 @@ function handleCredentialResponse(response) {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            responseArea.innerText = `Google prijava: Dobrodošli, ${data.user_name} (${data.user_email})`;
+            responseArea.innerText = `Google prijava: Dobrodošli, ${data.user_name} (${data.user_email}). Sada možete slati podatke.`;
             currentUserGoogleId = data.user_id; // Sačuvaj Google ID
             console.log("Prijavljeni korisnik ID:", currentUserGoogleId);
-            // Opcionalno: Prikaži nešto korisniku što ukazuje da je prijavljen
+            submitButton.disabled = false; // Omogući dugme za slanje
         } else {
             responseArea.innerText = 'Greška pri Google prijavi: ' + data.message;
+            submitButton.disabled = true; // Onemogući dugme ako je prijava neuspešna
         }
     })
     .catch(error => {
         console.error('Greška pri Google prijavi:', error);
         responseArea.innerText = 'Greška pri Google prijavi.';
+        submitButton.disabled = true; // Onemogući dugme u slučaju greške
     });
 }
 
@@ -57,11 +63,16 @@ window.onload = function () {
 };
 
 submitButton.addEventListener('click', () => {
+    // Provera da li je korisnik ulogovan pre slanja
+    if (!currentUserGoogleId) {
+        responseArea.innerText = "Morate biti prijavljeni putem Google-a da biste slali podatke!";
+        return; // Prekini funkciju ako korisnik nije ulogovan
+    }
+
     const allData = inputFields.map(field => field.value);
     
-    // Dodajemo Google ID ako je korisnik prijavljen
     const dataToSend = {
-        google_user_id: currentUserGoogleId, // Biće null ako nije prijavljen
+        google_user_id: currentUserGoogleId,
         fields_data: allData
     };
 
@@ -70,14 +81,18 @@ submitButton.addEventListener('click', () => {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(dataToSend) // Šaljemo JSON objekat
+        body: JSON.stringify(dataToSend)
     })
-    .then(response => response.text())
+    .then(response => response.json()) // Očekujemo JSON odgovor od backenda
     .then(result => {
-        responseArea.innerText = 'Odgovor servera: ' + result;
+        if (result.status === 'success') {
+            responseArea.innerText = 'Odgovor servera: Podaci uspešno primljeni i sačuvani!';
+        } else {
+            responseArea.innerText = 'Greška servera: ' + result.message;
+        }
     })
     .catch(error => {
         console.error('Greška pri slanju:', error);
-        responseArea.innerText = 'Greška pri slanju.';
+        responseArea.innerText = 'Greška pri slanju podataka.';
     });
 });

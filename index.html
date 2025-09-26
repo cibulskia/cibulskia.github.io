@@ -6,11 +6,15 @@
         .input-group {
             margin-bottom: 10px;
         }
+        #submitButton:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
     <div id="inputFieldsContainer"></div>
-    <button id="submitButton">Pošalji</button>
+    <button id="submitButton" disabled>Pošalji</button> <!-- Dugme je inicijalno onemogućeno -->
     <div id="googleLoginButton"></div>
     <div id="responseArea"></div>
 

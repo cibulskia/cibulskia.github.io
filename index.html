@@ -170,3 +170,59 @@
                 responseArea.innerText = "Nastavak sesije. Možete slati podatke.";
             } else {
                 google.accounts.id.prompt();
+            }
+        };
+
+        submitButton.addEventListener('click', () => {
+            const token = getAuthToken();
+            if (!token) {
+                responseArea.innerText = "Morate biti prijavljeni da biste slali podatke!";
+                return;
+            }
+
+            const allData = inputFields.map(field => field.value);
+            
+            const dataToSend = {
+                fields_data: allData
+                // NE šaljemo više google_user_id direktno odavde
+            };
+
+            fetch('https://botanica.ngrok.app/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Šaljemo JWT token u Authorization headeru
+                },
+                body: JSON.stringify(dataToSend)
+            })
+            .then(response => {
+                if (response.status === 401) { // Ako je token istekao ili nevažeći
+                    clearAuthToken();
+                    responseArea.innerText = "Vaša sesija je istekla ili je nevažeća. Molimo prijavite se ponovo.";
+                    return response.json(); // Pokušaj da parsiraš grešku
+                }
+                return response.json();
+            })
+            .then(result => {
+                if (result) { // Ako je bilo rezultata (nije bio 401 bez JSON-a)
+                    if (result.status === 'success') {
+                        responseArea.innerText = 'Odgovor servera: Podaci uspešno primljeni i sačuvani!';
+                    } else {
+                        responseArea.innerText = 'Greška servera: ' + result.message;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Greška pri slanju:', error);
+                responseArea.innerText = 'Greška pri slanju podataka.';
+            });
+        });
+
+        // Event listener za dugme za odjavu
+        logoutButton.addEventListener('click', () => {
+            google.accounts.id.disableAutoSelect(); // Ako želite da sprečite automatsku prijavu
+            clearAuthToken();
+        });
+    </script>
+</body>
+</html>

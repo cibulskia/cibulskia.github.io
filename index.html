@@ -37,7 +37,6 @@
             cursor: pointer;
             font-size: 16px;
             margin-bottom: 20px;
-            margin-right: 10px; /* Dodato malo prostora između dugmadi */
         }
         button:hover:not(:disabled) {
             background-color: #0056b3;
@@ -62,46 +61,49 @@
 <body>
     <div id="inputFieldsContainer" class="input-grid"></div>
     <button id="submitButton" disabled>Pošalji</button>
-    <button id="logoutButton" style="display: none;">Odjavi se</button> 
-    <button id="showChatWidgetButton">Prikaži Chat Widget Kod</button> <!-- Novo dugme -->
+    <button id="logoutButton" style="display: none;">Odjavi se</button> <!-- Dodato dugme za odjavu -->
     <div id="googleLoginButton"></div>
     <div id="responseArea"></div>
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
         const submitButton = document.getElementById('submitButton');
-        const logoutButton = document.getElementById('logoutButton'); 
+        const logoutButton = document.getElementById('logoutButton'); // Referenca na dugme za odjavu
         const googleLoginButton = document.getElementById('googleLoginButton');
         const responseArea = document.getElementById('responseArea');
         const inputFieldsContainer = document.getElementById('inputFieldsContainer');
-        const showChatWidgetButton = document.getElementById('showChatWidgetButton'); // Referenca na novo dugme
 
         const numberOfFields = 47;
         let inputFields = [];
+        // Ne čuvamo više currentUserGoogleId direktno, već JWT token
         let authToken = null; 
 
+        // Funkcija za čuvanje tokena
         function setAuthToken(token) {
             authToken = token;
-            localStorage.setItem('authToken', token);
+            localStorage.setItem('authToken', token); // Čuvamo token u localStorage
         }
 
+        // Funkcija za preuzimanje tokena
         function getAuthToken() {
             if (authToken) return authToken;
-            return localStorage.getItem('authToken');
+            return localStorage.getItem('authToken'); // Proveravamo localStorage
         }
 
+        // Funkcija za brisanje tokena i resetovanje stanja
         function clearAuthToken() {
             authToken = null;
             localStorage.removeItem('authToken');
             submitButton.disabled = true;
-            googleLoginButton.style.display = 'block';
-            logoutButton.style.display = 'none';
+            googleLoginButton.style.display = 'block'; // Prikazi dugme za prijavu
+            logoutButton.style.display = 'none'; // Sakrij dugme za odjavu
             responseArea.innerText = "Molimo prijavite se putem Google-a da biste slali podatke.";
         }
 
+        // Inicijalno stanje
         submitButton.disabled = true;
         responseArea.innerText = "Molimo prijavite se putem Google-a da biste slali podatke.";
-        logoutButton.style.display = 'none';
+        logoutButton.style.display = 'none'; // Inicijalno sakrij dugme za odjavu
 
         for (let i = 0; i < numberOfFields; i++) {
             const div = document.createElement('div');
@@ -125,12 +127,12 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.status === 'success' && data.token) {
-                    setAuthToken(data.token);
+                if (data.status === 'success' && data.token) { // Očekujemo 'token'
+                    setAuthToken(data.token); // Sačuvaj token
                     responseArea.innerText = `Google prijava: Dobrodošli, ${data.user_name} (${data.user_email}). Sada možete slati podatke.`;
                     submitButton.disabled = false;
-                    googleLoginButton.style.display = 'none';
-                    logoutButton.style.display = 'block';
+                    googleLoginButton.style.display = 'none'; // Sakrij dugme za prijavu
+                    logoutButton.style.display = 'block'; // Prikazi dugme za odjavu
                 } else {
                     responseArea.innerText = 'Greška pri Google prijavi: ' + data.message;
                     submitButton.disabled = true;
@@ -147,17 +149,6 @@
             });
         }
 
-        // Event listener za novo dugme
-        showChatWidgetButton.addEventListener('click', () => {
-            const fieldValue47 = inputFields[46].value; // Polje 47 je na indeksu 46
-            const chatWidgetCode = `<iframe 
-  src="https://cibulskia.github.io/bot/chat_widget?site=${fieldValue47}"  
-  style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;"
-  scrolling="no"
-></iframe>`;
-            responseArea.innerText = chatWidgetCode;
-        });
-
         window.onload = function () {
             google.accounts.id.initialize({
                 client_id: "748161753679-207vasmi8poi0lc0gqvmqv9fphrv6op1.apps.googleusercontent.com",
@@ -167,53 +158,15 @@
                 document.getElementById("googleLoginButton"),
                 { theme: "outline", size: "large" }
             );
-            
+            // Pokušaj automatske prijave ili provere postojećeg tokena
             const storedToken = getAuthToken();
             if (storedToken) {
-                authToken = storedToken;
+                // Možete dodati AJAX poziv backendu da verifikuje token
+                // Za jednostavnost, pretpostavićemo da je validan dok ne istekne/greška
+                authToken = storedToken; // Postavi ga kao trenutni token
                 submitButton.disabled = false;
                 googleLoginButton.style.display = 'none';
                 logoutButton.style.display = 'block';
                 responseArea.innerText = "Nastavak sesije. Možete slati podatke.";
             } else {
                 google.accounts.id.prompt();
-            }
-
-            // Dodaj event listener za dugme za odjavu
-            logoutButton.addEventListener('click', clearAuthToken);
-
-            // Dodaj submit event listener
-            submitButton.addEventListener('click', () => {
-                if (!authToken) {
-                    responseArea.innerText = "Niste prijavljeni. Molimo prijavite se putem Google-a.";
-                    return;
-                }
-
-                const dataToSend = inputFields.map(input => input.value);
-                responseArea.innerText = "Slanje podataka...";
-
-                fetch('https://botanica.ngrok.app/submit_data', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}` // Dodajemo JWT token
-                    },
-                    body: JSON.stringify({ data: dataToSend })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        responseArea.innerText = 'Podaci uspešno poslati: ' + JSON.stringify(data.received_data);
-                    } else {
-                        responseArea.innerText = 'Greška pri slanju podataka: ' + data.message;
-                    }
-                })
-                .catch(error => {
-                    console.error('Greška pri slanju podataka:', error);
-                    responseArea.innerText = 'Greška pri slanju podataka.';
-                });
-            });
-        };
-    </script>
-</body>
-</html>

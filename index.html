@@ -3,22 +3,161 @@
 <head>
     <title>GitHub Hosted App</title>
     <style>
-        .input-group {
-            margin-bottom: 10px;
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
         }
-        #submitButton:disabled {
+        .input-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px; /* Razmak između polja */
+            margin-bottom: 20px;
+        }
+        .input-group {
+            flex: 0 0 calc(16.666% - 10px); /* 6 polja po redu (100% / 6), minus razmak */
+            box-sizing: border-box; /* Uključi padding i border u širinu */
+        }
+        .input-group input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        button:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+        button:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
+        }
+        #responseArea {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #e9e9e9;
+            border-radius: 4px;
+        }
+        #googleLoginButton {
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-    <div id="inputFieldsContainer"></div>
-    <button id="submitButton" disabled>Pošalji</button> <!-- Dugme je inicijalno onemogućeno -->
+    <div id="inputFieldsContainer" class="input-grid"></div>
+    <button id="submitButton" disabled>Pošalji</button>
     <div id="googleLoginButton"></div>
     <div id="responseArea"></div>
 
-    <script src="script.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        const submitButton = document.getElementById('submitButton');
+        const googleLoginButton = document.getElementById('googleLoginButton');
+        const responseArea = document.getElementById('responseArea');
+        const inputFieldsContainer = document.getElementById('inputFieldsContainer');
+
+        const numberOfFields = 47;
+        let inputFields = [];
+        let currentUserGoogleId = null;
+
+        submitButton.disabled = true;
+        responseArea.innerText = "Molimo prijavite se putem Google-a da biste slali podatke.";
+
+        for (let i = 0; i < numberOfFields; i++) {
+            const div = document.createElement('div');
+            div.classList.add('input-group');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.id = `inputField_${i}`;
+            input.placeholder = `Unesite tekst za polje ${i + 1}`;
+            div.appendChild(input);
+            inputFieldsContainer.appendChild(div);
+            inputFields.push(input);
+        }
+
+        function handleCredentialResponse(response) {
+            fetch('https://botanica.ngrok.app/oauth_callback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ credential: response.credential })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    responseArea.innerText = `Google prijava: Dobrodošli, ${data.user_name} (${data.user_email}). Sada možete slati podatke.`;
+                    currentUserGoogleId = data.user_id;
+                    console.log("Prijavljeni korisnik ID:", currentUserGoogleId);
+                    submitButton.disabled = false;
+                } else {
+                    responseArea.innerText = 'Greška pri Google prijavi: ' + data.message;
+                    submitButton.disabled = true;
+                }
+            })
+            .catch(error => {
+                console.error('Greška pri Google prijavi:', error);
+                responseArea.innerText = 'Greška pri Google prijavi.';
+                submitButton.disabled = true;
+            });
+        }
+
+        window.onload = function () {
+            google.accounts.id.initialize({
+                client_id: "748161753679-207vasmi8poi0lc0gqvmqv9fphrv6op1.apps.googleusercontent.com",
+                callback: handleCredentialResponse
+            });
+            google.accounts.id.renderButton(
+                document.getElementById("googleLoginButton"),
+                { theme: "outline", size: "large" }
+            );
+            google.accounts.id.prompt();
+        };
+
+        submitButton.addEventListener('click', () => {
+            if (!currentUserGoogleId) {
+                responseArea.innerText = "Morate biti prijavljeni putem Google-a da biste slali podatke!";
+                return;
+            }
+
+            const allData = inputFields.map(field => field.value);
+            
+            const dataToSend = {
+                google_user_id: currentUserGoogleId,
+                fields_data: allData
+            };
+
+            fetch('https://botanica.ngrok.app/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dataToSend)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.status === 'success') {
+                    responseArea.innerText = 'Odgovor servera: Podaci uspešno primljeni i sačuvani!';
+                } else {
+                    responseArea.innerText = 'Greška servera: ' + result.message;
+                }
+            })
+            .catch(error => {
+                console.error('Greška pri slanju:', error);
+                responseArea.innerText = 'Greška pri slanju podataka.';
+            });
+        });
+    </script>
 </body>
 </html>

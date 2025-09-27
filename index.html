@@ -12,13 +12,25 @@
         .input-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px; /* Razmak između polja */
+            justify-content: space-between; /* Rasporedi elemente sa razmakom između njih */
             margin-bottom: 20px;
+            /* Dodaj padding desno da bi se nadoknadio razmak poslednjeg elementa */
+            padding-right: 0; /* Privremeno postavljamo na 0, prilagođavamo ispod */
         }
         .input-group {
-            flex: 0 0 calc(16.666% - 10px); /* 6 polja po redu (100% / 6), minus razmak */
             box-sizing: border-box; /* Uključi padding i border u širinu */
+            /* Svaki element će zauzeti tačno 1/6 minus razmak.
+               Pošto imamo 'space-between', razmak se stvara automatski.
+               Moramo da uzmemo u obzir da ima 5 razmaka između 6 elemenata.
+               Dakle, 5 * 15px = 75px ukupnog razmaka.
+               Širina jednog elementa će biti (100% - 75px) / 6.
+            */
+            width: calc((100% - (5 * 15px)) / 6); /* Prilagođena širina za 6 kolona sa 15px razmaka */
+            margin-bottom: 15px; /* Razmak između redova */
         }
+        /* Ako i dalje bude problema, možemo ovde dodati margin-right za svaki element,
+           osim poslednjeg u redu, ali justify-content bi trebalo to da reši */
+        
         .input-group input[type="text"] {
             width: 100%;
             padding: 8px;

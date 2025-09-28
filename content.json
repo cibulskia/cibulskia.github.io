@@ -1,0 +1,26 @@
+{
+  "sekcija1": {
+    "title": "Botanica",
+    "content": "<h2>Botanica</h2><p>Dobrodošli</p>",
+    "bgColor": "#ffffff",
+    "textColor": "#000000"
+  },
+  "sekcija2": {
+    "title": "O nama",
+    "content": "<h3>O nama</h3><p>Mi gajimo biljke.</p>",
+    "bgColor": "#f5f5f5",
+    "textColor": "#000000"
+  },
+  "sekcija3": {
+    "title": "Usluge",
+    "content": "<h3>Usluge</h3><p>Služimo narodu.</p>",
+    "bgColor": "##ffffff",
+    "textColor": "#000000"
+  },
+  "sekcija4": {
+    "title": "Kontakt",
+    "content": "<h3>Kontakt</h3><p>Njama!</p>",
+    "bgColor": "f5f5f5",
+    "textColor": "#000000"
+  }
+}

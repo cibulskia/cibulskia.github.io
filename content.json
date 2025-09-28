@@ -14,13 +14,13 @@
   "sekcija3": {
     "title": "Usluge",
     "content": "<h3>Usluge</h3><p>Služimo narodu.</p>",
-    "bgColor": "##ffffff",
+    "bgColor": "#ffffff",
     "textColor": "#000000"
   },
   "sekcija4": {
     "title": "Kontakt",
     "content": "<h3>Kontakt</h3><p>Njama!</p>",
-    "bgColor": "f5f5f5",
+    "bgColor": "#f5f5f5",
     "textColor": "#000000"
   }
 }

@@ -1,13 +1,13 @@
 {
   "sekcija1": {
     "title": "Botanica",
-    "content": "<h2>Botanica</h2><p>Dobrodošli</p>",
+    "content": "<h2>Botanica</h2><p>Dobrodošli<br>Sta je Botanica<br>Ko je Botanica<br>Gde je Botanica<br>To ni policija ne moze da utvrdi</p>",
     "bgColor": "#ffffff",
     "textColor": "#000000"
   },
   "sekcija2": {
     "title": "O nama",
-    "content": "<h3>O nama</h3><p>Mi gajimo biljke.</p>",
+    "content": "<h3>O nama</h3><p>Mi gajimo biljke<br>Drkamo narod<br>I trujemo ljude</p>",
     "bgColor": "#f5f5f5",
     "textColor": "#000000"
   },

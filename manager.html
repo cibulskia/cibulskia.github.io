@@ -37,7 +37,7 @@
             cursor: pointer;
             font-size: 16px;
             margin-bottom: 20px;
-            margin-right: 10px; /* Dodato malo razmaka između dugmadi */
+            margin-right: 10px;
         }
         button:hover:not(:disabled) {
             background-color: #0056b3;
@@ -52,10 +52,22 @@
             border: 1px solid #ccc;
             background-color: #e9e9e9;
             border-radius: 4px;
-            white-space: pre-wrap; /* Omogućava prelamanje teksta */
+            white-space: pre-wrap;
         }
         #googleLoginButton {
             margin-bottom: 20px;
+        }
+        /* Stil za iframe widget */
+        #chatWidgetFrame {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            max-width: 400px;
+            height: 600px;
+            border: none;
+            z-index: 9999;
+            display: none; /* sakriven dok se ne klikne dugme */
         }
     </style>
 </head>
@@ -63,9 +75,13 @@
     <div id="inputFieldsContainer" class="input-grid"></div>
     <button id="submitButton" disabled>Pošalji</button>
     <button id="logoutButton" style="display: none;">Odjavi se</button>
-    <button id="showChatWidgetCodeButton">Prikaži Chat Widget Kod</button> <!-- Novo dugme -->
+    <button id="showChatWidgetCodeButton">Prikaži Chat Widget Kod</button>
+    <button id="showIframeButton">Prikaži Vidget</button>
     <div id="googleLoginButton"></div>
     <div id="responseArea"></div>
+
+    <!-- Iframe za chat widget -->
+    <iframe id="chatWidgetFrame"></iframe>
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
@@ -74,7 +90,9 @@
         const googleLoginButton = document.getElementById('googleLoginButton');
         const responseArea = document.getElementById('responseArea');
         const inputFieldsContainer = document.getElementById('inputFieldsContainer');
-        const showChatWidgetCodeButton = document.getElementById('showChatWidgetCodeButton'); // Referenca na novo dugme
+        const showChatWidgetCodeButton = document.getElementById('showChatWidgetCodeButton');
+        const showIframeButton = document.getElementById('showIframeButton');
+        const chatWidgetFrame = document.getElementById('chatWidgetFrame');
 
         const numberOfFields = 47;
         let inputFields = [];
@@ -217,15 +235,22 @@
             clearAuthToken();
         });
 
-        // Event listener za novo dugme "Prikaži Chat Widget Kod"
+        // Prikazuje samo kod
         showChatWidgetCodeButton.addEventListener('click', () => {
-            const field47Value = inputFields[46].value; // Polje 47 je na indeksu 46
+            const field47Value = inputFields[46].value; // uzima unos iz polja 47
             const chatWidgetCode = `<iframe 
   src="https://cibulskia.github.io/bot/chat_widget?site=${field47Value}"  
   style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;"
   scrolling="no"
 ></iframe>`;
             responseArea.innerText = chatWidgetCode;
+        });
+
+        // Novo dugme: pojavi se stvarni widget sa vrednošću polja 47
+        showIframeButton.addEventListener('click', () => {
+            const field47Value = inputFields[46].value; // ovde se koristi unos iz polja 47
+            chatWidgetFrame.src = `https://cibulskia.github.io/bot/chat_widget?site=${field47Value}`;
+            chatWidgetFrame.style.display = "block";
         });
     </script>
 </body>

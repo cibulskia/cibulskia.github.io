@@ -1,7 +1,7 @@
 {
   "sekcija1": {
     "title": "Botanica",
-    "content": "<h2>Botanica</h2><p>Dobrodošli<br>Sta je Botanica<br>Ko je Botanica<br>Gde je Botanica<br>To ni policija ne moze da utvrdi</p>",
+    "content": "<h2>Botanica</h2><p>Dobrodošli<br>Sta je Botanica?<br>Ko je Botanica?<br>Gde je Botanica?<br>To ni policija ne moze da utvrdi</p>",
     "bgColor": "#ffffff",
     "textColor": "#000000"
   },

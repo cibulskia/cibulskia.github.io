@@ -24,7 +24,7 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-        #category-form button, #widget-button {
+        #category-form button {
             background-color: #007bff;
             color: white;
             padding: 10px 15px;
@@ -32,9 +32,8 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            margin-top: 10px; /* Dodato malo razmaka */
         }
-        #category-form button:hover, #widget-button:hover {
+        #category-form button:hover {
             background-color: #0056b3;
         }
         #message { margin-top: 20px; padding: 10px; border-radius: 5px; }
@@ -43,16 +42,21 @@
         #categories-list { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
         .category-item { background-color: #f9f9f9; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
         .category-item strong { color: #007bff; }
-        #widget-code-display {
-            background-color: #e9e9e9;
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-top: 15px;
-            border-radius: 5px;
-            font-family: 'Courier New', Courier, monospace;
-            white-space: pre-wrap;
-            word-break: break-all;
-            display: none; /* Sakrij dok se ne generiše */
+
+        /* Novi stil za widget sekciju */
+        #widget-section { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+        #widget-code { width: calc(100% - 22px); padding: 10px; border: 1px solid #ccc; border-radius: 4px; background-color: #f1f1f1; font-family: monospace; white-space: pre-wrap; word-break: break-word; margin-top: 10px; }
+        #generate-widget-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #generate-widget-btn:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
@@ -61,7 +65,7 @@
         <h1>Upravljanje Kategorijama</h1>
 
         <div id="g_id_onload"
-             data-client_id="748161753679-207vasmi8poi0lc0gqvmqv9fphrv6op1.apps.googleusercontent.com"
+             data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
              data-callback="handleCredentialResponse"
              data-auto_prompt="true">
         </div>
@@ -117,15 +121,15 @@
                     <!-- Kategorije će biti dinamički dodate ovde -->
                 </div>
             </div>
-
-            <hr style="margin-top: 30px; border-color: #eee;">
-            <h2>Widget za sajt</h2>
-            <button id="widget-button" onclick="generateWidgetCode()">Generiši Embed Code</button>
-            <div id="widget-code-display" style="display: none;">
-                <p>Kopirajte ovaj kod i zalepite ga u HTML vaše web stranice:</p>
-                <pre id="widget-code"></pre>
-            </div>
         </div>
+
+        <!-- Nova sekcija za widget -->
+        <div id="widget-section" style="display: none;">
+            <h2>Generiši Widget Kod</h2>
+            <button id="generate-widget-btn">Prikaži kod za embedovanje</button>
+            <div id="widget-code" style="display: none;"></div>
+        </div>
+
     </div>
 
     <script>
@@ -153,8 +157,8 @@
                         };
                         displayAuthInfo();
                         showCategorySection();
+                        showWidgetSection();
                         fetchCategories();
-                        saveSession(); // Sačuvaj sesiju nakon uspešne prijave
                     } else {
                         alert('Greška pri prijavi: ' + data.message);
                         console.error('Google prijava neuspešna:', data.message);
@@ -186,15 +190,20 @@
             document.getElementById('category-section').style.display = 'block';
         }
 
+        // Nova funkcija za prikaz sekcije widgeta
+        function showWidgetSection() {
+            document.getElementById('widget-section').style.display = 'block';
+        }
+
         function signOut() {
             google.accounts.id.disableAutoSelect();
             currentUser = null;
             document.getElementById('auth-info').style.display = 'none';
             document.querySelector('.g_id_signin').style.display = 'block';
             document.getElementById('category-section').style.display = 'none';
+            document.getElementById('widget-section').style.display = 'none';
             document.getElementById('categories-container').innerHTML = '';
             document.getElementById('no-categories').style.display = 'block';
-            document.getElementById('widget-code-display').style.display = 'none'; // Sakrij widget kod pri odjavi
             localStorage.removeItem("userSession");
             console.log("Korisnik odjavljen.");
         }
@@ -301,18 +310,17 @@
             }, 5000);
         }
 
-        function generateWidgetCode() {
-            if (!currentUser || !currentUser.id) {
-                showMessage('Morate biti prijavljeni da biste generisali widget kod.', 'error');
-                return;
+        // Widget dugme
+        document.getElementById('generate-widget-btn').addEventListener('click', function() {
+            if (currentUser) {
+                const widgetCode = `<iframe \n  src="https://cibulskia.github.io/widget?site=${currentUser.id}"  \n  style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;"\n  scrolling="no"\n></iframe>`;
+                const codeDiv = document.getElementById('widget-code');
+                codeDiv.textContent = widgetCode;
+                codeDiv.style.display = 'block';
+            } else {
+                alert('Morate biti prijavljeni da biste generisali kod.');
             }
-
-            const userId = currentUser.id;
-            const widgetCode = `<iframe \n  src="https://cibulskia.github.io/widget?site=${userId}"  \n  style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;"\n  scrolling="no"\n></iframe>`;
-            
-            document.getElementById('widget-code').textContent = widgetCode;
-            document.getElementById('widget-code-display').style.display = 'block';
-        }
+        });
 
         // Ako je korisnik već ulogovan, odmah prikaži stranicu
         window.onload = function() {
@@ -321,6 +329,7 @@
                 currentUser = JSON.parse(savedUser);
                 displayAuthInfo();
                 showCategorySection();
+                showWidgetSection();
                 fetchCategories();
             }
         };
@@ -331,6 +340,14 @@
                 localStorage.setItem("userSession", JSON.stringify(currentUser));
             }
         }
+
+        // Prepravka handleCredentialResponse da snima sesiju
+        const originalHandleCredentialResponse = handleCredentialResponse;
+        handleCredentialResponse = function(response) {
+            originalHandleCredentialResponse(response);
+            setTimeout(saveSession, 500); 
+        }
     </script>
 </body>
 </html>
+

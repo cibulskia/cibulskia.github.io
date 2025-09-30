@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upravljanje Kategorijama i Chatbot Widget</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+    /* ===== Global Styles ===== */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+    body {
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #f0f4ff, #e4f0f9);
+        color: #333;
+        line-height: 1.6;
+    }
+    .container {
+        max-width: 950px;
+        margin: 30px auto;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        border: 1px solid #e1e7f0;
+    }
+    h1, h2 {
+        color: #1a73e8;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    h2 {
+        margin-top: 40px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e1e7f0;
+    }
+
+    /* ===== Google Signin ===== */
+    #g_id_onload {
+        margin-bottom: 25px;
+        text-align: center;
+    }
+    .g_id_signin {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 25px;
+    }
+
+    /* ===== Auth Info ===== */
+    #auth-info {
+        display: none;
+        margin-bottom: 25px;
+        padding: 20px;
+        border-radius: 12px;
+        background-color: #d9f0e1;
+        border: 1px solid #b6dfc7;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    #auth-info p {
+        margin: 0;
+        font-size: 0.95em;
+        color: #0f5132;
+    }
+    #auth-info strong {
+        color: #0a3a1a;
+    }
+
+    /* ===== Buttons ===== */
+    button {
+        background: #1a73e8;
+        color: #fff;
+        padding: 10px 22px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1em;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    button:hover {
+        background: #1558b0;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    button:active {
+        transform: translateY(0);
+        box-shadow: none;
+    }
+
+    /* ===== Forms ===== */
+    form label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+        color: #555;
+        font-size: 0.95em;
+    }
+    form input, form select, form textarea {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 0.95em;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+    form input:focus, form select:focus, form textarea:focus {
+        border-color: #1a73e8;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(26,115,232,0.2);
+    }
+
+    /* ===== Messages ===== */
+    #message {
+        margin-top: 20px;
+        padding: 14px;
+        border-radius: 10px;
+        font-weight: 500;
+        text-align: center;
+        display: none;
+        animation: fadeIn 0.5s ease;
+    }
+    .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    /* ===== Categories List ===== */
+    #categories-list {
+        margin-top: 40px;
+        padding-top: 20px;
+    }
+    .category-item {
+        background: #f7f9fc;
+        border: 1px solid #e2e6f0;
+        padding: 18px 20px;
+        margin-bottom: 18px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        transition: transform 0.2s ease;
+    }
+    .category-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+    }
+    .category-item strong {
+        color: #1a73e8;
+    }
+    .category-item p {
+        margin: 5px 0;
+        font-size: 0.9em;
+    }
+
+    /* ===== Widget ===== */
+    #widget-controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #e1e7f0;
+    }
+    #widget-code {
+        width: 100%;
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 15px;
+        border-radius: 10px;
+        background-color: #f6f8fa;
+        font-family: 'Courier New', monospace;
+        white-space: pre-wrap;
+        word-break: break-word;
+        margin-top: 15px;
+        font-size: 0.9em;
+        display: none;
+    }
+    #embedded-widget-container {
+        margin-top: 30px;
+        min-height: 600px;
+        border: 2px dashed #c3cfd9;
+        border-radius: 12px;
+        padding: 12px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #888;
+        font-style: italic;
+        background: #f9faff;
+        transition: all 0.3s ease;
+    }
+    #embedded-widget-container iframe {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        width: calc(100% - 20px);
+        max-width: 400px;
+        height: 580px;
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+
+    /* ===== Chatbot ===== */
+    #chatbot-widget {
+        margin-top: 40px;
+        padding: 20px;
+        border-radius: 14px;
+        background-color: #fff;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.05);
+        border: 1px solid #e2e6f0;
+        animation: fadeIn 0.5s ease;
+    }
+    #chat-window {
+        height: 300px;
+        border-radius: 10px;
+        border: 1px solid #e1e7f0;
+        overflow-y: auto;
+        padding: 12px;
+        background-color: #fdfdfd;
+        margin-bottom: 15px;
+    }
+    .chat-message {
+        margin-bottom: 10px;
+        padding: 10px 14px;
+        border-radius: 18px;
+        max-width: 80%;
+        word-wrap: break-word;
+        opacity: 0;
+        transform: translateY(10px);
+        animation: slideUp 0.3s forwards;
+    }
+    .chat-message.user {
+        background-color: #1a73e8;
+        color: #fff;
+        margin-left: auto;
+        border-bottom-right-radius: 4px;
+    }
+    .chat-message.bot {
+        background-color: #e2e6ea;
+        color: #333;
+        margin-right: auto;
+        border-bottom-left-radius: 4px;
+    }
+    #chat-input-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    #question-input {
+        flex: 1;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 0.95em;
+        transition: all 0.3s ease;
+    }
+    #question-input:focus {
+        outline: none;
+        border-color: #1a73e8;
+        box-shadow: 0 0 0 3px rgba(26,115,232,0.2);
+    }
+    .loading-spinner {
+        border: 4px solid rgba(0,0,0,0.1);
+        border-left-color: #1a73e8;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+        display: none;
+    }
+
+    /* ===== Animations ===== */
+    @keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+    @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+    @keyframes slideUp { to{opacity:1; transform:translateY(0);} }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+        .container { margin: 15px; padding: 20px; }
+        #chat-input-container { flex-direction: column; gap: 10px; }
+        #question-input, #chatbot-widget button { width: 100%; }
+        #widget-controls { flex-direction: column; gap: 12px; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Upravljanje Kategorijama i Chatbot Widget</h1>
+
+    <div id="g_id_onload"
+         data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="true">
+    </div>
+    <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left"></div>
+
+    <div id="auth-info">
+        <p>Prijavljeni ste kao: <strong id="user-name"></strong> (<span id="user-email"></span>)</p>
+        <p>Vaš Google User ID: <strong id="user-id"></strong></p>
+        <button onclick="signOut()">Odjava</button>
+    </div>
+
+    <div id="category-section" style="display:none;">
+        <h2>Dodaj/Ažuriraj Kategoriju</h2>
+        <form id="category-form">
+            <label for="client_email">Email klijenta:</label>
+            <input type="email" id="client_email" required readonly>
+
+            <label for="sequence_number">Redni broj (1-99):</label>
+            <input type="number" id="sequence_number" min="1" max="99" required>
+
+            <label for="priority">Prioritet (0-9):</label>
+            <input type="number" id="priority" min="0" max="9" required>
+
+            <label for="rule">Pravilo:</label>
+            <select id="rule" required>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+            </select>
+
+            <label for="response">Odgovor (tekst ili ime .txt fajla):</label>
+            <textarea id="response" rows="5" required></textarea>
+
+            <label for="tags">Tagovi (odvojeni zarezima, npr. tag1, tag2, tag3):</label>
+            <input type="text" id="tags" placeholder="tag1, tag2, tag3">
+
+            <button type="submit">Sačuvaj Kategoriju</button>
+        </form>
+
+        <div id="widget-controls">
+            <button id="embed-widget-btn">Embeduj widget</button>
+            <button id="generate-widget-btn">Prikaži kod</button>
+        </div>
+        <div id="widget-code"></div>
+
+        <div id="message"></div>
+
+        <div id="categories-list">
+            <h2>Vaše Kategorije</h2>
+            <div id="no-categories" style="display:none; text-align:center; color:#666;">Nema sačuvanih kategorija.</div>
+            <div id="categories-container"></div>
+        </div>
+
+        <div id="embedded-widget-container">
+            <p>Ovde će se pojaviti embedovani widget kada ga aktivirate.</p>
+        </div>
+
+        <div id="chatbot-widget">
+            <h2>Testirajte Chatbot</h2>
+            <div id="chat-window"></div>
+            <div id="chat-input-container">
+                <input type="text" id="question-input" placeholder="Postavite pitanje...">
+                <button id="send-question-btn">Pošalji</button>
+                <div class="loading-spinner" id="chat-spinner"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const BACKEND_URL = 'https://botanica.ngrok.app';
+const WIDGET_BASE_URL = 'https://cibulskia.github.io/widget';
+let currentUser = null;
+
+function handleCredentialResponse(response) {
+    if(!response.credential) return showMessage('Google prijava nije uspela', 'error');
+    fetch(`${BACKEND_URL}/oauth_callback`, {
+        method: 'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({credential: response.credential})
+    })
+    .then(res=>res.json())
+    .then(data=>{
+        if(data.status==='success'){
+            currentUser={id:data.user_id,email:data.user_email,name:data.user_name};
+            displayAuthInfo();
+            showCategorySection();
+            fetchCategories();
+            saveSession();
+        } else showMessage('Greška pri prijavi: '+(data.message||'Nepoznata'), 'error');
+    }).catch(()=>showMessage('Greška pri komunikaciji sa serverom', 'error'));
+}
+
+function displayAuthInfo(){
+    if(!currentUser) return;
+    document.getElementById('user-name').textContent=currentUser.name;
+    document.getElementById('user-email').textContent=currentUser.email;
+    document.getElementById('user-id').textContent=currentUser.id;
+    document.getElementById('auth-info').style.display='flex';
+    document.querySelector('.g_id_signin').style.display='none';
+    document.getElementById('client_email').value=currentUser.email;
+}
+function showCategorySection(){document.getElementById('category-section').style.display='block';}
+function signOut(){
+    google.accounts.id.disableAutoSelect();
+    currentUser=null;
+    document.getElementById('auth-info').style.display='none';
+    document.querySelector('.g_id_signin').style.display='flex';
+    document.getElementById('category-section').style.display='none';
+    document.getElementById('categories-container').innerHTML='';
+    document.getElementById('no-categories').style.display='block';
+    document.getElementById('widget-code').style.display='none';
+    document.getElementById('embedded-widget-container').innerHTML='<p>Ovde će se pojaviti embedovani widget kada ga aktivirate.</p>';
+    document.getElementById('chat-window').innerHTML='';
+    localStorage.removeItem("userSession");
+}
+
+document.getElementById('category-form').addEventListener('submit',function(e){
+    e.preventDefault();
+    if(!currentUser) return showMessage('Morate biti prijavljeni', 'error');
+
+    const clientEmail=document.getElementById('client_email').value;
+    const sequenceNumber=parseInt(document.getElementById('sequence_number').value);
+    const priority=parseInt(document.getElementById('priority').value);
+    const rule=document.getElementById('rule').value;
+    const response=document.getElementById('response').value;
+    const tags=document.getElementById('tags').value.split(',').map(t=>t.trim()).filter(t=>t);
+
+    if(isNaN(sequenceNumber)||sequenceNumber<1||sequenceNumber>99) return showMessage('Redni broj 1-99', 'error');
+    if(isNaN(priority)||priority<0||priority>9) return showMessage('Prioritet 0-9', 'error');
+    if(!['A','B','C'].includes(rule)) return showMessage('Pravilo mora biti A/B/C', 'error');
+    if(response.trim()==='') return showMessage('Odgovor ne može biti prazan', 'error');
+
+    const categoryData={google_user_id:currentUser.id,client_email:clientEmail,sequence_number:sequenceNumber,priority:priority,rule:rule,response:response,tags:tags};
+
+    fetch(`${BACKEND_URL}/categories`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(categoryData)})
+    .then(res=>res.json())
+    .then(data=>{
+        if(data.status==='success'){
+            showMessage(data.message,'success');
+            document.getElementById('category-form').reset();
+            document.getElementById('client_email').value=currentUser.email;
+            fetchCategories();
+        } else showMessage('Greška: '+(data.message||'Nepoznata'),'error');
+    }).catch(()=>showMessage('Greška pri čuvanju kategorije','error'));
+});
+
+function fetchCategories(){
+    if(!currentUser){document.getElementById('no-categories').style.display='block';return;}
+    fetch(`${BACKEND_URL}/get_categories`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({google_user_id:currentUser.id})})
+    .then(res=>res.json())
+    .then(data=>{
+        const container=document.getElementById('categories-container'); container.innerHTML='';
+        if(data.status==='success' && data.categories.length>0){
+            document.getElementById('no-categories').style.display='none';
+            data.categories.forEach(cat=>{
+                const item=document.createElement('div'); item.classList.add('category-item');
+                item.innerHTML=`<p><strong>Email:</strong> ${cat.client_email}</p>
+                <p><strong>Redni broj:</strong> ${cat.sequence_number}</p>
+                <p><strong>Prioritet:</strong> ${cat.priority}</p>
+                <p><strong>Pravilo:</strong> ${cat.rule}</p>
+                <p><strong>Odgovor:</strong> ${cat.response.length>200?cat.response.substring(0,200)+'...':cat.response}</p>
+                <p><strong>Tagovi:</strong> ${cat.tags.join(', ')}</p>`;
+                container.appendChild(item);
+            });
+        } else document.getElementById('no-categories').style.display='block';
+    }).catch(()=>showMessage('Greška pri učitavanju kategorija','error'));
+}
+
+function showMessage(msg,type){
+    const div=document.getElementById('message');
+    div.textContent=msg;
+    div.className='message '+type;
+    div.style.display='block';
+    setTimeout(()=>{div.style.display='none';},5000);
+}
+
+document.getElementById('generate-widget-btn').addEventListener('click',function(){
+    if(!currentUser) return showMessage('Morate biti prijavljeni','error');
+    const widgetCode=`<iframe src="${WIDGET_BASE_URL}?site=${currentUser.id}" style="position: fixed; bottom:0; right:0; width:100%; max-width:400px; height:600px; border:none; z-index:9999;" scrolling="no"></iframe>`;
+    const codeDiv=document.getElementById('widget-code');
+    codeDiv.textContent=widgetCode;
+    codeDiv.style.display='block';
+    navigator.clipboard.writeText(widgetCode).then(()=>showMessage('Kod kopiran!','success')).catch(()=>showMessage('Greška pri kopiranju','error'));
+});
+
+document.getElementById('embed-widget-btn').addEventListener('click',function(){
+    if(!currentUser) return showMessage('Morate biti prijavljeni','error');
+    document.getElementById('embedded-widget-container').innerHTML=`<iframe src="${WIDGET_BASE_URL}?site=${currentUser.id}" scrolling="no"></iframe>`;
+    showMessage('Widget embedovan!','success');
+});
+
+document.getElementById('send-question-btn').addEventListener('click',sendQuestion);
+document.getElementById('question-input').addEventListener('keypress',e=>{if(e.key==='Enter')sendQuestion();});
+
+async function sendQuestion(){
+    if(!currentUser) return showMessage('Morate biti prijavljeni','error');
+    const question=document.getElementById('question-input').value.trim();
+    if(!question) return;
+    const chatWindow=document.getElementById('chat-window');
+    const spinner=document.getElementById('chat-spinner');
+
+    const userDiv=document.createElement('div');
+    userDiv.classList.add('chat-message','user'); userDiv.textContent=question;
+    chatWindow.appendChild(userDiv); chatWindow.scrollTop=chatWindow.scrollHeight;
+    document.getElementById('question-input').value='';
+    spinner.style.display='inline-block';
+
+    try{
+        const res=await fetch(`${BACKEND_URL}/ask`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({google_user_id:currentUser.id,question})});
+        const data=await res.json();
+        const botDiv=document.createElement('div'); botDiv.classList.add('chat-message','bot');
+        botDiv.textContent=(data.status==='success'||data.status==='not_found')?data.answer:'Greška: '+(data.message||'Nepoznata');
+        chatWindow.appendChild(botDiv); chatWindow.scrollTop=chatWindow.scrollHeight;
+    }catch(e){
+        const errDiv=document.createElement('div'); errDiv.classList.add('chat-message','bot');
+        errDiv.textContent='Greška pri komunikaciji sa serverom';
+        chatWindow.appendChild(errDiv); chatWindow.scrollTop=chatWindow.scrollHeight;
+    }finally{spinner.style.display='none';}
+}
+
+window.onload=function(){
+    const saved=localStorage.getItem("userSession");
+    if(saved){currentUser=JSON.parse(saved); displayAuthInfo(); showCategorySection(); fetchCategories();}
+};
+
+function saveSession(){if(currentUser)localStorage.setItem("userSession",JSON.stringify(currentUser));}
+</script>
+</body>
+</html>

@@ -3,173 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem za Pitanja i Odgovore - Widget</title>
+    <title>Sistem za Pitanja i Odgovore Widget</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4; /* Ovo je samo za test, widget obično ide na postojeći body */
-        }
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
 
-        /* Stilovi za dugme koje otvara chat */
-        #openChatBtn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1005;
-            padding: 15px 25px;
-            font-size: 1.2em;
-            cursor: pointer;
-            border-radius: 50px;
-            border: none;
-            background-color: #888;
-            color: white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: background-color 0.3s ease;
-        }
-        #openChatBtn:hover {
-            background-color: #007BFF;
-        }
-
-        /* Stilovi za skočni prozor (widget) */
         #qaPopup {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 100%;
-            max-width: 400px;
-            border-radius: 10px;
-            background: #f9f9f9;
+            position: fixed; bottom: 20px; right: 20px;
+            width: 100%; max-width: 400px;
+            border-radius: 10px; background: #f9f9f9;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            border: 1px solid #ccc;
-            display: flex;
-            flex-direction: column;
-            z-index: 1006;
-            overflow: hidden;
-            transform: translateY(100%); /* Sakrij na početku */
+            border: 1px solid #ccc; display: flex; flex-direction: column;
+            z-index: 1006; overflow: hidden;
+            transform: translateY(100%);
             opacity: 0;
             transition: transform 0.3s ease, opacity 0.3s ease;
         }
         #qaPopup.active {
-            transform: translateY(0); /* Prikaži */
+            transform: translateY(0);
             opacity: 1;
         }
-
-        /* Stilovi za prikaz User ID-a */
-        .user-id-display {
-            font-size: 0.9em;
-            color: #666;
-            text-align: center;
-            margin-bottom: 10px;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            background-color: #e9ecef;
+        #chatHistory {
+            padding: 10px; max-height: 50vh; overflow-y: auto; font-size: 0.95em;
+            flex-grow: 1; /* Omogućava da zauzme raspoloživ prostor */
         }
+        .chat-message { margin-bottom: 10px; word-wrap: break-word; }
+        .chat-message.user { text-align: right; color: #007BFF; }
+        .chat-message.bot { text-align: left; color: #333333; }
+        .chat-message.status-success { text-align: center; color: #155724; font-size: 0.85em; }
+        .chat-message.status-error { text-align: center; color: #721c24; font-size: 0.85em; }
 
-        /* Stilovi za "chat" istoriju (Odgovor servera) */
-        #responseArea {
-            flex-grow: 1; /* Omogući da zauzme dostupan prostor */
-            padding: 10px;
-            max-height: 50vh; /* Ograniči visinu */
-            overflow-y: auto;
-            font-size: 0.95em;
-            border: none; /* Ukloni bordere koje textarea ima */
-            background-color: #f9f9f9; /* Ista pozadina kao popup */
-            resize: none; /* Onemogući resize */
-            box-sizing: border-box;
+        #userQuestion {
+            padding: 10px; width: calc(100% - 20px); font-size: 1em;
+            margin: 10px; display: block; resize: none; min-height: 40px; overflow: hidden; box-sizing: border-box;
+            border: 1px solid #ddd; border-radius: 4px;
         }
-
-        /* Stilovi za polje za unos pitanja */
-        #question {
-            padding: 10px;
-            width: calc(100% - 20px);
-            font-size: 1em;
-            margin: 10px;
-            display: block;
-            resize: none;
-            min-height: 40px;
-            overflow: hidden;
-            box-sizing: border-box;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        /* Kontrole (dugmad) */
         #chatControls {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin: 0 10px 10px 10px;
-            padding-top: 5px;
-            border-top: 1px solid #eee;
+            display: flex; justify-content: flex-end; gap: 10px; margin: 0 10px 10px 10px;
         }
         #chatControls button {
-            padding: 10px 15px;
-            font-size: 1em;
-            cursor: pointer;
-            border-radius: 5px;
-            border: none;
+            padding: 10px 15px; font-size: 1em; cursor: pointer; border-radius: 5px; border: none;
             transition: background-color 0.3s ease;
         }
-        #sendBtn {
-            background-color: #007bff; /* Primarna boja za slanje */
-            color: white;
-        }
-        #sendBtn:hover {
-            background-color: #0056b3;
-        }
-        #closeChatBtn {
-            background-color: #888;
-            color: white;
-        }
-        #closeChatBtn:hover {
-            background-color: #FF0000;
-        }
+        #sendBtn { background-color: #007bff; color: white; }
+        #sendBtn:hover { background-color: #0056b3; }
+        #closeChatBtn { background-color: #888; color: white; }
+        #closeChatBtn:hover { background-color: #FF0000; }
 
-        /* Stilovi za status poruke */
-        .status-message {
-            margin: 0 10px 10px 10px;
-            padding: 8px;
-            border-radius: 4px;
-            display: none;
-            font-size: 0.85em;
-            text-align: center;
+        #openChatBtn {
+            position: fixed; bottom: 20px; right: 20px; z-index: 1005;
+            padding: 15px 25px; font-size: 1.2em; cursor: pointer;
+            border-radius: 50px; border: none; background-color: #007bff; color: white; /* Promenjena boja da se slaže */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: background-color 0.3s ease;
         }
-        .status-message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .status-message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
+        #openChatBtn:hover { background-color: #0056b3; }
 
-        /* Prilagodljivost za manje ekrane */
         @media screen and (max-width: 768px) {
-            #qaPopup {
-                width: 90%;
-                right: 5%;
-                bottom: 10px;
-                max-width: none;
-            }
-            #question {
-                width: calc(100% - 20px);
-            }
+            #qaPopup { width: 90%; right: 5%; bottom: 10px; max-width: none; }
+            #userQuestion { width: calc(100% - 20px); }
         }
     </style>
 </head>
 <body>
 
-    <button id="openChatBtn">Pitanja</button>
+    <button id="openChatBtn">Chat</button>
 
     <div id="qaPopup">
-        <p class="user-id-display" id="displayedUserId"></p>
-        <textarea id="responseArea" readonly placeholder="Odgovor servera će se pojaviti ovde..."></textarea>
-        <textarea id="question" placeholder="Postavi pitanje..."></textarea>
-        <div id="statusMessage" class="status-message"></div>
+        <div id="chatHistory"></div>
+        <textarea id="userQuestion" placeholder="Postavi pitanje..."></textarea>
         <div id="chatControls">
             <button id="closeChatBtn">Zatvori</button>
             <button id="sendBtn">Pošalji</button>
@@ -178,116 +79,135 @@
 
     <script>
         let googleUserId = ''; // Globalna varijabla za čuvanje User ID-a
+        const SERVER_URL = 'http://localhost:8080'; // Tvoj originalni URL servera
+
+        const openChatBtn = document.getElementById("openChatBtn");
+        const qaPopup = document.getElementById("qaPopup");
+        const chatHistory = document.getElementById("chatHistory");
+        const sendBtn = document.getElementById("sendBtn");
+        const closeChatBtn = document.getElementById("closeChatBtn");
+        const userQuestion = document.getElementById("userQuestion");
 
         document.addEventListener('DOMContentLoaded', () => {
-            const openChatBtn = document.getElementById('openChatBtn');
-            const qaPopup = document.getElementById('qaPopup');
-            const closeChatBtn = document.getElementById('closeChatBtn');
-            const sendBtn = document.getElementById('sendBtn');
-            const questionInput = document.getElementById('question');
-            const responseArea = document.getElementById('responseArea');
-            const statusMessage = document.getElementById('statusMessage');
-            const displayedUserId = document.getElementById('displayedUserId');
-
-            // Preuzimanje User ID-a iz URL-a (kao u originalnom kodu)
             const params = new URLSearchParams(window.location.search);
-            googleUserId = params.get('site');
+            googleUserId = params.get('site'); // Preuzmi 'site' parametar iz URL-a
 
             if (googleUserId) {
-                displayedUserId.textContent = `Povezan User ID: ${googleUserId}`;
                 console.log('Detected User ID from URL:', googleUserId);
             } else {
-                displayedUserId.textContent = 'User ID nije pronađen u URL-u.';
                 console.warn('User ID not found in URL. Please ensure the "site" parameter is set.');
+                // Možete ovde dodati i neku poruku korisniku u chat istoriju ako je popup otvoren
+                appendMessage("bot", "Upozorenje: User ID nije pronađen u URL-u. Neke funkcije možda neće raditi ispravno.", "status-error");
+            }
+        });
+
+        // Funkcija za dodavanje poruka u chat istoriju
+        function appendMessage(sender, text, className = '') {
+            const div = document.createElement("div");
+            div.className = `chat-message ${sender} ${className}`;
+            div.textContent = text;
+            chatHistory.appendChild(div);
+            chatHistory.scrollTop = chatHistory.scrollHeight; // Skroluj do dna
+        }
+
+        let loadingInterval = null;
+
+        function startLoadingIndicator() {
+            let dots = 0;
+            loadingInterval = setInterval(() => {
+                dots = (dots + 1) % 4;
+                userQuestion.placeholder = "Obrada" + ".".repeat(dots);
+            }, 500);
+            sendBtn.disabled = true; // Onemogući dugme dok se čeka odgovor
+        }
+
+        function stopLoadingIndicator() {
+            clearInterval(loadingInterval);
+            loadingInterval = null;
+            userQuestion.placeholder = "Postavi pitanje...";
+            sendBtn.disabled = false; // Omogući dugme
+        }
+
+        userQuestion.addEventListener('input', e => {
+            e.target.style.height = 'auto';
+            e.target.style.height = (e.target.scrollHeight) + 'px';
+        });
+
+        async function sendQuestion() {
+            const question = userQuestion.value.trim();
+
+            if (!googleUserId) {
+                appendMessage("bot", 'Greška: User ID nije dostupan. Molimo proverite URL.', 'status-error');
+                return;
             }
 
-            // Funkcija za automatsko prilagođavanje visine textarea polja za pitanje
-            questionInput.addEventListener('input', e => {
-                e.target.style.height = 'auto';
-                e.target.style.height = (e.target.scrollHeight) + 'px';
-            });
+            if (!question) {
+                appendMessage("bot", 'Molimo unesite pitanje.', 'status-error');
+                return;
+            }
 
-            // Otvaranje/zatvaranje widgeta
-            openChatBtn.addEventListener('click', () => {
-                qaPopup.classList.toggle('active');
-            });
+            appendMessage("user", question); // Prikaži korisnikovo pitanje
+            userQuestion.value = ''; // Obriši input polje
+            userQuestion.style.height = 'auto'; // Resetuj visinu
+            startLoadingIndicator(); // Pokreni indikator učitavanja
 
-            closeChatBtn.addEventListener('click', () => {
-                qaPopup.classList.remove('active');
-            });
+            try {
+                const response = await fetch(SERVER_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        google_user_id: googleUserId,
+                        question: question
+                    }),
+                });
 
-            // Slanje pitanja (prerađena sendQuestion funkcija)
-            sendBtn.addEventListener('click', sendQuestion);
-            questionInput.addEventListener('keydown', e => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendQuestion();
-                }
-            });
+                const data = await response.json();
 
-            async function sendQuestion() {
-                const question = questionInput.value.trim();
-
-                responseArea.value = 'Učitavanje odgovora...';
-                statusMessage.style.display = 'none';
-                statusMessage.className = 'status-message'; // Reset class
-
-                if (!googleUserId) {
-                    responseArea.value = '';
-                    statusMessage.textContent = 'User ID nije dostupan. Molimo proverite URL.';
-                    statusMessage.classList.add('error');
-                    statusMessage.style.display = 'block';
-                    return;
+                if (data.status === 'success') {
+                    appendMessage("bot", data.answer);
+                    appendMessage("bot", 'Uspešno primljen odgovor!', 'status-success');
+                } else if (data.status === 'not_found') {
+                    appendMessage("bot", data.answer);
+                    appendMessage("bot", 'Nije pronađen direktan odgovor, prikazan je podrazumevani.', 'status-error');
+                } else {
+                    appendMessage("bot", 'Greška: ' + (data.message || 'Nepoznata greška.'));
+                    appendMessage("bot", 'Došlo je do greške prilikom obrade vašeg zahteva.', 'status-error');
                 }
 
-                if (!question) {
-                    responseArea.value = '';
-                    statusMessage.textContent = 'Molimo unesite pitanje.';
-                    statusMessage.classList.add('error');
-                    statusMessage.style.display = 'block';
-                    return;
-                }
+            } catch (error) {
+                console.error('Došlo je do greške:', error);
+                appendMessage("bot", 'Došlo je do greške prilikom komunikacije sa serverom.', 'status-error');
+            } finally {
+                stopLoadingIndicator(); // Zaustavi indikator učitavanja bez obzira na ishod
+            }
+        }
 
-                try {
-                    const response = await fetch('http://localhost:8080', { // Vaš server URL iz prvog koda
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            google_user_id: googleUserId,
-                            question: question
-                        }),
-                    });
+        function openChat() {
+            qaPopup.classList.add("active");
+            userQuestion.focus(); // Fokusiraj input polje kada se otvori chat
+        }
 
-                    const data = await response.json();
+        function closeChat() {
+            qaPopup.classList.remove("active");
+            stopLoadingIndicator(); // Zaustavi indikator ako je aktivan
+        }
 
-                    if (data.status === 'success') {
-                        responseArea.value = data.answer;
-                        statusMessage.textContent = 'Uspešno primljen odgovor!';
-                        statusMessage.classList.add('success');
-                    } else if (data.status === 'not_found') {
-                        responseArea.value = data.answer;
-                        statusMessage.textContent = 'Nije pronađen direktan odgovor, prikazan je podrazumevani.';
-                        statusMessage.classList.add('error');
-                    } else {
-                        responseArea.value = 'Greška: ' + (data.message || 'Nepoznata greška.');
-                        statusMessage.textContent = 'Došlo je do greške prilikom obrade vašeg zahteva.';
-                        statusMessage.classList.add('error');
-                    }
-                    statusMessage.style.display = 'block';
+        openChatBtn.addEventListener("click", () => {
+            if (qaPopup.classList.contains("active")) {
+                closeChat();
+            } else {
+                openChat();
+            }
+        });
 
-                } catch (error) {
-                    console.error('Došlo je do greške:', error);
-                    responseArea.value = 'Došlo je do greške prilikom komunikacije sa serverom.';
-                    statusMessage.textContent = 'Došlo je do greške prilikom komunikacije sa serverom.';
-                    statusMessage.classList.add('error');
-                    statusMessage.style.display = 'block';
-                } finally {
-                    // Resetovanje polja za pitanje i visine nakon slanja
-                    questionInput.value = '';
-                    questionInput.style.height = 'auto';
-                }
+        closeChatBtn.addEventListener("click", closeChat);
+        sendBtn.addEventListener("click", sendQuestion);
+        userQuestion.addEventListener("keydown", e => {
+            if(e.key === "Enter" && !e.shiftKey){
+                e.preventDefault(); // Spreči novi red
+                sendQuestion();
             }
         });
     </script>

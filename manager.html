@@ -42,6 +42,10 @@
         #categories-list { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
         .category-item { background-color: #f9f9f9; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
         .category-item strong { color: #007bff; }
+
+        /* Novi stilovi za embed code */
+        #embed-section { margin-top: 30px; padding: 15px; border: 1px solid #ccc; border-radius: 6px; background-color: #fafafa; }
+        #embed-code { margin-top: 10px; white-space: pre-wrap; background-color: #f0f0f0; padding: 10px; border-radius: 5px; font-family: monospace; display: none; }
     </style>
 </head>
 <body>
@@ -104,6 +108,13 @@
                 <div id="categories-container">
                     <!-- Kategorije će biti dinamički dodate ovde -->
                 </div>
+            </div>
+
+            <!-- Sekcija za embed kod -->
+            <div id="embed-section">
+                <h2>Embed kod za vaš sajt</h2>
+                <button onclick="generateEmbedCode()">Prikaži kod za embedovanje</button>
+                <div id="embed-code"></div>
             </div>
         </div>
     </div>
@@ -302,6 +313,22 @@
         handleCredentialResponse = function(response) {
             originalHandleCredentialResponse(response);
             setTimeout(saveSession, 500); 
+        }
+
+        // Funkcija za generisanje embed koda
+        function generateEmbedCode() {
+            if (!currentUser) {
+                alert("Morate biti prijavljeni da biste dobili embed kod.");
+                return;
+            }
+            const code = `<iframe 
+  src="https://cibulskia.github.io/widget?site=${currentUser.id}"  
+  style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;"
+  scrolling="no"
+></iframe>`;
+            const codeDiv = document.getElementById('embed-code');
+            codeDiv.textContent = code;
+            codeDiv.style.display = 'block';
         }
     </script>
 </body>

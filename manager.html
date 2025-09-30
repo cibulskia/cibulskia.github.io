@@ -42,10 +42,6 @@
         #categories-list { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
         .category-item { background-color: #f9f9f9; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
         .category-item strong { color: #007bff; }
-
-        /* Novi stilovi za embed kod */
-        #embed-section { margin-top: 30px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; background: #f9f9f9; }
-        #embed-code { width: 100%; height: 150px; margin-top: 10px; padding: 10px; font-family: monospace; white-space: pre; }
     </style>
 </head>
 <body>
@@ -108,13 +104,6 @@
                 <div id="categories-container">
                     <!-- Kategorije će biti dinamički dodate ovde -->
                 </div>
-            </div>
-
-            <!-- Novi deo za embed kod -->
-            <div id="embed-section">
-                <h2>Embed kod za vaš sajt</h2>
-                <button id="generate-embed">Generiši Embed Kod</button>
-                <textarea id="embed-code" readonly placeholder="Ovde će se pojaviti embed kod nakon klika na dugme"></textarea>
             </div>
         </div>
     </div>
@@ -314,20 +303,6 @@
             originalHandleCredentialResponse(response);
             setTimeout(saveSession, 500); 
         }
-
-        // Dugme za generisanje embed koda
-        document.getElementById('generate-embed').addEventListener('click', function() {
-            if (!currentUser) {
-                document.getElementById('embed-code').value = "Morate biti prijavljeni da biste dobili embed kod.";
-                return;
-            }
-            const code = `<iframe 
-  src="https://cibulskia.github.io/widget?site=${currentUser.id}"  
-  style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;"
-  scrolling="no"
-></iframe>`;
-            document.getElementById('embed-code').value = code;
-        });
     </script>
 </body>
 </html>

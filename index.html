@@ -3,298 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upravljanje Kategorijama i Chatbot Widget</title>
+    <title>Upravljanje Kategorijama</title>
     <!-- Google Platform Library za prijavu -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #eef2f7;
-            color: #333;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 900px;
-            margin: 20px auto;
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border: 1px solid #e0e0e0;
-        }
-        h1, h2 {
-            color: #0056b3;
-            text-align: center;
-            margin-bottom: 25px;
-            font-weight: 600;
-        }
-        h2 {
-            margin-top: 30px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        #g_id_onload {
-            margin-bottom: 25px;
-            text-align: center;
-        }
-        .g_id_signin {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 25px;
-        }
-        #auth-info {
-            margin-bottom: 25px;
-            padding: 15px;
-            border: 1px solid #d1e7dd;
-            background-color: #d1e7dd; /* Light green for success/info */
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-        #auth-info p {
-            margin: 0;
-            text-align: center;
-            font-size: 0.95em;
-            color: #0f5132;
-        }
-        #auth-info strong {
-            color: #003300;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            margin-top: 10px;
-        }
-        button:hover {
-            background-color: #0056b3;
-            transform: translateY(-1px);
-        }
-        button:active {
-            transform: translateY(0);
-        }
-        form label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-            font-size: 0.95em;
-        }
-        form input[type="text"],
-        form input[type="email"],
-        form input[type="number"],
-        form select,
-        form textarea {
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1, h2 { color: #0056b3; }
+        #g_id_onload { margin-bottom: 20px; }
+        #auth-info { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; background-color: #e9e9e9; border-radius: 5px; }
+        #category-form label { display: block; margin-bottom: 5px; font-weight: bold; }
+        #category-form input[type="text"],
+        #category-form input[type="email"],
+        #category-form input[type="number"],
+        #category-form select,
+        #category-form textarea {
             width: calc(100% - 22px);
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box; /* Ensures padding doesn't increase width */
-            font-size: 0.95em;
-            transition: border-color 0.3s ease;
-        }
-        form input:focus, form select:focus, form textarea:focus {
-            border-color: #007bff;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-        }
-        #message {
-            margin-top: 20px;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            display: none; /* Skriveno po defaultu */
-            text-align: center;
-        }
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        #categories-list {
-            margin-top: 30px;
-            padding-top: 20px;
-        }
-        .category-item {
-            background-color: #f9f9f9;
-            border: 1px solid #e0e0e0;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .category-item strong {
-            color: #007bff;
-        }
-        .category-item p {
-            margin: 5px 0;
-            font-size: 0.9em;
-        }
-
-        /* Widget specific styles */
-        #widget-controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
-        #widget-code {
-            width: calc(100% - 22px);
-            max-height: 200px;
-            overflow-y: auto;
-            padding: 15px;
-            border: 1px solid #d1d1d1;
-            border-radius: 8px;
-            background-color: #f6f8fa;
-            font-family: 'Courier New', Courier, monospace;
-            white-space: pre-wrap;
-            word-break: break-word;
-            margin-top: 15px;
-            font-size: 0.9em;
-            line-height: 1.4;
-            display: none;
-        }
-        #embedded-widget-container {
-            margin-top: 30px;
-            min-height: 600px; /* Space for the widget */
-            border: 1px dashed #ccc;
-            border-radius: 8px;
             padding: 10px;
-            position: relative;
-            overflow: hidden; /* To handle fixed positioning of iframe within its container for display */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #888;
-            font-style: italic;
-        }
-        #embedded-widget-container iframe {
-            position: absolute; /* Changed from fixed to absolute to fit in container */
-            bottom: 10px;
-            right: 10px;
-            width: calc(100% - 20px);
-            max-width: 400px;
-            height: 580px;
-            border: none;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        /* Chatbot Widget specific styles */
-        #chatbot-widget {
-            margin-top: 30px;
-            padding: 20px;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            background-color: #fefefe;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        #chatbot-widget #chat-window {
-            height: 300px;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            overflow-y: auto;
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: #fdfdfd;
-        }
-        .chat-message {
             margin-bottom: 10px;
-            padding: 8px 12px;
-            border-radius: 15px;
-            max-width: 80%;
-            word-wrap: break-word;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
-        .chat-message.user {
+        #category-form button,
+        #generate-widget-btn,
+        #embed-widget-btn {
             background-color: #007bff;
             color: white;
-            margin-left: auto;
-            border-bottom-right-radius: 2px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 5px;
         }
-        .chat-message.bot {
-            background-color: #e2e6ea;
-            color: #333;
-            margin-right: auto;
-            border-bottom-left-radius: 2px;
+        #category-form button:hover,
+        #generate-widget-btn:hover,
+        #embed-widget-btn:hover {
+            background-color: #0056b3;
         }
-        #chatbot-widget #question-input {
-            width: calc(100% - 100px);
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-right: 8px;
-        }
-        #chatbot-widget button {
-            width: 90px;
-            padding: 10px;
-            margin-top: 0;
-        }
-        #chat-input-container {
-            display: flex;
-            align-items: center;
-        }
-        .loading-spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #007bff;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: none; /* Skriveno po defaultu */
-            margin-left: 10px;
-        }
+        #message { margin-top: 20px; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        #categories-list { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+        .category-item { background-color: #f9f9f9; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .category-item strong { color: #007bff; }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-                padding: 15px;
-            }
-            form input, form select, form textarea, #chatbot-widget #question-input {
-                width: calc(100% - 20px);
-            }
-            #chat-input-container {
-                flex-direction: column;
-                gap: 10px;
-            }
-            #chatbot-widget #question-input {
-                width: 100%;
-                margin-right: 0;
-            }
-            #chatbot-widget button {
-                width: 100%;
-            }
-            #widget-controls {
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
+        /* Novi stil za widget sekciju */
+        #widget-code { width: calc(100% - 22px); padding: 10px; border: 1px solid #ccc; border-radius: 4px; background-color: #f1f1f1; font-family: monospace; white-space: pre-wrap; word-break: break-word; margin-top: 10px; }
+
+        /* Za embedovani widget */
+        #embedded-widget-container { margin-top: 20px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Upravljanje Kategorijama i Chatbot Widget</h1>
+        <h1>Upravljanje Kategorijama</h1>
 
         <div id="g_id_onload"
              data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
@@ -344,46 +107,28 @@
                 <button type="submit">Sačuvaj Kategoriju</button>
             </form>
 
-            <div id="widget-controls">
-                <button id="embed-widget-btn">Embeduj widget na ovu stranicu</button>
-                <button id="generate-widget-btn">Prikaži kod za embedovanje</button>
-            </div>
+            <!-- Novo dugme za embedovanje direktno na stranicu -->
+            <button id="embed-widget-btn">Embeduj widget na ovu stranicu</button>
+
+            <!-- Dugme za generisanje widgeta za kopiranje -->
+            <button id="generate-widget-btn">Prikaži kod za embedovanje</button>
             <div id="widget-code" style="display: none;"></div>
 
             <div id="message"></div>
 
             <div id="categories-list">
                 <h2>Vaše Kategorije</h2>
-                <div id="no-categories" style="display: none; text-align: center; color: #666;">Nema sačuvanih kategorija za ovog korisnika.</div>
+                <div id="no-categories" style="display: none;">Nema sačuvanih kategorija za ovog korisnika.</div>
                 <div id="categories-container"></div>
             </div>
 
             <!-- Container gde će se embedovati widget direktno -->
-            <div id="embedded-widget-container">
-                <p>Ovde će se pojaviti embedovani widget kada ga aktivirate.</p>
-            </div>
-
-            <!-- Chatbot Widget za testiranje /ask endpointa -->
-            <div id="chatbot-widget">
-                <h2>Testirajte Chatbot</h2>
-                <div id="chat-window">
-                    <!-- Chat poruke će se ovde prikazivati -->
-                </div>
-                <div id="chat-input-container">
-                    <input type="text" id="question-input" placeholder="Postavite pitanje...">
-                    <button id="send-question-btn">Pošalji</button>
-                    <div class="loading-spinner" id="chat-spinner"></div>
-                </div>
-            </div>
+            <div id="embedded-widget-container"></div>
         </div>
     </div>
 
     <script>
-        // CHANGE THIS TO YOUR ACTUAL BACKEND URL
         const BACKEND_URL = 'https://botanica.ngrok.app';
-        // This is the URL where your widget is hosted.
-        const WIDGET_BASE_URL = 'https://cibulskia.github.io/widget';
-
         let currentUser = null;
 
         function handleCredentialResponse(response) {
@@ -408,17 +153,16 @@
                         fetchCategories();
                         saveSession();
                     } else {
-                        showMessage('Greška pri prijavi: ' + (data.message || 'Nepoznata greška.'), 'error');
+                        alert('Greška pri prijavi: ' + data.message);
                         console.error('Google prijava neuspešna:', data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Greška pri komunikaciji sa backendom za OAuth:', error);
-                    showMessage('Došlo je do greške pri prijavi. Pokušajte ponovo.', 'error');
+                    alert('Došlo je do greške pri prijavi. Pokušajte ponovo.');
                 });
             } else {
                 console.error('Nema credentiala u Google odgovoru.');
-                showMessage('Google prijava nije uspela, nema kredencijala.', 'error');
             }
         }
 
@@ -427,7 +171,7 @@
                 document.getElementById('user-name').textContent = currentUser.name;
                 document.getElementById('user-email').textContent = currentUser.email;
                 document.getElementById('user-id').textContent = currentUser.id;
-                document.getElementById('auth-info').style.display = 'flex'; // Use flex for centering
+                document.getElementById('auth-info').style.display = 'block';
                 document.querySelector('.g_id_signin').style.display = 'none';
                 document.getElementById('client_email').value = currentUser.email;
             }
@@ -441,13 +185,12 @@
             google.accounts.id.disableAutoSelect();
             currentUser = null;
             document.getElementById('auth-info').style.display = 'none';
-            document.querySelector('.g_id_signin').style.display = 'flex'; // Use flex for centering
+            document.querySelector('.g_id_signin').style.display = 'block';
             document.getElementById('category-section').style.display = 'none';
             document.getElementById('categories-container').innerHTML = '';
             document.getElementById('no-categories').style.display = 'block';
             document.getElementById('widget-code').style.display = 'none';
-            document.getElementById('embedded-widget-container').innerHTML = '<p>Ovde će se pojaviti embedovani widget kada ga aktivirate.</p>';
-            document.getElementById('chat-window').innerHTML = ''; // Clear chat history
+            document.getElementById('embedded-widget-container').innerHTML = '';
             localStorage.removeItem("userSession");
             console.log("Korisnik odjavljen.");
         }
@@ -466,24 +209,6 @@
             const response = document.getElementById('response').value;
             const tagsInput = document.getElementById('tags').value;
             const tags = tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
-
-            // Basic validation
-            if (isNaN(sequenceNumber) || sequenceNumber < 1 || sequenceNumber > 99) {
-                showMessage('Redni broj mora biti između 1 i 99.', 'error');
-                return;
-            }
-            if (isNaN(priority) || priority < 0 || priority > 9) {
-                showMessage('Prioritet mora biti između 0 i 9.', 'error');
-                return;
-            }
-            if (!['A', 'B', 'C'].includes(rule)) {
-                showMessage('Pravilo mora biti A, B ili C.', 'error');
-                return;
-            }
-            if (response.trim() === '') {
-                showMessage('Odgovor ne može biti prazan.', 'error');
-                return;
-            }
 
             const categoryData = {
                 google_user_id: currentUser.id,
@@ -505,10 +230,10 @@
                 if (data.status === 'success') {
                     showMessage(data.message, 'success');
                     document.getElementById('category-form').reset();
-                    document.getElementById('client_email').value = currentUser.email; // Re-set email after reset
+                    document.getElementById('client_email').value = currentUser.email;
                     fetchCategories();
                 } else {
-                    showMessage('Greška: ' + (data.message || 'Nepoznata greška pri čuvanju kategorije.'), 'error');
+                    showMessage('Greška: ' + data.message, 'error');
                 }
             })
             .catch(error => {
@@ -544,7 +269,7 @@
                             <p><strong>Redni broj:</strong> ${category.sequence_number}</p>
                             <p><strong>Prioritet:</strong> ${category.priority}</p>
                             <p><strong>Pravilo:</strong> ${category.rule}</p>
-                            <p><strong>Odgovor:</strong> ${category.response.length > 200 ? category.response.substring(0, 200) + '...' : category.response}</p>
+                            <p><strong>Odgovor:</strong> ${category.response.length > 100 ? category.response.substring(0, 100) + '...' : category.response}</p>
                             <p><strong>Tagovi:</strong> ${category.tags.join(', ')}</p>
                         `;
                         container.appendChild(item);
@@ -571,15 +296,15 @@
         // Dugme za generisanje kod za kopiranje
         document.getElementById('generate-widget-btn').addEventListener('click', function() {
             if (currentUser) {
-                const widgetCode = `<iframe \n  src="${WIDGET_BASE_URL}?site=${currentUser.id}"  \n  style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;"\n  scrolling="no"\n></iframe>`;
+                const widgetCode = `<iframe \n  src="https://cibulskia.github.io/widget?site=${currentUser.id}"  \n  style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;"\n  scrolling="no"\n></iframe>`;
                 const codeDiv = document.getElementById('widget-code');
                 codeDiv.textContent = widgetCode;
                 codeDiv.style.display = 'block';
                 navigator.clipboard.writeText(widgetCode)
-                    .then(() => showMessage('Kod je kopiran u clipboard!', 'success'))
-                    .catch(() => showMessage('Greška pri kopiranju u clipboard. Molimo kopirajte ručno.', 'error'));
+                    .then(() => alert('Kod je kopiran u clipboard!'))
+                    .catch(() => alert('Greška pri kopiranju u clipboard.'));
             } else {
-                showMessage('Morate biti prijavljeni da biste generisali kod.', 'error');
+                alert('Morate biti prijavljeni da biste generisali kod.');
             }
         });
 
@@ -587,80 +312,14 @@
         document.getElementById('embed-widget-btn').addEventListener('click', function() {
             if (currentUser) {
                 const container = document.getElementById('embedded-widget-container');
-                container.innerHTML = `<iframe src="${WIDGET_BASE_URL}?site=${currentUser.id}" scrolling="no"></iframe>`;
+                container.innerHTML = `<iframe src="https://cibulskia.github.io/widget?site=${currentUser.id}" style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;" scrolling="no"></iframe>`;
                 showMessage('Widget je uspešno embedovan na stranicu.', 'success');
             } else {
-                showMessage('Morate biti prijavljeni da biste embedovali widget.', 'error');
+                alert('Morate biti prijavljeni da biste embedovali widget.');
             }
         });
 
-        // Chatbot functionality
-        document.getElementById('send-question-btn').addEventListener('click', sendQuestion);
-        document.getElementById('question-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendQuestion();
-            }
-        });
-
-        async function sendQuestion() {
-            if (!currentUser) {
-                showMessage('Morate biti prijavljeni da biste testirali chatbot.', 'error');
-                return;
-            }
-
-            const questionInput = document.getElementById('question-input');
-            const question = questionInput.value.trim();
-            if (!question) return;
-
-            const chatWindow = document.getElementById('chat-window');
-            const chatSpinner = document.getElementById('chat-spinner');
-
-            // Add user message to chat window
-            const userMessageDiv = document.createElement('div');
-            userMessageDiv.classList.add('chat-message', 'user');
-            userMessageDiv.textContent = question;
-            chatWindow.appendChild(userMessageDiv);
-            chatWindow.scrollTop = chatWindow.scrollHeight; // Scroll to bottom
-
-            questionInput.value = ''; // Clear input
-            chatSpinner.style.display = 'inline-block'; // Show spinner
-
-            try {
-                const response = await fetch(`${BACKEND_URL}/ask`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ google_user_id: currentUser.id, question: question })
-                });
-                const data = await response.json();
-
-                const botMessageDiv = document.createElement('div');
-                botMessageDiv.classList.add('chat-message', 'bot');
-
-                if (data.status === 'success') {
-                    botMessageDiv.textContent = data.answer;
-                } else if (data.status === 'not_found') {
-                    botMessageDiv.textContent = data.answer; // "Nisam pronašao odgovor..."
-                } else {
-                    botMessageDiv.textContent = 'Greška pri dohvatanju odgovora: ' + (data.message || 'Nepoznata greška.');
-                    console.error('Chatbot error:', data);
-                }
-                chatWindow.appendChild(botMessageDiv);
-                chatWindow.scrollTop = chatWindow.scrollHeight; // Scroll to bottom
-
-            } catch (error) {
-                console.error('Greška pri komunikaciji sa chatbotom:', error);
-                const errorMessageDiv = document.createElement('div');
-                errorMessageDiv.classList.add('chat-message', 'bot');
-                errorMessageDiv.textContent = 'Došlo je do greške pri komunikaciji sa serverom.';
-                chatWindow.appendChild(errorMessageDiv);
-                chatWindow.scrollTop = chatWindow.scrollHeight;
-            } finally {
-                chatSpinner.style.display = 'none'; // Hide spinner
-            }
-        }
-
-
-        // Load session on page load
+        // Ako je korisnik već ulogovan, odmah prikaži stranicu
         window.onload = function() {
             const savedUser = localStorage.getItem("userSession");
             if (savedUser) {

@@ -24,7 +24,8 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-        #category-form button {
+        #category-form button,
+        #generate-widget-btn {
             background-color: #007bff;
             color: white;
             padding: 10px 15px;
@@ -33,7 +34,8 @@
             cursor: pointer;
             font-size: 16px;
         }
-        #category-form button:hover {
+        #category-form button:hover,
+        #generate-widget-btn:hover {
             background-color: #0056b3;
         }
         #message { margin-top: 20px; padding: 10px; border-radius: 5px; }
@@ -44,20 +46,7 @@
         .category-item strong { color: #007bff; }
 
         /* Novi stil za widget sekciju */
-        #widget-section { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
         #widget-code { width: calc(100% - 22px); padding: 10px; border: 1px solid #ccc; border-radius: 4px; background-color: #f1f1f1; font-family: monospace; white-space: pre-wrap; word-break: break-word; margin-top: 10px; }
-        #generate-widget-btn {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        #generate-widget-btn:hover {
-            background-color: #0056b3;
-        }
     </style>
 </head>
 <body>
@@ -112,6 +101,10 @@
                 <button type="submit">Sačuvaj Kategoriju</button>
             </form>
 
+            <!-- Dugme za generisanje widgeta odmah ispod forme -->
+            <button id="generate-widget-btn" style="margin-top: 10px;">Prikaži kod za embedovanje</button>
+            <div id="widget-code" style="display: none;"></div>
+
             <div id="message"></div>
 
             <div id="categories-list">
@@ -122,14 +115,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Nova sekcija za widget -->
-        <div id="widget-section" style="display: none;">
-            <h2>Generiši Widget Kod</h2>
-            <button id="generate-widget-btn">Prikaži kod za embedovanje</button>
-            <div id="widget-code" style="display: none;"></div>
-        </div>
-
     </div>
 
     <script>
@@ -157,8 +142,8 @@
                         };
                         displayAuthInfo();
                         showCategorySection();
-                        showWidgetSection();
                         fetchCategories();
+                        saveSession();
                     } else {
                         alert('Greška pri prijavi: ' + data.message);
                         console.error('Google prijava neuspešna:', data.message);
@@ -190,20 +175,15 @@
             document.getElementById('category-section').style.display = 'block';
         }
 
-        // Nova funkcija za prikaz sekcije widgeta
-        function showWidgetSection() {
-            document.getElementById('widget-section').style.display = 'block';
-        }
-
         function signOut() {
             google.accounts.id.disableAutoSelect();
             currentUser = null;
             document.getElementById('auth-info').style.display = 'none';
             document.querySelector('.g_id_signin').style.display = 'block';
             document.getElementById('category-section').style.display = 'none';
-            document.getElementById('widget-section').style.display = 'none';
             document.getElementById('categories-container').innerHTML = '';
             document.getElementById('no-categories').style.display = 'block';
+            document.getElementById('widget-code').style.display = 'none';
             localStorage.removeItem("userSession");
             console.log("Korisnik odjavljen.");
         }
@@ -310,13 +290,16 @@
             }, 5000);
         }
 
-        // Widget dugme
+        // Widget dugme odmah ispod forme
         document.getElementById('generate-widget-btn').addEventListener('click', function() {
             if (currentUser) {
                 const widgetCode = `<iframe \n  src="https://cibulskia.github.io/widget?site=${currentUser.id}"  \n  style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;"\n  scrolling="no"\n></iframe>`;
                 const codeDiv = document.getElementById('widget-code');
                 codeDiv.textContent = widgetCode;
                 codeDiv.style.display = 'block';
+                navigator.clipboard.writeText(widgetCode)
+                    .then(() => alert('Kod je kopiran u clipboard!'))
+                    .catch(() => alert('Greška pri kopiranju u clipboard.'));
             } else {
                 alert('Morate biti prijavljeni da biste generisali kod.');
             }
@@ -329,7 +312,6 @@
                 currentUser = JSON.parse(savedUser);
                 displayAuthInfo();
                 showCategorySection();
-                showWidgetSection();
                 fetchCategories();
             }
         };
@@ -339,13 +321,6 @@
             if (currentUser) {
                 localStorage.setItem("userSession", JSON.stringify(currentUser));
             }
-        }
-
-        // Prepravka handleCredentialResponse da snima sesiju
-        const originalHandleCredentialResponse = handleCredentialResponse;
-        handleCredentialResponse = function(response) {
-            originalHandleCredentialResponse(response);
-            setTimeout(saveSession, 500); 
         }
     </script>
 </body>

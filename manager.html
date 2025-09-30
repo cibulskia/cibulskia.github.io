@@ -25,7 +25,8 @@
             border-radius: 4px;
         }
         #category-form button,
-        #generate-widget-btn {
+        #generate-widget-btn,
+        #generate-widget-form-btn {
             background-color: #007bff;
             color: white;
             padding: 10px 15px;
@@ -33,9 +34,11 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            margin-top: 5px;
         }
         #category-form button:hover,
-        #generate-widget-btn:hover {
+        #generate-widget-btn:hover,
+        #generate-widget-form-btn:hover {
             background-color: #0056b3;
         }
         #message { margin-top: 20px; padding: 10px; border-radius: 5px; }
@@ -99,9 +102,12 @@
                 <input type="text" id="tags" placeholder="tag1, tag2, tag3">
 
                 <button type="submit">Sačuvaj Kategoriju</button>
+
+                <!-- Novo dugme unutar forme za generisanje widgeta -->
+                <button type="button" id="generate-widget-form-btn">Prikaži kod za embedovanje</button>
             </form>
 
-            <!-- Dugme za generisanje widgeta odmah ispod forme -->
+            <!-- Originalno dugme ispod forme -->
             <button id="generate-widget-btn" style="margin-top: 10px;">Prikaži kod za embedovanje</button>
             <div id="widget-code" style="display: none;"></div>
 
@@ -126,9 +132,7 @@
             if (response.credential) {
                 fetch(`${BACKEND_URL}/oauth_callback`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ credential: response.credential })
                 })
                 .then(res => res.json())
@@ -165,8 +169,6 @@
                 document.getElementById('user-id').textContent = currentUser.id;
                 document.getElementById('auth-info').style.display = 'block';
                 document.querySelector('.g_id_signin').style.display = 'none';
-                
-                // Automatski popuni email klijenta
                 document.getElementById('client_email').value = currentUser.email;
             }
         }
@@ -215,9 +217,7 @@
 
             fetch(`${BACKEND_URL}/categories`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(categoryData)
             })
             .then(res => res.json())
@@ -225,7 +225,7 @@
                 if (data.status === 'success') {
                     showMessage(data.message, 'success');
                     document.getElementById('category-form').reset();
-                    document.getElementById('client_email').value = currentUser.email; // ponovo popuni readonly email
+                    document.getElementById('client_email').value = currentUser.email;
                     fetchCategories();
                 } else {
                     showMessage('Greška: ' + data.message, 'error');
@@ -290,8 +290,8 @@
             }, 5000);
         }
 
-        // Widget dugme odmah ispod forme
-        document.getElementById('generate-widget-btn').addEventListener('click', function() {
+        // Funkcija za generisanje widgeta
+        function generateWidget() {
             if (currentUser) {
                 const widgetCode = `<iframe \n  src="https://cibulskia.github.io/widget?site=${currentUser.id}"  \n  style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;"\n  scrolling="no"\n></iframe>`;
                 const codeDiv = document.getElementById('widget-code');
@@ -303,7 +303,11 @@
             } else {
                 alert('Morate biti prijavljeni da biste generisali kod.');
             }
-        });
+        }
+
+        // Dugmad za generisanje widgeta
+        document.getElementById('generate-widget-btn').addEventListener('click', generateWidget);
+        document.getElementById('generate-widget-form-btn').addEventListener('click', generateWidget);
 
         // Ako je korisnik već ulogovan, odmah prikaži stranicu
         window.onload = function() {
@@ -325,4 +329,3 @@
     </script>
 </body>
 </html>
-

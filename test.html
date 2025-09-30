@@ -14,6 +14,7 @@
         #auth-info { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; background-color: #e9e9e9; border-radius: 5px; }
         #category-form label { display: block; margin-bottom: 5px; font-weight: bold; }
         #category-form input[type="text"],
+        #category-form input[type="email"],
         #category-form input[type="number"],
         #category-form select,
         #category-form textarea {
@@ -50,7 +51,7 @@
         <div id="g_id_onload"
              data-client_id="748161753679-207vasmi8poi0lc0gqvmqv9fphrv6op1.apps.googleusercontent.com"
              data-callback="handleCredentialResponse"
-             data-auto_prompt="false">
+             data-auto_prompt="true">
         </div>
         <div class="g_id_signin"
              data-type="standard"
@@ -108,8 +109,8 @@
     </div>
 
     <script>
-        const BACKEND_URL = 'http://localhost:8080'; // Proverite port vašeg Pythonservera
-        let currentUser = null; // Globalna varijabla za Google korisnika
+        const BACKEND_URL = 'http://localhost:8080';
+        let currentUser = null;
 
         function handleCredentialResponse(response) {
             console.log("Google Credential Response:", response);
@@ -132,7 +133,7 @@
                         };
                         displayAuthInfo();
                         showCategorySection();
-                        fetchCategories(); // Učitaj kategorije nakon prijave
+                        fetchCategories();
                     } else {
                         alert('Greška pri prijavi: ' + data.message);
                         console.error('Google prijava neuspešna:', data.message);
@@ -162,13 +163,14 @@
         }
 
         function signOut() {
-            google.accounts.id.disableAutoSelect(); // Ako ste koristili auto_select
+            google.accounts.id.disableAutoSelect();
             currentUser = null;
             document.getElementById('auth-info').style.display = 'none';
             document.querySelector('.g_id_signin').style.display = 'block';
             document.getElementById('category-section').style.display = 'none';
-            document.getElementById('categories-container').innerHTML = ''; // Očisti listu kategorija
+            document.getElementById('categories-container').innerHTML = '';
             document.getElementById('no-categories').style.display = 'block';
+            localStorage.removeItem("userSession");
             console.log("Korisnik odjavljen.");
         }
 
@@ -208,8 +210,8 @@
             .then(data => {
                 if (data.status === 'success') {
                     showMessage(data.message, 'success');
-                    document.getElementById('category-form').reset(); // Očisti formu
-                    fetchCategories(); // Ponovo učitaj kategorije da prikaže ažurirane/dodate
+                    document.getElementById('category-form').reset();
+                    fetchCategories();
                 } else {
                     showMessage('Greška: ' + data.message, 'error');
                 }
@@ -228,16 +230,14 @@
             }
 
             fetch(`${BACKEND_URL}/get_categories`, {
-                method: 'POST', // GET može imati probleme sa body, pa koristimo POST
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ google_user_id: currentUser.id })
             })
             .then(res => res.json())
             .then(data => {
                 const container = document.getElementById('categories-container');
-                container.innerHTML = ''; // Očisti prethodne kategorije
+                container.innerHTML = '';
 
                 if (data.status === 'success' && data.categories.length > 0) {
                     document.getElementById('no-categories').style.display = 'none';
@@ -275,12 +275,30 @@
             }, 5000);
         }
 
-        // Proveri da li je korisnik već prijavljen (za Google auto_select)
-        // Ovo je manje pouzdano bez server-side sesije, ali može pomoći pri ponovnom učitavanju stranice
+        // Ako je korisnik već ulogovan, odmah prikaži stranicu
         window.onload = function() {
-            // Ako Google automatski prijavi korisnika, handleCredentialResponse će se pozvati
-            // Inače će se prikazati dugme za prijavu.
+            const savedUser = localStorage.getItem("userSession");
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                displayAuthInfo();
+                showCategorySection();
+                fetchCategories();
+            }
         };
+
+        // Čuvanje sesije kad se korisnik prijavi
+        function saveSession() {
+            if (currentUser) {
+                localStorage.setItem("userSession", JSON.stringify(currentUser));
+            }
+        }
+
+        // Prepravka handleCredentialResponse da snima sesiju
+        const originalHandleCredentialResponse = handleCredentialResponse;
+        handleCredentialResponse = function(response) {
+            originalHandleCredentialResponse(response);
+            setTimeout(saveSession, 500); 
+        }
     </script>
 </body>
 </html>

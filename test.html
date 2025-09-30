@@ -1,175 +1,286 @@
 <!DOCTYPE html>
-<html lang="sr">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stranica sa sidebarom</title>
-<style>
-body { margin:0; font-family: Arial, sans-serif; overflow-x:hidden; }
-
-/* Sidebar */
-#sidebar {
-  position: fixed;
-  top:0; left:0;
-  width:250px; height:100%;
-  background:#fff; color:#333;
-  padding-top:60px; padding-left:10px;
-  overflow-y:auto;
-  transition: transform 0.3s ease;
-  z-index:1002;
-}
-#sidebar a {
-  display:block; padding:15px 20px; text-decoration:none; color:#333;
-  font-size:1.2em; font-weight:700;
-}
-#sidebar a:hover { background:#eee; }
-
-/* Main content */
-#main {
-  transition: margin-left 0.3s ease;
-  margin-left:250px;
-  padding:20px;
-}
-
-/* Desktop toggle */
-body.desktop-closed #sidebar { transform: translateX(-250px); }
-body.desktop-closed #main { margin-left:0; }
-
-/* Overlay for mobile */
-#overlay {
-  display:none;
-  position:fixed; top:0; left:0;
-  width:100%; height:100%;
-  background: rgba(0,0,0,0.4);
-  z-index:1001;
-}
-
-/* Toggle button */
-#toggleBtn {
-  position:fixed; top:15px; left:15px; font-size:24px;
-  background:none; border:none; z-index:1005; cursor:pointer;
-}
-
-/* Scroll to top button */
-#topBtn {
-  display:none; position:fixed; top:20px; right:30px; z-index:1004;
-  font-size:16px; padding:10px 15px; background-color:#888; color:white;
-  border:none; border-radius:5px; cursor:pointer; transition:background-color 0.3s;
-}
-#topBtn:hover { background-color:#007BFF; }
-
-/* Mobile styles */
-@media(max-width:768px){
-  #sidebar { transform: translateX(-100%); }
-  #sidebar.open { transform: translateX(0); }
-  #main { margin-left:0; }
-  #overlay.show { display:block; }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upravljanje Kategorijama</title>
+    <!-- Google Platform Library za prijavu -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1, h2 { color: #0056b3; }
+        #g_id_onload { margin-bottom: 20px; }
+        #auth-info { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; background-color: #e9e9e9; border-radius: 5px; }
+        #category-form label { display: block; margin-bottom: 5px; font-weight: bold; }
+        #category-form input[type="text"],
+        #category-form input[type="number"],
+        #category-form select,
+        #category-form textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #category-form button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #category-form button:hover {
+            background-color: #0056b3;
+        }
+        #message { margin-top: 20px; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        #categories-list { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+        .category-item { background-color: #f9f9f9; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .category-item strong { color: #007bff; }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Upravljanje Kategorijama</h1>
 
-<div id="sidebar"></div>
-<div id="overlay"></div>
+        <div id="g_id_onload"
+             data-client_id="748161753679-207vasmi8poi0lc0gqvmqv9fphrv6op1.apps.googleusercontent.com"
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin"
+             data-type="standard"
+             data-size="large"
+             data-theme="outline"
+             data-text="sign_in_with"
+             data-shape="rectangular"
+             data-logo_alignment="left">
+        </div>
 
-<div id="main">
-  <button id="toggleBtn">☰</button>
-  <div id="sections"></div>
-</div>
+        <div id="auth-info" style="display: none;">
+            <p>Prijavljeni ste kao: <strong id="user-name"></strong> (<span id="user-email"></span>)</p>
+            <p>Vaš Google User ID: <strong id="user-id"></strong></p>
+            <button onclick="signOut()">Odjava</button>
+        </div>
 
-<button id="topBtn" onclick="scrollToTop()">Botanica</button>
+        <div id="category-section" style="display: none;">
+            <h2>Dodaj/Ažuriraj Kategoriju</h2>
+            <form id="category-form">
+                <label for="client_email">Email klijenta:</label>
+                <input type="email" id="client_email" required>
 
-<script>
-const sidebar = document.getElementById('sidebar');
-const main = document.getElementById('main');
-const toggleBtn = document.getElementById('toggleBtn');
-const overlay = document.getElementById('overlay');
-const body = document.body;
-const sectionsContainer = document.getElementById('sections');
+                <label for="sequence_number">Redni broj (1-99):</label>
+                <input type="number" id="sequence_number" min="1" max="99" required>
 
-// Toggle sidebar
-function openMobileSidebar(){ sidebar.classList.add('open'); overlay.classList.add('show'); }
-function closeMobileSidebar(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); }
-toggleBtn.addEventListener('click', ()=>{
-  if(window.innerWidth <= 768){
-    openMobileSidebar();
-  } else {
-    body.classList.toggle('desktop-closed');
-  }
-});
-overlay.addEventListener('click', closeMobileSidebar);
+                <label for="priority">Prioritet (0-9):</label>
+                <input type="number" id="priority" min="0" max="9" required>
 
-// Scroll to top button
-const topBtn = document.getElementById("topBtn");
-window.onscroll = () => topBtn.style.display = (document.documentElement.scrollTop > 200) ? "block" : "none";
-function scrollToTop(){ window.scrollTo({top:0, behavior:"smooth"}); }
+                <label for="rule">Pravilo:</label>
+                <select id="rule" required>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                </select>
 
-// Initial sidebar state
-function setSidebarState(){
-  if(window.innerWidth > 768){
-    sidebar.classList.remove('open');
-    overlay.classList.remove('show');
-    body.classList.remove('desktop-closed');
-  } else {
-    sidebar.classList.remove('open'); // mobile sidebar zatvoren po defaultu
-    overlay.classList.remove('show');
-    body.classList.remove('desktop-closed');
-  }
-}
-window.addEventListener('load', setSidebarState);
-window.addEventListener('resize', setSidebarState);
+                <label for="response">Odgovor (tekst ili ime .txt fajla):</label>
+                <textarea id="response" rows="5" required></textarea>
 
-// Klik na link zatvara sidebar na mobilnom
-function attachLinkHandler(link){
-  link.addEventListener('click', e=>{
-    e.preventDefault();
-    const targetId = link.getAttribute('href').replace('#','');
-    const sec = document.getElementById(targetId);
-    if(sec) sec.scrollIntoView({behavior:"smooth"});
-    if(window.innerWidth <= 768) closeMobileSidebar();
-  });
-}
+                <label for="tags">Tagovi (odvojeni zarezima, npr. tag1, tag2, tag3):</label>
+                <input type="text" id="tags" placeholder="tag1, tag2, tag3">
 
-// Učitavanje sekcija sa JSON fajla
-fetch("content.json")
-  .then(res => res.ok ? res.json() : Promise.reject("Greška u učitavanju JSON-a"))
-  .then(data=>{
-    sidebar.innerHTML = "";
-    sectionsContainer.innerHTML = "";
-    let i=0;
-    for(let key in data){
-      i++;
-      const item = data[key];
-      // link u sidebar
-      const link = document.createElement('a');
-      link.href = '#'+key;
-      link.textContent = item.title;
-      attachLinkHandler(link);
-      sidebar.appendChild(link);
-      // sekcija
-      const section = document.createElement('section');
-      section.id = key;
-      section.style.backgroundColor = item.bgColor || (i%2===0?"#F5F5F5":"#FFFFFF");
-      section.style.color="#333";
-      section.innerHTML = item.content || "";
-      sectionsContainer.appendChild(section);
-    }
-    // Hardkodirani manager link
-    const managerLink = document.createElement('a');
-    managerLink.href="manager";
-    managerLink.textContent="Manager";
-    sidebar.appendChild(managerLink);
-    attachLinkHandler(managerLink);
-  })
-  .catch(err=>console.error(err));
-</script>
+                <button type="submit">Sačuvaj Kategoriju</button>
+            </form>
 
-<!-- Chat widget iframe -->
-<iframe 
-  src="https://cibulskia.github.io/bot/chat_widget?site=botanica"  
-  style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;"
-  scrolling="no">
-</iframe>
+            <div id="message"></div>
 
+            <div id="categories-list">
+                <h2>Vaše Kategorije</h2>
+                <div id="no-categories" style="display: none;">Nema sačuvanih kategorija za ovog korisnika.</div>
+                <div id="categories-container">
+                    <!-- Kategorije će biti dinamički dodate ovde -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:8080'; // Proverite port vašeg Pythonservera
+        let currentUser = null; // Globalna varijabla za Google korisnika
+
+        function handleCredentialResponse(response) {
+            console.log("Google Credential Response:", response);
+            if (response.credential) {
+                fetch(`${BACKEND_URL}/oauth_callback`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ credential: response.credential })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log("Backend OAuth Response:", data);
+                    if (data.status === 'success') {
+                        currentUser = {
+                            id: data.user_id,
+                            email: data.user_email,
+                            name: data.user_name
+                        };
+                        displayAuthInfo();
+                        showCategorySection();
+                        fetchCategories(); // Učitaj kategorije nakon prijave
+                    } else {
+                        alert('Greška pri prijavi: ' + data.message);
+                        console.error('Google prijava neuspešna:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Greška pri komunikaciji sa backendom za OAuth:', error);
+                    alert('Došlo je do greške pri prijavi. Pokušajte ponovo.');
+                });
+            } else {
+                console.error('Nema credentiala u Google odgovoru.');
+            }
+        }
+
+        function displayAuthInfo() {
+            if (currentUser) {
+                document.getElementById('user-name').textContent = currentUser.name;
+                document.getElementById('user-email').textContent = currentUser.email;
+                document.getElementById('user-id').textContent = currentUser.id;
+                document.getElementById('auth-info').style.display = 'block';
+                document.querySelector('.g_id_signin').style.display = 'none';
+            }
+        }
+
+        function showCategorySection() {
+            document.getElementById('category-section').style.display = 'block';
+        }
+
+        function signOut() {
+            google.accounts.id.disableAutoSelect(); // Ako ste koristili auto_select
+            currentUser = null;
+            document.getElementById('auth-info').style.display = 'none';
+            document.querySelector('.g_id_signin').style.display = 'block';
+            document.getElementById('category-section').style.display = 'none';
+            document.getElementById('categories-container').innerHTML = ''; // Očisti listu kategorija
+            document.getElementById('no-categories').style.display = 'block';
+            console.log("Korisnik odjavljen.");
+        }
+
+        document.getElementById('category-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            if (!currentUser) {
+                showMessage('Morate biti prijavljeni da biste sačuvali kategorije.', 'error');
+                return;
+            }
+
+            const clientEmail = document.getElementById('client_email').value;
+            const sequenceNumber = parseInt(document.getElementById('sequence_number').value);
+            const priority = parseInt(document.getElementById('priority').value);
+            const rule = document.getElementById('rule').value;
+            const response = document.getElementById('response').value;
+            const tagsInput = document.getElementById('tags').value;
+            const tags = tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+
+            const categoryData = {
+                google_user_id: currentUser.id,
+                client_email: clientEmail,
+                sequence_number: sequenceNumber,
+                priority: priority,
+                rule: rule,
+                response: response,
+                tags: tags
+            };
+
+            fetch(`${BACKEND_URL}/categories`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(categoryData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showMessage(data.message, 'success');
+                    document.getElementById('category-form').reset(); // Očisti formu
+                    fetchCategories(); // Ponovo učitaj kategorije da prikaže ažurirane/dodate
+                } else {
+                    showMessage('Greška: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Greška pri slanju kategorije:', error);
+                showMessage('Došlo je do greške pri čuvanju kategorije.', 'error');
+            });
+        });
+
+        function fetchCategories() {
+            if (!currentUser) {
+                document.getElementById('no-categories').style.display = 'block';
+                document.getElementById('categories-container').innerHTML = '';
+                return;
+            }
+
+            fetch(`${BACKEND_URL}/get_categories`, {
+                method: 'POST', // GET može imati probleme sa body, pa koristimo POST
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ google_user_id: currentUser.id })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('categories-container');
+                container.innerHTML = ''; // Očisti prethodne kategorije
+
+                if (data.status === 'success' && data.categories.length > 0) {
+                    document.getElementById('no-categories').style.display = 'none';
+                    data.categories.forEach(category => {
+                        const item = document.createElement('div');
+                        item.classList.add('category-item');
+                        item.innerHTML = `
+                            <p><strong>Email klijenta:</strong> ${category.client_email}</p>
+                            <p><strong>Redni broj:</strong> ${category.sequence_number}</p>
+                            <p><strong>Prioritet:</strong> ${category.priority}</p>
+                            <p><strong>Pravilo:</strong> ${category.rule}</p>
+                            <p><strong>Odgovor:</strong> ${category.response.length > 100 ? category.response.substring(0, 100) + '...' : category.response}</p>
+                            <p><strong>Tagovi:</strong> ${category.tags.join(', ')}</p>
+                        `;
+                        container.appendChild(item);
+                    });
+                } else {
+                    document.getElementById('no-categories').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Greška pri dohvatanju kategorija:', error);
+                showMessage('Došlo je do greške pri učitavanju kategorija.', 'error');
+                document.getElementById('no-categories').style.display = 'block';
+            });
+        }
+
+        function showMessage(msg, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = msg;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Proveri da li je korisnik već prijavljen (za Google auto_select)
+        // Ovo je manje pouzdano bez server-side sesije, ali može pomoći pri ponovnom učitavanju stranice
+        window.onload = function() {
+            // Ako Google automatski prijavi korisnika, handleCredentialResponse će se pozvati
+            // Inače će se prikazati dugme za prijavu.
+        };
+    </script>
 </body>
 </html>

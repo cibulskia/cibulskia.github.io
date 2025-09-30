@@ -7,85 +7,190 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0; /* Ukloni margine da bi se bolje uklopio u iframe */
+            margin: 0;
             background-color: #f4f4f4;
             color: #333;
-            height: 100vh; /* Zauzmi celu visinu iframe-a */
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between; /* Rasporedi sadržaj vertikalno */
         }
-        .container {
-            flex-grow: 1; /* Omogući kontejneru da zauzme dostupan prostor */
-            max-width: 600px; /* I dalje ograniči širinu za bolji izgled */
-            margin: 0 auto; /* Centriraj kontejner horizontalno */
-            background-color: #fff;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
+
+        /* Stilovi za plutajuće dugme za otvaranje chat-a */
+        #openChatBtn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1005;
+            padding: 15px 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border-radius: 50px;
+            border: none;
+            background-color: #007bff; /* Primarna boja */
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease;
         }
-        h1 {
-            text-align: center;
-            color: #0056b3;
-            margin-bottom: 20px; /* Smanjeno malo */
-            font-size: 24px; /* Smanjeno za widget */
+        #openChatBtn:hover {
+            background-color: #0056b3; /* Tamnija nijansa pri hoveru */
         }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input[type="text"],
-        textarea {
+
+        /* Stilovi za chat popup prozor */
+        #qaPopup {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 16px;
+            max-width: 400px;
+            height: 500px; /* Fiksna visina za chat prozor */
+            border-radius: 10px;
+            background: #f9f9f9;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            border: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            z-index: 1006;
+            overflow: hidden;
+            transform: translateY(100%);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
         }
-        textarea {
-            resize: vertical;
-            min-height: 80px; /* Smanjeno za widget */
-            flex-grow: 1; /* Omogući textarea da se širi */
+        #qaPopup.active {
+            transform: translateY(0);
+            opacity: 1;
         }
-        button {
+
+        /* Header chata */
+        .chat-header {
             background-color: #007bff;
             color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-            transition: background-color 0.3s ease;
-            margin-top: 10px; /* Dodatni razmak */
+            padding: 10px 15px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1em;
+            font-weight: bold;
         }
-        button:hover {
+        .chat-header .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .chat-header .close-btn:hover {
+            color: #ffdddd;
+        }
+
+        /* Istorija poruka */
+        #chatHistory {
+            flex-grow: 1; /* Zauzima sav raspoloživ prostor */
+            padding: 15px;
+            overflow-y: auto;
+            font-size: 0.95em;
+            background-color: #eef2f5;
+            display: flex;
+            flex-direction: column; /* Omogućava da poruke idu od vrha ka dnu */
+        }
+        .chat-message {
+            margin-bottom: 10px;
+            word-wrap: break-word;
+            max-width: 80%;
+            padding: 8px 12px;
+            border-radius: 15px;
+            line-height: 1.4;
+        }
+        .chat-message.user {
+            align-self: flex-end; /* Poravnaj korisničke poruke desno */
+            background-color: #007bff;
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+        .chat-message.bot {
+            align-self: flex-start; /* Poravnaj bot poruke levo */
+            background-color: #ffffff;
+            color: #333333;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 2px;
+        }
+        .chat-message.system {
+            text-align: center;
+            font-style: italic;
+            color: #777;
+            font-size: 0.85em;
+            margin: 5px auto;
+            max-width: 100%;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        /* Polje za unos pitanja */
+        #userQuestion {
+            padding: 10px;
+            width: calc(100% - 30px); /* Oduzmi padding sa obe strane */
+            font-size: 1em;
+            margin: 10px 15px;
+            display: block;
+            resize: none;
+            min-height: 40px;
+            overflow: hidden;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 20px; /* Zaobljenije ivice */
+            padding-right: 50px; /* Prostor za send dugme */
+        }
+
+        /* Kontejner za unos i dugme */
+        .input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin: 0 10px 10px 10px; /* Razmak */
+        }
+
+        .input-container textarea {
+            flex-grow: 1;
+            margin: 0;
+            padding-right: 45px; /* Dodatni prostor za dugme */
+        }
+
+        /* Dugme za slanje */
+        #sendBtn {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%; /* Okruglo dugme */
+            width: 38px;
+            height: 38px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background-color 0.3s ease;
+        }
+        #sendBtn:hover {
             background-color: #0056b3;
         }
-        #responseArea {
-            margin-top: 15px; /* Smanjeno malo */
-            background-color: #e9ecef;
-            padding: 15px;
-            border-radius: 4px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            min-height: 80px; /* Smanjeno za widget */
-            border: 1px solid #ced4da;
-            flex-grow: 1; /* Omogući responseArea da se širi */
+        #sendBtn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
         }
+
+        /* Status poruka (za greške/uspehe - slično originalnom kodu) */
         .status-message {
-            margin-top: 10px; /* Smanjeno malo */
+            margin: 10px 15px;
             padding: 10px;
             border-radius: 4px;
             display: none;
-            font-size: 14px; /* Smanjeno za widget */
+            font-size: 0.9em;
+            text-align: center;
         }
         .status-message.success {
             background-color: #d4edda;
@@ -97,120 +202,212 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
-        #userIdDisplay {
-            font-size: 12px;
-            color: #777;
-            text-align: center;
-            margin-top: 5px;
-            margin-bottom: 10px;
+
+        /* Responsive dizajn */
+        @media screen and (max-width: 768px) {
+            #qaPopup {
+                width: 90%;
+                right: 5%;
+                bottom: 10px;
+                max-width: none;
+                height: 80vh; /* Na manjim ekranima zauzmi većinu visine */
+            }
+            #openChatBtn {
+                padding: 12px 20px;
+                font-size: 1em;
+                bottom: 10px;
+                right: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Pitaj Botanicu</h1>
 
-        <div id="userIdDisplay"></div> <!-- Prikazaće User ID radi debuga, može se ukloniti -->
+    <button id="openChatBtn">Pitaj Botanicu</button>
 
-        <div class="form-group">
-            <label for="question">Pitanje:</label>
-            <input type="text" id="question" placeholder="Unesite vaše pitanje">
+    <div id="qaPopup">
+        <div class="chat-header">
+            <span>Pitaj Botanicu</span>
+            <button class="close-btn" id="closeChatBtn">&times;</button>
         </div>
-
-        <button onclick="sendQuestion()">Pošalji Pitanje</button>
-
+        <div id="chatHistory">
+            <!-- Poruke će se dodavati ovde -->
+            <div class="chat-message system" id="userIdDisplay"></div>
+        </div>
         <div id="statusMessage" class="status-message"></div>
-
-        <div class="form-group" style="flex-grow: 1; display: flex; flex-direction: column;">
-            <label for="responseArea">Odgovor servera:</label>
-            <textarea id="responseArea" readonly placeholder="Odgovor će se pojaviti ovde..."></textarea>
+        <div class="input-container">
+            <textarea id="userQuestion" placeholder="Unesite vaše pitanje..." rows="1"></textarea>
+            <button id="sendBtn" disabled>&#10148;</button> <!-- Unicode strelica -->
         </div>
     </div>
 
     <script>
+        const SERVER_URL = "https://botanica.ngrok.app"; // Vaš ngrok URL
         let googleUserId = ''; // Globalna varijabla za čuvanje User ID-a
 
-        // Funkcija za parsiranje URL parametara
-        function getUrlParameter(name) {
-            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-            var results = regex.exec(location.search);
-            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-        };
+        document.addEventListener('DOMContentLoaded', function() {
+            const openChatBtn = document.getElementById("openChatBtn");
+            const qaPopup = document.getElementById("qaPopup");
+            const chatHistory = document.getElementById("chatHistory");
+            const sendBtn = document.getElementById("sendBtn");
+            const closeChatBtn = document.getElementById("closeChatBtn");
+            const userQuestion = document.getElementById("userQuestion");
+            const statusMessage = document.getElementById("statusMessage");
+            const userIdDisplay = document.getElementById("userIdDisplay");
 
-        // Pri učitavanju stranice, izvuci User ID iz URL-a
-        window.onload = function() {
+            // Funkcija za parsiranje URL parametara (iz originalnog koda)
+            function getUrlParameter(name) {
+                name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+                var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+                var results = regex.exec(location.search);
+                return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+            };
+
+            // Pri učitavanju stranice, izvuci User ID iz URL-a (iz originalnog koda)
             googleUserId = getUrlParameter('site');
             if (googleUserId) {
-                document.getElementById('userIdDisplay').textContent = 'Povezan ID: ' + googleUserId;
+                userIdDisplay.textContent = 'Povezan ID: ' + googleUserId;
             } else {
-                document.getElementById('userIdDisplay').textContent = 'Greška: User ID nije pronađen u URL-u.';
-                document.getElementById('userIdDisplay').style.color = 'red';
-            }
-        };
-
-        async function sendQuestion() {
-            const question = document.getElementById('question').value;
-            const responseArea = document.getElementById('responseArea');
-            const statusMessage = document.getElementById('statusMessage');
-
-            responseArea.value = 'Učitavanje odgovora...';
-            statusMessage.style.display = 'none';
-            statusMessage.className = 'status-message'; // Reset class
-
-            if (!googleUserId) {
-                responseArea.value = '';
-                statusMessage.textContent = 'Greška: User ID nije definisan. Proverite embed kod.';
-                statusMessage.classList.add('error');
-                statusMessage.style.display = 'block';
-                return;
+                userIdDisplay.textContent = 'Greška: User ID nije pronađen u URL-u.';
+                userIdDisplay.style.color = 'red';
+                // Onemogući slanje ako nema ID-a
+                sendBtn.disabled = true;
+                userQuestion.placeholder = "Greška: User ID nije definisan.";
             }
 
-            if (!question) {
-                responseArea.value = '';
-                statusMessage.textContent = 'Molimo unesite vaše pitanje.';
-                statusMessage.classList.add('error');
-                statusMessage.style.display = 'block';
-                return;
+            // Funkcija za dodavanje poruke u chat istoriju
+            function appendMessage(sender, text) {
+                const div = document.createElement("div");
+                div.className = `chat-message ${sender}`;
+                div.textContent = text;
+                chatHistory.appendChild(div);
+                chatHistory.scrollTop = chatHistory.scrollHeight; // Skroluj do dna
             }
 
-            try {
-                const response = await fetch('https://botanica.ngrok.app/ask', { // Vaš ngrok URL
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        google_user_id: googleUserId, // Koristi preuzeti User ID
-                        question: question
-                    }),
-                });
+            // Automatsko prilagođavanje visine textarea polja
+            userQuestion.addEventListener('input', e => {
+                e.target.style.height = 'auto';
+                e.target.style.height = (e.target.scrollHeight) + 'px';
+                // Omogući/onemogući dugme za slanje
+                sendBtn.disabled = !e.target.value.trim();
+            });
 
-                const data = await response.json();
+            // Funkcija za slanje pitanja (modifikovana iz originalnog koda)
+            async function sendQuestion() {
+                const question = userQuestion.value.trim();
 
-                if (data.status === 'success') {
-                    responseArea.value = data.answer;
-                    statusMessage.textContent = 'Uspešno primljen odgovor!';
-                    statusMessage.classList.add('success');
-                } else if (data.status === 'not_found') {
-                    responseArea.value = data.answer;
-                    statusMessage.textContent = 'Nije pronađen direktan odgovor.';
+                if (!question) {
+                    statusMessage.textContent = 'Molimo unesite vaše pitanje.';
+                    statusMessage.classList.remove('success');
                     statusMessage.classList.add('error');
-                } else {
-                    responseArea.value = 'Greška: ' + (data.message || 'Nepoznata greška.');
-                    statusMessage.textContent = 'Došlo je do greške prilikom obrade vašeg zahteva.';
-                    statusMessage.classList.add('error');
+                    statusMessage.style.display = 'block';
+                    return;
                 }
-                statusMessage.style.display = 'block';
 
-            } catch (error) {
-                console.error('Došlo je do greške:', error);
-                responseArea.value = 'Došlo je do greške prilikom komunikacije sa serverom.';
-                statusMessage.textContent = 'Došlo je do greške prilikom komunikacije sa serverom.';
-                statusMessage.classList.add('error');
-                statusMessage.style.display = 'block';
+                if (!googleUserId) {
+                    statusMessage.textContent = 'Greška: User ID nije definisan. Proverite embed kod.';
+                    statusMessage.classList.remove('success');
+                    statusMessage.classList.add('error');
+                    statusMessage.style.display = 'block';
+                    return;
+                }
+
+                appendMessage("user", question); // Dodaj korisnikovo pitanje u chat
+
+                userQuestion.value = ''; // Obriši polje
+                userQuestion.style.height = 'auto'; // Resetuj visinu
+                sendBtn.disabled = true; // Onemogući dugme dok se čeka odgovor
+
+                statusMessage.style.display = 'none'; // Sakrij status poruku
+                statusMessage.className = 'status-message'; // Resetuj klasu
+                
+                appendMessage("bot", "Učitavanje odgovora..."); // Dodaj indikator učitavanja
+
+                try {
+                    const response = await fetch(`${SERVER_URL}/ask`, { // Vaš ngrok URL
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            // Važno: Za ngrok, često treba dodati ovaj header ako ne radi u brauzeru
+                            'ngrok-skip-browser-warning': 'true'
+                        },
+                        body: JSON.stringify({
+                            google_user_id: googleUserId, // Koristi preuzeti User ID
+                            question: question
+                        }),
+                    });
+
+                    const data = await response.json();
+
+                    // Ukloni privremenu poruku za učitavanje
+                    if (chatHistory.lastChild && chatHistory.lastChild.textContent === "Učitavanje odgovora...") {
+                        chatHistory.removeChild(chatHistory.lastChild);
+                    }
+
+                    if (data.status === 'success') {
+                        appendMessage("bot", data.answer);
+                        statusMessage.textContent = 'Uspešno primljen odgovor!';
+                        statusMessage.classList.add('success');
+                    } else if (data.status === 'not_found') {
+                        appendMessage("bot", data.answer);
+                        statusMessage.textContent = 'Nije pronađen direktan odgovor.';
+                        statusMessage.classList.add('error');
+                    } else {
+                        appendMessage("bot", 'Greška: ' + (data.message || 'Nepoznata greška.'));
+                        statusMessage.textContent = 'Došlo je do greške prilikom obrade vašeg zahteva.';
+                        statusMessage.classList.add('error');
+                    }
+                    statusMessage.style.display = 'block';
+
+                } catch (error) {
+                    console.error('Došlo je do greške:', error);
+                    // Ukloni privremenu poruku za učitavanje
+                    if (chatHistory.lastChild && chatHistory.lastChild.textContent === "Učitavanje odgovora...") {
+                        chatHistory.removeChild(chatHistory.lastChild);
+                    }
+                    appendMessage("bot", 'Došlo je do greške prilikom komunikacije sa serverom.');
+                    statusMessage.textContent = 'Došlo je do greške prilikom komunikacije sa serverom.';
+                    statusMessage.classList.add('error');
+                    statusMessage.style.display = 'block';
+                } finally {
+                    sendBtn.disabled = false; // Ponovo omogući dugme
+                }
             }
-        }
+
+            // Funkcije za otvaranje i zatvaranje popupa
+            function openChat() {
+                qaPopup.classList.add("active");
+                // Postavi fokus na input polje kada se chat otvori
+                setTimeout(() => userQuestion.focus(), 300); 
+            }
+
+            function closeChat() {
+                qaPopup.classList.remove("active");
+            }
+
+            // Event listeneri
+            openChatBtn.addEventListener("click", () => {
+                if (qaPopup.classList.contains("active")) {
+                    closeChat();
+                } else {
+                    openChat();
+                }
+            });
+
+            closeChatBtn.addEventListener("click", closeChat);
+            sendBtn.addEventListener("click", sendQuestion);
+            userQuestion.addEventListener("keydown", e => {
+                if(e.key === "Enter" && !e.shiftKey){
+                    e.preventDefault();
+                    if (!sendBtn.disabled) { // Proveri da li je dugme omogućeno pre slanja
+                        sendQuestion();
+                    }
+                }
+            });
+            // Inicijalno onemogući dugme za slanje ako je polje prazno
+            sendBtn.disabled = !userQuestion.value.trim();
+        });
     </script>
+
 </body>
 </html>

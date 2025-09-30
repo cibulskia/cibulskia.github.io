@@ -183,25 +183,21 @@
             cursor: not-allowed;
         }
 
-        /* Status poruka (za greške/uspehe - slično originalnom kodu) */
+        /* Status poruke (za greške/uspehe - slično originalnom kodu) */
+        /* Ove poruke se neće direktno videti u chat prozoru, ali ih JS koristi interno */
         .status-message {
             margin: 10px 15px;
             padding: 10px;
             border-radius: 4px;
-            display: none;
+            display: none; /* Uvek sakriveno u chat interfejsu */
             font-size: 0.9em;
             text-align: center;
         }
-        .status-message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+        /* Dodatni skriveni elementi iz originalnog koda */
+        #responseArea {
+            display: none; /* Sakriveno */
         }
-        .status-message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
+
 
         /* Responsive dizajn */
         @media screen and (max-width: 768px) {
@@ -234,7 +230,12 @@
             <!-- Poruke će se dodavati ovde -->
             <div class="chat-message system" id="userIdDisplay"></div>
         </div>
+        
+        <!-- Ovi elementi su zadržani (ali skriveni) da bi se sendQuestion funkcija ponašala identično -->
         <div id="statusMessage" class="status-message"></div>
+        <textarea id="responseArea" readonly placeholder="Odgovor će se pojaviti ovde..." style="display: none;"></textarea>
+        <!-- Kraj skrivenih elemenata -->
+
         <div class="input-container">
             <textarea id="userQuestion" placeholder="Unesite vaše pitanje..." rows="1"></textarea>
             <button id="sendBtn" disabled>&#10148;</button> <!-- Unicode strelica -->
@@ -252,8 +253,11 @@
             const sendBtn = document.getElementById("sendBtn");
             const closeChatBtn = document.getElementById("closeChatBtn");
             const userQuestion = document.getElementById("userQuestion");
-            const statusMessage = document.getElementById("statusMessage");
             const userIdDisplay = document.getElementById("userIdDisplay");
+            
+            // Reference na elemente iz originalnog koda (sada su skriveni u DOM-u)
+            const statusMessage = document.getElementById('statusMessage');
+            const responseArea = document.getElementById('responseArea');
 
             // Funkcija za parsiranje URL parametara (iz originalnog koda)
             function getUrlParameter(name) {
@@ -264,16 +268,17 @@
             };
 
             // Pri učitavanju stranice, izvuci User ID iz URL-a (iz originalnog koda)
-            googleUserId = getUrlParameter('site');
-            if (googleUserId) {
-                userIdDisplay.textContent = 'Povezan ID: ' + googleUserId;
-            } else {
-                userIdDisplay.textContent = 'Greška: User ID nije pronađen u URL-u.';
-                userIdDisplay.style.color = 'red';
-                // Onemogući slanje ako nema ID-a
-                sendBtn.disabled = true;
-                userQuestion.placeholder = "Greška: User ID nije definisan.";
-            }
+            window.onload = function() { // Koristimo window.onload kao u originalnom kodu
+                googleUserId = getUrlParameter('site');
+                if (googleUserId) {
+                    userIdDisplay.textContent = 'Povezan ID: ' + googleUserId;
+                } else {
+                    userIdDisplay.textContent = 'Greška: User ID nije pronađen u URL-u.';
+                    userIdDisplay.style.color = 'red';
+                    sendBtn.disabled = true;
+                    userQuestion.placeholder = "Greška: User ID nije definisan.";
+                }
+            };
 
             // Funkcija za dodavanje poruke u chat istoriju
             function appendMessage(sender, text) {
@@ -288,48 +293,61 @@
             userQuestion.addEventListener('input', e => {
                 e.target.style.height = 'auto';
                 e.target.style.height = (e.target.scrollHeight) + 'px';
-                // Omogući/onemogući dugme za slanje
-                sendBtn.disabled = !e.target.value.trim();
+                sendBtn.disabled = !e.target.value.trim() || !googleUserId; // Omogući/onemogući dugme za slanje
             });
 
-            // Funkcija za slanje pitanja (modifikovana iz originalnog koda)
+            // Funkcija za slanje pitanja (PREPRAVLJENA DA KORISTI ORIGINALNU LOGIKU)
             async function sendQuestion() {
                 const question = userQuestion.value.trim();
 
-                if (!question) {
-                    statusMessage.textContent = 'Molimo unesite vaše pitanje.';
-                    statusMessage.classList.remove('success');
-                    statusMessage.classList.add('error');
-                    statusMessage.style.display = 'block';
-                    return;
+                // Prikaz korisnikovog pitanja u chat-u
+                if (question) {
+                    appendMessage("user", question);
                 }
-
-                if (!googleUserId) {
-                    statusMessage.textContent = 'Greška: User ID nije definisan. Proverite embed kod.';
-                    statusMessage.classList.remove('success');
-                    statusMessage.classList.add('error');
-                    statusMessage.style.display = 'block';
-                    return;
-                }
-
-                appendMessage("user", question); // Dodaj korisnikovo pitanje u chat
-
-                userQuestion.value = ''; // Obriši polje
-                userQuestion.style.height = 'auto'; // Resetuj visinu
+                
+                // Resetuj input polje
+                userQuestion.value = '';
+                userQuestion.style.height = 'auto';
                 sendBtn.disabled = true; // Onemogući dugme dok se čeka odgovor
 
-                statusMessage.style.display = 'none'; // Sakrij status poruku
-                statusMessage.className = 'status-message'; // Resetuj klasu
-                
-                appendMessage("bot", "Učitavanje odgovora..."); // Dodaj indikator učitavanja
+                // Postavi "loading" stanje
+                //responseArea.value = 'Učitavanje odgovora...'; // Originalni kod koristi ovo
+                const loadingMessageElement = document.createElement("div");
+                loadingMessageElement.className = "chat-message bot loading-message";
+                loadingMessageElement.textContent = "Učitavanje odgovora...";
+                chatHistory.appendChild(loadingMessageElement);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+
+
+                statusMessage.style.display = 'none';
+                statusMessage.className = 'status-message'; // Reset class
+
+                if (!googleUserId) {
+                    //responseArea.value = ''; // Originalni kod koristi ovo
+                    if (loadingMessageElement.parentNode) chatHistory.removeChild(loadingMessageElement); // Ukloni loading poruku
+                    appendMessage("bot", 'Greška: User ID nije definisan. Proverite embed kod.');
+                    statusMessage.textContent = 'Greška: User ID nije definisan. Proverite embed kod.';
+                    statusMessage.classList.add('error');
+                    statusMessage.style.display = 'block';
+                    return;
+                }
+
+                if (!question) {
+                    //responseArea.value = ''; // Originalni kod koristi ovo
+                    if (loadingMessageElement.parentNode) chatHistory.removeChild(loadingMessageElement); // Ukloni loading poruku
+                    appendMessage("bot", 'Molimo unesite vaše pitanje.');
+                    statusMessage.textContent = 'Molimo unesite vaše pitanje.';
+                    statusMessage.classList.add('error');
+                    statusMessage.style.display = 'block';
+                    return;
+                }
 
                 try {
                     const response = await fetch(`${SERVER_URL}/ask`, { // Vaš ngrok URL
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            // Važno: Za ngrok, često treba dodati ovaj header ako ne radi u brauzeru
-                            'ngrok-skip-browser-warning': 'true'
+                             'ngrok-skip-browser-warning': 'true' // Za ngrok
                         },
                         body: JSON.stringify({
                             google_user_id: googleUserId, // Koristi preuzeti User ID
@@ -339,20 +357,22 @@
 
                     const data = await response.json();
 
-                    // Ukloni privremenu poruku za učitavanje
-                    if (chatHistory.lastChild && chatHistory.lastChild.textContent === "Učitavanje odgovora...") {
-                        chatHistory.removeChild(chatHistory.lastChild);
-                    }
+                    // Ukloni loading poruku
+                    if (loadingMessageElement.parentNode) chatHistory.removeChild(loadingMessageElement);
+
 
                     if (data.status === 'success') {
+                        //responseArea.value = data.answer; // Originalni kod koristi ovo
                         appendMessage("bot", data.answer);
                         statusMessage.textContent = 'Uspešno primljen odgovor!';
                         statusMessage.classList.add('success');
                     } else if (data.status === 'not_found') {
+                        //responseArea.value = data.answer; // Originalni kod koristi ovo
                         appendMessage("bot", data.answer);
                         statusMessage.textContent = 'Nije pronađen direktan odgovor.';
                         statusMessage.classList.add('error');
                     } else {
+                        //responseArea.value = 'Greška: ' + (data.message || 'Nepoznata greška.'); // Originalni kod koristi ovo
                         appendMessage("bot", 'Greška: ' + (data.message || 'Nepoznata greška.'));
                         statusMessage.textContent = 'Došlo je do greške prilikom obrade vašeg zahteva.';
                         statusMessage.classList.add('error');
@@ -361,16 +381,15 @@
 
                 } catch (error) {
                     console.error('Došlo je do greške:', error);
-                    // Ukloni privremenu poruku za učitavanje
-                    if (chatHistory.lastChild && chatHistory.lastChild.textContent === "Učitavanje odgovora...") {
-                        chatHistory.removeChild(chatHistory.lastChild);
-                    }
+                    // Ukloni loading poruku
+                    if (loadingMessageElement.parentNode) chatHistory.removeChild(loadingMessageElement);
+                    //responseArea.value = 'Došlo je do greške prilikom komunikacije sa serverom.'; // Originalni kod koristi ovo
                     appendMessage("bot", 'Došlo je do greške prilikom komunikacije sa serverom.');
                     statusMessage.textContent = 'Došlo je do greške prilikom komunikacije sa serverom.';
                     statusMessage.classList.add('error');
                     statusMessage.style.display = 'block';
                 } finally {
-                    sendBtn.disabled = false; // Ponovo omogući dugme
+                    sendBtn.disabled = !userQuestion.value.trim() && !!googleUserId; // Ponovo omogući dugme ako ima teksta, ili ako nema ID-a.
                 }
             }
 
@@ -379,6 +398,8 @@
                 qaPopup.classList.add("active");
                 // Postavi fokus na input polje kada se chat otvori
                 setTimeout(() => userQuestion.focus(), 300); 
+                // Inicijalno proveri stanje dugmeta za slanje
+                sendBtn.disabled = !userQuestion.value.trim() || !googleUserId;
             }
 
             function closeChat() {
@@ -404,8 +425,8 @@
                     }
                 }
             });
-            // Inicijalno onemogući dugme za slanje ako je polje prazno
-            sendBtn.disabled = !userQuestion.value.trim();
+            // Inicijalno onemogući dugme za slanje ako je polje prazno ili nema googleUserId
+            sendBtn.disabled = !userQuestion.value.trim() || !googleUserId;
         });
     </script>
 

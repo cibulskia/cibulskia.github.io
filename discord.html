@@ -1,181 +1,558 @@
 <!DOCTYPE html>
-<html lang="sr">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Moj Discord Bot</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background: #f2f2f2;
-    }
-    h1 { text-align: center; }
-    #login-section, #dashboard {
-      max-width: 600px;
-      margin: 20px auto;
-      padding: 20px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: center;
-    }
-    th { background: #eee; }
-    button {
-      padding: 6px 12px;
-      margin: 3px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .update-btn { background: #4caf50; color: white; }
-    .toggle-btn { background: #2196f3; color: white; }
-    .stop-btn { background: #f44336; color: white; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Pomoćnik</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, h3 {
+            color: #0056b3;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        textarea,
+        select {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .logout-btn {
+            background-color: #dc3545;
+        }
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .user-info {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        .user-info img {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            background-color: #f1f1f1;
+            margin-right: 5px;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+        .tab-button.active {
+            background-color: #fff;
+            border-color: #ddd;
+            border-bottom: 1px solid #fff;
+        }
+        .tab-content {
+            display: none;
+            padding-top: 10px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .category-list {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        .category-item {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Omogućava prelamanje sadržaja na manjim ekranima */
+        }
+        .category-item div {
+            flex: 1;
+            min-width: 150px; /* Minimalna širina za svaki deo da se lepo prikazuje */
+            margin-right: 10px;
+            margin-bottom: 5px;
+        }
+        .category-item button {
+            margin-left: auto; /* Dugme desno */
+            margin-bottom: 5px;
+        }
+        .category-item button.delete-btn {
+            background-color: #dc3545;
+        }
+        .category-item button.delete-btn:hover {
+            background-color: #c82333;
+        }
+        .category-tags {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        .rule-info {
+            font-size: 0.8em;
+            color: #888;
+        }
+        .discord-fields {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px dashed #ccc;
+            border-radius: 4px;
+            background-color: #f0f8ff;
+        }
+    </style>
 </head>
 <body>
-  <h1>Discord Bot Manager</h1>
+    <div class="container">
+        <h1>AI Pomoćnik Frontend</h1>
 
-  <!-- Login -->
-  <div id="login-section">
-    <div id="g_id_onload"
-         data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
-         data-context="signin"
-         data-callback="onGoogleSignIn"
-         data-auto_prompt="false">
+        <div id="auth-section">
+            <div id="g_id_onload"
+                 data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                 data-context="signin"
+                 data-ux_mode="popup"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="outline"
+                 data-text="signin_with"
+                 data-size="large"
+                 data-locale="en"
+                 data-logo_alignment="left">
+            </div>
+        </div>
+
+        <div id="main-app" style="display:none;">
+            <div class="user-info">
+                <img id="user-picture" src="" alt="User Picture">
+                <div>
+                    <strong id="user-name"></strong> (<span id="user-email"></span>)
+                    <br>
+                    <button class="logout-btn" onclick="logout()">Odjavi se</button>
+                </div>
+            </div>
+
+            <div class="tab-buttons">
+                <div class="tab-button active" onclick="showTab('ask-tab', this)">Pitaj AI</div>
+                <div class="tab-button" onclick="showTab('manage-categories-tab', this)">Upravljaj Kategorijama</div>
+                <div class="tab-button" onclick="showTab('instructions-tab', this)">Uputstva</div>
+            </div>
+
+            <div id="ask-tab" class="tab-content active">
+                <h2>Postavi Pitanje</h2>
+                <form id="ask-form">
+                    <label for="question">Vaše pitanje:</label>
+                    <textarea id="question" rows="5" placeholder="Unesite vaše pitanje ovde..."></textarea>
+                    <button type="submit">Pošalji Pitanje</button>
+                </form>
+                <div id="ask-response" class="message"></div>
+                <h3>Odgovor:</h3>
+                <p id="answer-display"></p>
+            </div>
+
+            <div id="manage-categories-tab" class="tab-content">
+                <h2>Dodaj/Izmeni Kategoriju</h2>
+                <form id="category-form">
+                    <input type="hidden" id="category-id-to-edit"> <!-- Placeholder for future edit functionality if needed -->
+                    <label for="client-email">Email klijenta:</label>
+                    <input type="email" id="client-email" placeholder="client@example.com" required>
+
+                    <label for="sequence-number">Redni Broj (1-99):</label>
+                    <input type="number" id="sequence-number" min="1" max="99" required>
+
+                    <label for="priority">Prioritet (0-9):</label>
+                    <input type="number" id="priority" min="0" max="9" required>
+
+                    <label for="rule">Pravilo:</label>
+                    <select id="rule" required>
+                        <option value="A">A - Direktni odgovor</option>
+                        <option value="B">B - Slanje na AI model (jedan response)</option>
+                        <option value="C">C - Slanje na AI model (kombinovani responsi)</option>
+                    </select>
+                    <span class="rule-info">
+                        Pravila B i C su dostupna samo privilegovanim korisnicima.
+                    </span>
+
+                    <label for="response">Odgovor/Uputstvo za AI:</label>
+                    <textarea id="response" rows="5" placeholder="Unesite tekst odgovora ili detaljna uputstva za AI model..." required></textarea>
+
+                    <label for="tags">Tagovi (odvojeni zarezom):</label>
+                    <input type="text" id="tags" placeholder="tag1, tag2, tag3" required>
+
+                    <h3>Discord Integracija (Opciono)</h3>
+                    <div class="discord-fields">
+                        <label for="discord-bot-token">Discord Bot Token:</label>
+                        <input type="text" id="discord-bot-token" placeholder="YOUR_DISCORD_BOT_TOKEN">
+
+                        <label for="discord-channel-id">Discord Channel ID:</label>
+                        <input type="text" id="discord-channel-id" placeholder="YOUR_DISCORD_CHANNEL_ID">
+
+                        <label for="discord-active">Status Discord Bota:</label>
+                        <select id="discord-active">
+                            <option value="0">Zaustavljen</option>
+                            <option value="1">Aktivan</option>
+                        </select>
+                    </div>
+
+                    <button type="submit">Sačuvaj Kategoriju</button>
+                </form>
+                <div id="category-message" class="message"></div>
+
+                <div class="category-list">
+                    <h3>Vaše Kategorije</h3>
+                    <div id="user-categories">
+                        <!-- Kategorije će biti dinamički učitane ovde -->
+                        <p>Nema sačuvanih kategorija.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="instructions-tab" class="tab-content">
+                <h2>Uputstva</h2>
+                <div id="instructions-content">
+                    <p>Učitavanje uputstava...</p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="g_id_signin"
-         data-type="standard"
-         data-shape="rectangular"
-         data-theme="outline"
-         data-text="signin_with"
-         data-size="large"
-         data-logo_alignment="left">
-    </div>
-  </div>
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8080'; // Prilagodite ako se backend pokreće na drugom portu/hostu
 
-  <!-- Dashboard -->
-  <div id="dashboard" style="display:none;">
-    <h2>Moj bot</h2>
-    <div id="bot-section"></div>
-  </div>
+        let userProfile = null; // Čuva podatke o ulogovanom korisniku
 
-  <script>
-    // Svi botovi su mapirani po Google User ID
-    const bots = {}; // { userId: {name, status, prefix, timeout} }
+        // Funkcija za prikazivanje poruka
+        function showMessage(elementId, text, type) {
+            const el = document.getElementById(elementId);
+            el.innerText = text;
+            el.className = `message ${type}`;
+            el.style.display = 'block';
+            setTimeout(() => {
+                el.style.display = 'none';
+            }, 5000);
+        }
 
-    let currentUserId = null;
+        // --- Google OAuth ---
+        async function handleCredentialResponse(response) {
+            try {
+                const res = await fetch(`${API_BASE_URL}/oauth_callback`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ credential: response.credential })
+                });
+                const data = await res.json();
 
-    function renderBot() {
-      const container = document.getElementById("bot-section");
-      container.innerHTML = "";
+                if (data.status === 'success') {
+                    userProfile = {
+                        userId: data.user_id,
+                        email: data.user_email,
+                        name: data.user_name,
+                        picture: data.user_picture,
+                        locale: data.user_locale
+                    };
+                    updateUIForLogin();
+                    loadUserCategories();
+                    loadInstructions();
+                } else {
+                    showMessage('ask-response', data.message || 'Greška prilikom Google prijave.', 'error');
+                }
+            } catch (error) {
+                console.error('Greška pri komunikaciji sa backendom:', error);
+                showMessage('ask-response', 'Greška prilikom prijave. Pokušajte ponovo.', 'error');
+            }
+        }
 
-      const bot = bots[currentUserId];
+        function updateUIForLogin() {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            document.getElementById('user-name').innerText = userProfile.name;
+            document.getElementById('user-email').innerText = userProfile.email;
+            document.getElementById('user-picture').src = userProfile.picture;
 
-      if (!bot) {
-        // Ako korisnik nema bota → forma za kreiranje
-        container.innerHTML = `
-          <p>Nemaš kreiranog bota. Dodaj ga:</p>
-          <input type="text" id="botName" placeholder="Naziv bota">
-          <input type="text" id="botPrefix" placeholder="Prefix" value="!">
-          <input type="text" id="botToken" placeholder="Token">
-          <button class="update-btn" onclick="createBot()">Kreiraj</button>
-        `;
-        return;
-      }
+            // Pre-popuni email klijenta u formi za kategorije
+            document.getElementById('client-email').value = userProfile.email;
+        }
 
-      // Ako bot postoji → prikaži tabelu
-      container.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>Naziv</th>
-              <th>Status</th>
-              <th>Prefix</th>
-              <th>Timeout (h)</th>
-              <th>Akcije</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><input type="text" id="botName" value="${bot.name}"></td>
-              <td>${bot.status}</td>
-              <td><input type="text" id="botPrefix" value="${bot.prefix}" size="3"></td>
-              <td><input type="number" id="botTimeout" min="1" max="24" value="${bot.timeout}" style="width:60px"></td>
-              <td>
-                <button class="update-btn" onclick="updateBot()">Ažuriraj</button>
-                <button class="${bot.status==='running'?'stop-btn':'toggle-btn'}" onclick="toggleBot()">
-                  ${bot.status==='running'?'Zaustavi':'Pokreni'}
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      `;
-    }
+        function logout() {
+            userProfile = null;
+            document.getElementById('auth-section').style.display = 'block';
+            document.getElementById('main-app').style.display = 'none';
+            document.getElementById('user-categories').innerHTML = '<p>Nema sačuvanih kategorija.</p>';
+            document.getElementById('answer-display').innerText = '';
+            document.getElementById('question').value = '';
+            // Resetuj formu za kategorije
+            document.getElementById('category-form').reset();
+            showMessage('ask-response', 'Uspešno ste se odjavili.', 'success');
+        }
 
-    function createBot() {
-      const name = document.getElementById("botName").value;
-      const prefix = document.getElementById("botPrefix").value;
-      const token = document.getElementById("botToken").value;
+        // --- Tabovi ---
+        function showTab(tabId, button) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            button.classList.add('active');
+        }
 
-      bots[currentUserId] = {
-        name,
-        prefix,
-        token,
-        status: "stopped",
-        timeout: 0
-      };
+        // --- Postavi Pitanje (Ask AI) ---
+        document.getElementById('ask-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!userProfile) {
+                showMessage('ask-response', 'Molimo vas da se prijavite prvo.', 'error');
+                return;
+            }
 
-      renderBot();
-      alert("Bot kreiran!");
-    }
+            const question = document.getElementById('question').value;
+            if (!question.trim()) {
+                showMessage('ask-response', 'Molimo unesite pitanje.', 'error');
+                return;
+            }
 
-    function updateBot() {
-      const bot = bots[currentUserId];
-      bot.name = document.getElementById("botName").value;
-      bot.prefix = document.getElementById("botPrefix").value;
-      bot.timeout = Math.min(24, parseInt(document.getElementById("botTimeout").value || "0"));
-      renderBot();
-      alert("Podaci ažurirani!");
-    }
+            try {
+                document.getElementById('answer-display').innerText = 'AI razmišlja...';
+                const res = await fetch(`${API_BASE_URL}/ask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        google_user_id: userProfile.userId,
+                        question: question
+                    })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    document.getElementById('answer-display').innerText = data.answer;
+                } else if (data.status === 'queued') {
+                    document.getElementById('answer-display').innerText = `Vaš zahtev je ${data.message} (fajl: ${data.filename}). Molimo sačekajte odgovor.`;
+                } else {
+                    document.getElementById('answer-display').innerText = data.answer || data.message || 'Nema odgovora.';
+                    showMessage('ask-response', data.message || 'Greška pri dobijanju odgovora.', 'error');
+                }
+            } catch (error) {
+                console.error('Greška pri slanju pitanja:', error);
+                showMessage('ask-response', 'Greška u komunikaciji sa serverom.', 'error');
+                document.getElementById('answer-display').innerText = 'Došlo je do greške.';
+            }
+        });
 
-    function toggleBot() {
-      const bot = bots[currentUserId];
-      if (bot.status === "running") {
-        bot.status = "stopped";
-        bot.timeout = 0;
-      } else {
-        bot.status = "running";
-        bot.timeout = Math.min(24, parseInt(document.getElementById("botTimeout").value || "1"));
-      }
-      renderBot();
-      alert(`Bot je sada ${bot.status}`);
-    }
+        // --- Upravljanje Kategorijama ---
+        document.getElementById('category-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!userProfile) {
+                showMessage('category-message', 'Molimo vas da se prijavite prvo.', 'error');
+                return;
+            }
 
-    // Google login callback
-    function onGoogleSignIn(response) {
-      // ovde bismo dekodirali Google JWT i uzeli userId
-      // za demo koristimo nasumični ID
-      currentUserId = "user_" + Math.floor(Math.random()*100000);
+            const clientEmail = document.getElementById('client-email').value;
+            const sequenceNumber = document.getElementById('sequence-number').value;
+            const priority = document.getElementById('priority').value;
+            const rule = document.getElementById('rule').value;
+            const responseText = document.getElementById('response').value;
+            const tagsInput = document.getElementById('tags').value;
+            const tags = tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
 
-      console.log("Google credential:", response.credential, "-> userId:", currentUserId);
+            const discordBotToken = document.getElementById('discord-bot-token').value;
+            const discordChannelId = document.getElementById('discord-channel-id').value;
+            const discordActive = document.getElementById('discord-active').value;
 
-      document.getElementById("login-section").style.display="none";
-      document.getElementById("dashboard").style.display="block";
+            try {
+                const res = await fetch(`${API_BASE_URL}/categories`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        google_user_id: userProfile.userId,
+                        client_email: clientEmail,
+                        sequence_number: sequenceNumber,
+                        priority: priority,
+                        rule: rule,
+                        response: responseText,
+                        tags: tags,
+                        discord_bot_token: discordBotToken,
+                        discord_channel_id: discordChannelId,
+                        discord_active: discordActive
+                    })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    showMessage('category-message', data.message, 'success');
+                    document.getElementById('category-form').reset();
+                    document.getElementById('client-email').value = userProfile.email; // Ponovo popuni
+                    loadUserCategories(); // Osveži listu kategorija
+                } else {
+                    showMessage('category-message', data.message || 'Greška pri čuvanju kategorije.', 'error');
+                }
+            } catch (error) {
+                console.error('Greška pri čuvanju kategorije:', error);
+                showMessage('category-message', 'Greška u komunikaciji sa serverom.', 'error');
+            }
+        });
 
-      renderBot();
-    }
-  </script>
+        async function loadUserCategories() {
+            if (!userProfile) return;
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/get_categories`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ google_user_id: userProfile.userId })
+                });
+                const data = await res.json();
+                const categoriesDiv = document.getElementById('user-categories');
+                categoriesDiv.innerHTML = ''; // Očisti prethodne kategorije
+
+                if (data.status === 'success' && data.categories.length > 0) {
+                    data.categories.forEach(cat => {
+                        const categoryItem = document.createElement('div');
+                        categoryItem.classList.add('category-item');
+                        categoryItem.innerHTML = `
+                            <div><strong>Email Klijenta:</strong> ${cat.client_email}</div>
+                            <div><strong>Redni Broj:</strong> ${cat.sequence_number}</div>
+                            <div><strong>Prioritet:</strong> ${cat.priority}</div>
+                            <div><strong>Pravilo:</strong> ${cat.rule}</div>
+                            <div><strong>Odgovor:</strong> ${cat.response.substring(0, 100)}...</div>
+                            <div class="category-tags"><strong>Tagovi:</strong> ${cat.tags.join(', ')}</div>
+                            <div class="discord-fields">
+                                <strong>Discord Bot Token:</strong> ${cat.discord_bot_token ? '*****' : 'Nije postavljen'} <br>
+                                <strong>Discord Channel ID:</strong> ${cat.discord_channel_id || 'Nije postavljen'} <br>
+                                <strong>Discord Status:</strong> ${cat.discord_active === 1 ? 'Aktivan' : 'Zaustavljen'}
+                            </div>
+                            <!-- Dugme za izmenu (implementacija izmene zahteva više logike na backendu za ID) -->
+                            <!-- <button onclick="editCategory(${JSON.stringify(cat).replace(/"/g, '&quot;')})">Izmeni</button> -->
+                            <!-- Trenutno nema funkcionalnosti za brisanje na backendu, ali dugme može postojati -->
+                            <!-- <button class="delete-btn" onclick="deleteCategory(${cat.sequence_number})">Obriši</button> -->
+                        `;
+                        categoriesDiv.appendChild(categoryItem);
+                    });
+                } else {
+                    categoriesDiv.innerHTML = '<p>Nema sačuvanih kategorija.</p>';
+                }
+            } catch (error) {
+                console.error('Greška pri dohvatanju kategorija:', error);
+                document.getElementById('user-categories').innerHTML = '<p>Greška pri učitavanju kategorija.</p>';
+            }
+        }
+        
+        // Funkcija za učitavanje uputstava
+        async function loadInstructions() {
+            try {
+                // S obzirom da backend ne pruža direktan endpoint za INSTRUCTIONS_TEXT,
+                // mora se pretpostaviti da je CONFIG.json statički dostupan na frontendu
+                // ili da postoji GET endpoint koji ga vraća.
+                // Za sada, pretpostavljamo da je to deo konfiguracije koju frontend može da učita.
+                // Ako backend treba da ga servira, potrebno je dodati GET /instructions endpoint.
+                
+                // Privremeno, koristićemo placeholder ili simulirati učitavanje.
+                const instructionsContentDiv = document.getElementById('instructions-content');
+                
+                // Ovdje bi se idealno napravio poziv ka backendu, npr:
+                // const res = await fetch(`${API_BASE_URL}/get_instructions`);
+                // const data = await res.json();
+                // instructionsContentDiv.innerText = data.instructions_text;
+
+                // Dok ne postoji GET endpoint, koristimo placeholder tekst.
+                // Ili, ako backend šalje instrukcije pri prijavi, mogli bismo ih sačuvati u userProfile ili globalnoj varijabli.
+                // Za ovu implementaciju, stavićemo direktno poruku.
+                instructionsContentDiv.innerHTML = `
+                    <p>Ova sekcija prikazuje uputstva za korišćenje AI asistenta.</p>
+                    <ul>
+                        <li><strong>Pravilo A:</strong> Direktni odgovor. AI će odgovoriti tekstom iz "Odgovora/Uputstva za AI" polja ako se tagovi poklapaju.</li>
+                        <li><strong>Pravilo B:</strong> Slanje na AI model. AI će koristiti tekst iz "Odgovora/Uputstva za AI" polja kao primarni kontekst za generisanje odgovora na vaše pitanje.</li>
+                        <li><strong>Pravilo C:</strong> Slanje na AI model (kombinovani responsi). AI će kombinovati tekstove iz "Odgovora/Uputstva za AI" polja svih kategorija sa pravilom C čiji se tagovi poklapaju, i koristiti ih kao kontekst za generisanje odgovora.</li>
+                        <li><strong>Tagovi:</strong> Tagovi se koriste za prepoznavanje relevantnih kategorija. Ako se bilo koji tag iz kategorije nađe u vašem pitanju, ta kategorija će biti razmotrena.</li>
+                        <li><strong>Prioritet i Redni Broj:</strong> Definišu redosled izvršavanja i preferenciju pravila ako se više njih poklopi.</li>
+                        <li><strong>Discord Integracija:</strong> Popunite Discord Bot Token i Channel ID da biste povezali kategoriju sa Discord botom. Podesite status na "Aktivan" da bi bot bio aktivan za tu kategoriju.</li>
+                    </ul>
+                    <p>Za detaljnija uputstva, kontaktirajte administratora.</p>
+                `; // Ovo bi trebalo doći sa backend-a
+            } catch (error) {
+                console.error('Greška pri učitavanju uputstava:', error);
+                document.getElementById('instructions-content').innerText = 'Greška pri učitavanju uputstava.';
+            }
+        }
+
+
+        // Inicijalna provera pri učitavanju stranice
+        window.onload = () => {
+            // Zameni YOUR_GOOGLE_CLIENT_ID sa stvarnim ID-jem
+            document.getElementById('g_id_onload').dataset.client_id = "YOUR_GOOGLE_CLIENT_ID";
+            // Ako korisnik već ima sesiju, ovo bi trebalo da se reši putem tokena,
+            // ali za jednostavnost, zahtevamo ponovnu prijavu svaki put.
+            // U stvarnoj aplikaciji, koristili biste session storage ili JWT.
+        };
+
+        // Pokreni loadUserCategories i loadInstructions samo kada je korisnik ulogovan
+        // Ovo se dešava unutar `handleCredentialResponse` funkcije nakon uspešne prijave.
+
+    </script>
 </body>
 </html>

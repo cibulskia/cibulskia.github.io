@@ -312,7 +312,7 @@
         document.getElementById('embed-widget-btn').addEventListener('click', function() {
             if (currentUser) {
                 const container = document.getElementById('embedded-widget-container');
-                container.innerHTML = `<iframe src="https://cibulskia.github.io/widget?site=${currentUser.id}" style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;" scrolling="no"></iframe>`;
+                container.innerHTML = `<iframe src="https://cibulskia.github.io/widget2?site=${currentUser.id}" style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;" scrolling="no"></iframe>`;
                 showMessage('Widget je uspešno embedovan na stranicu.', 'success');
             } else {
                 alert('Morate biti prijavljeni da biste embedovali widget.');

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <title>Moj Discord Bot</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f2f2f2;
+    }
+    h1 { text-align: center; }
+    #login-section, #dashboard {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    th { background: #eee; }
+    button {
+      padding: 6px 12px;
+      margin: 3px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .update-btn { background: #4caf50; color: white; }
+    .toggle-btn { background: #2196f3; color: white; }
+    .stop-btn { background: #f44336; color: white; }
+  </style>
+</head>
+<body>
+  <h1>Discord Bot Manager</h1>
+
+  <!-- Login -->
+  <div id="login-section">
+    <div id="g_id_onload"
+         data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
+         data-context="signin"
+         data-callback="onGoogleSignIn"
+         data-auto_prompt="false">
+    </div>
+
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="rectangular"
+         data-theme="outline"
+         data-text="signin_with"
+         data-size="large"
+         data-logo_alignment="left">
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" style="display:none;">
+    <h2>Moj bot</h2>
+    <div id="bot-section"></div>
+  </div>
+
+  <script>
+    // Svi botovi su mapirani po Google User ID
+    const bots = {}; // { userId: {name, status, prefix, timeout} }
+
+    let currentUserId = null;
+
+    function renderBot() {
+      const container = document.getElementById("bot-section");
+      container.innerHTML = "";
+
+      const bot = bots[currentUserId];
+
+      if (!bot) {
+        // Ako korisnik nema bota → forma za kreiranje
+        container.innerHTML = `
+          <p>Nemaš kreiranog bota. Dodaj ga:</p>
+          <input type="text" id="botName" placeholder="Naziv bota">
+          <input type="text" id="botPrefix" placeholder="Prefix" value="!">
+          <input type="text" id="botToken" placeholder="Token">
+          <button class="update-btn" onclick="createBot()">Kreiraj</button>
+        `;
+        return;
+      }
+
+      // Ako bot postoji → prikaži tabelu
+      container.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Naziv</th>
+              <th>Status</th>
+              <th>Prefix</th>
+              <th>Timeout (h)</th>
+              <th>Akcije</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="text" id="botName" value="${bot.name}"></td>
+              <td>${bot.status}</td>
+              <td><input type="text" id="botPrefix" value="${bot.prefix}" size="3"></td>
+              <td><input type="number" id="botTimeout" min="1" max="24" value="${bot.timeout}" style="width:60px"></td>
+              <td>
+                <button class="update-btn" onclick="updateBot()">Ažuriraj</button>
+                <button class="${bot.status==='running'?'stop-btn':'toggle-btn'}" onclick="toggleBot()">
+                  ${bot.status==='running'?'Zaustavi':'Pokreni'}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+    }
+
+    function createBot() {
+      const name = document.getElementById("botName").value;
+      const prefix = document.getElementById("botPrefix").value;
+      const token = document.getElementById("botToken").value;
+
+      bots[currentUserId] = {
+        name,
+        prefix,
+        token,
+        status: "stopped",
+        timeout: 0
+      };
+
+      renderBot();
+      alert("Bot kreiran!");
+    }
+
+    function updateBot() {
+      const bot = bots[currentUserId];
+      bot.name = document.getElementById("botName").value;
+      bot.prefix = document.getElementById("botPrefix").value;
+      bot.timeout = Math.min(24, parseInt(document.getElementById("botTimeout").value || "0"));
+      renderBot();
+      alert("Podaci ažurirani!");
+    }
+
+    function toggleBot() {
+      const bot = bots[currentUserId];
+      if (bot.status === "running") {
+        bot.status = "stopped";
+        bot.timeout = 0;
+      } else {
+        bot.status = "running";
+        bot.timeout = Math.min(24, parseInt(document.getElementById("botTimeout").value || "1"));
+      }
+      renderBot();
+      alert(`Bot je sada ${bot.status}`);
+    }
+
+    // Google login callback
+    function onGoogleSignIn(response) {
+      // ovde bismo dekodirali Google JWT i uzeli userId
+      // za demo koristimo nasumični ID
+      currentUserId = "user_" + Math.floor(Math.random()*100000);
+
+      console.log("Google credential:", response.credential, "-> userId:", currentUserId);
+
+      document.getElementById("login-section").style.display="none";
+      document.getElementById("dashboard").style.display="block";
+
+      renderBot();
+    }
+  </script>
+</body>
+</html>

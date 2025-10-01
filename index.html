@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Botanica - Vaš Pametni Asistent</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4CAF50; /* Green for nature/botanica */
+            --secondary-color: #007bff; /* Blue for tech/AI */
+            --text-color: #333;
+            --light-text-color: #f4f4f4;
+            --background-light: #f9f9f9;
+            --background-dark: #2c3e50;
+            --gradient-start: #6dd5ed;
+            --gradient-end: #2193b0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-light);
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: var(--background-dark);
+            color: var(--light-text-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+        }
+
+        nav ul li {
+            margin-left: 30px;
+        }
+
+        nav ul li a {
+            color: var(--light-text-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.05);
+            transform: rotate(45deg);
+            z-index: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            background-color: #388e3c; /* Darker green */
+            transform: translateY(-2px);
+        }
+
+        /* Section Styling */
+        section {
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        section:nth-of-type(even) {
+            background-color: var(--background-light);
+        }
+
+        section:nth-of-type(odd) {
+            background-color: #fff;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            color: var(--text-color);
+            position: relative;
+            display: inline-block;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -10px;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .feature-item {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: left;
+            border-top: 5px solid var(--secondary-color);
+        }
+
+        .feature-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        .feature-item i {
+            font-size: 3rem;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .feature-item h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        .feature-item p {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        /* How it works */
+        .how-it-works-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            text-align: left;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .step:hover {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .step-icon {
+            flex-shrink: 0;
+            width: 80px;
+            height: 80px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            margin-right: 30px;
+        }
+
+        .step-content h3 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .step-content p {
+            font-size: 1.1rem;
+            color: #555;
+        }
+
+        /* Call to Action */
+        .cta {
+            background: linear-gradient(45deg, var(--primary-color), #2E7D32);
+            color: white;
+            padding: 80px 0;
+        }
+
+        .cta h2 {
+            color: white;
+        }
+        .cta h2::after {
+            background-color: white;
+        }
+
+        .cta p {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--background-dark);
+            color: var(--light-text-color);
+            padding: 40px 0;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        footer p {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+                margin-top: 20px;
+                display: none; /* Hide nav on small screens, can be toggled with JS */
+            }
+
+            nav ul.active {
+                display: flex;
+            }
+
+            nav ul li {
+                margin: 10px 0;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .step {
+                flex-direction: column;
+            }
+
+            .step-icon {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="#" class="logo">Botanica</a>
+            <nav>
+                <ul>
+                    <li><a href="#about">O nama</a></li>
+                    <li><a href="#features">Karakteristike</a></li>
+                    <li><a href="#how-it-works">Kako funkcioniše</a></li>
+                    <li><a href="#contact">Kontakt</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Botanica: Vaš Inteligentni Asistent za Instant Odgovore</h1>
+            <p>Automatizujte podršku korisnicima i budite dostupni 24/7 uz našu naprednu AI platformu. Pružite precizne i personalizovane odgovore bez čekanja!</p>
+            <a href="#features" class="btn">Saznajte Više</a>
+        </div>
+    </section>
+    
+    
+    <section id="about">
+        <div class="container">
+            <h2>Šta je Botanica?</h2>
+            <p style="max-width: 800px; margin: 0 auto 40px auto; font-size: 1.15rem;">
+                Botanica je inovativna platforma dizajnirana da transformiše način na koji komunicirate sa svojim klijentima. Koristeći naprednu veštačku inteligenciju, Botanica omogućava brze, tačne i kontekstualno relevantne odgovore na upite korisnika, smanjujući opterećenje vašeg tima i poboljšavajući zadovoljstvo klijenata. Bilo da se radi o jednostavnim pitanjima ili složenijim scenarijima, Botanica je tu da pruži pomoć.
+            </p>
+            
+        </div>
+    </section>
+
+    <section id="features">
+        <div class="container">
+            <h2>Ključne Karakteristike</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <i class="fas fa-robot"></i>
+                    <h3>Inteligentni AI Odgovori</h3>
+                    <p>Botanica koristi state-of-the-art jezičke modele kako bi razumela namere korisnika i pružila precizne i konzistentne odgovore na osnovu vaših definisanih pravila i podataka.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-cogs"></i>
+                    <h3>Prilagodljiva Pravila (A, B, C)</h3>
+                    <p>Definišite različita pravila odgovaranja (A, B, C) za različite scenarije. Od direktnih, unapred definisanih odgovora do složenih AI interakcija sa dinamičnim podacima.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-tags"></i>
+                    <h3>Sistem Tagovanja</h3>
+                    <p>Organizujte svoje informacije i odgovore pomoću tagova. Botanica automatski prepoznaje ključne reči i fraze u pitanjima kako bi pronašla najrelevantniji sadržaj.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-users"></i>
+                    <h3>Personalizovana Interakcija</h3>
+                    <p>Kroz Google OAuth integraciju, Botanica prepoznaje korisnike i omogućava personalizovanu podršku, prateći njihove prethodne interakcije i preferencije.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-code"></i>
+                    <h3>Jednostavno Embedovanje</h3>
+                    <p>Integracija Botanica widgeta na vašu veb stranicu je nikada lakša. Kopirajte i nalepite jedan red koda i vaš pametni asistent je spreman da radi!</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Optimizacija Prioriteta i Redosleda</h3>
+                    <p>Precizno kontrolišite redosled i prioritet odgovora pomoću numeričkih vrednosti, osiguravajući da se najvažnije informacije uvek prikažu prve.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works">
+        <div class="container">
+            <h2>Kako Botanica Radi?</h2>
+            <div class="how-it-works-steps">
+                <div class="step">
+                    <div class="step-icon">1</div>
+                    <div class="step-content">
+                        <h3>Prijavite se i Definišite Pravila</h3>
+                        <p>Koristeći Google nalog, prijavite se na Botanica platformu i počnite sa definisanjem vaših kategorija i pravila (A, B, C) za različite scenarije podrške.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-icon">2</div>
+                    <div class="step-content">
+                        <h3>Unesite Podatke i Tagove</h3>
+                        <p>Za svaku kategoriju, unesite relevantne odgovore i dodajte ključne tagove. Ovi tagovi pomažu AI-u da efikasno poveže pitanja korisnika sa pravim informacijama.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-icon">3</div>
+                    <div class="step-content">
+                        <h3>Embedujte Widget</h3>
+                        <p>Nakon što ste podesili svoje kategorije, jednostavno generišite i embedujte Botanica chat widget na vašu veb stranicu. Proces je brz i zahteva minimalno tehničko znanje.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-icon">4</div>
+                    <div class="step-content">
+                        <h3>AI Preuzima Komunikaciju</h3>
+                        <p>Vaši klijenti sada mogu postavljati pitanja direktno putem widgeta. Botanica AI će automatski analizirati pitanje, primeniti definisana pravila i pružiti instant, relevantan odgovor.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="container">
+            <h2>Spremni da Unapredite Vašu Korisničku Podršku?</h2>
+            <p>Pridružite se Botanici i obezbedite svojim klijentima superiorno iskustvo podrške već danas!</p>
+            <a href="manager.html" class="btn">Započnite Odmah</a>
+        </div>
+    </section>
+
+    <footer id="contact">
+        <div class="container">
+            <p>&copy; 2023 Botanica. Sva prava zadržana.</p>
+            <div class="footer-links">
+                <a href="#">Politika Privatnosti</a>
+                <a href="#">Uslovi Korišćenja</a>
+                <a href="mailto:info@botanica.com">Kontaktirajte Nas</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- FontAwesome za ikone (samo primer, potrebno je linkovati CDN) -->
+    <script src="https://kit.fontawesome.com/your-font-awesome-kit-id.js" crossorigin="anonymous"></script>
+    <script>
+        // Example for FontAwesome Kit ID:
+        // Replace 'your-font-awesome-kit-id.js' with your actual Font Awesome Kit ID.
+        // If you don't have one, you can use a common CDN for basic icons, but it's not always stable.
+        // For demonstration purposes, I've put a placeholder. For production, register your own kit.
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('nav ul li a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - document.querySelector('header').offsetHeight, // Adjust for fixed header
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

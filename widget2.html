@@ -17,8 +17,14 @@
             transition: transform 0.3s ease, opacity 0.3s ease;
             font-family: Arial, sans-serif;
         }
-        #qaPopup.active { transform: translateY(0); opacity: 1; }
-        #chatHistory { padding: 10px; max-height: 50vh; overflow-y: auto; font-size: 0.95em; background-color: #fff; }
+        #qaPopup.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        #chatHistory {
+            padding: 10px; max-height: 50vh; overflow-y: auto; font-size: 0.95em;
+            background-color: #fff;
+        }
         .chat-message { margin-bottom: 10px; word-wrap: break-word; }
         .chat-message.user { text-align: right; color: #007BFF; }
         .chat-message.bot { text-align: left; color: #333333; white-space: pre-wrap; }
@@ -26,8 +32,12 @@
             padding:10px; width: calc(100% - 20px); font-size:1em;
             margin:10px; display:block; resize:none; min-height:40px; overflow:hidden; box-sizing:border-box;
         }
-        #chatControls { display: flex; justify-content: flex-end; gap: 10px; margin: 0 10px 10px 10px; }
-        #chatControls button { padding:10px 15px; font-size:1em; cursor:pointer; border-radius: 5px; border: none; }
+        #chatControls {
+            display: flex; justify-content: flex-end; gap: 10px; margin: 0 10px 10px 10px;
+        }
+        #chatControls button {
+            padding:10px 15px; font-size:1em; cursor:pointer; border-radius: 5px; border: none;
+        }
         #sendBtn { background-color: #888; color: white; }
         #sendBtn:hover { background-color: #007BFF; }
         #closeChatBtn { background-color: #888; color: white; }
@@ -39,10 +49,15 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         #openChatBtn:hover { background-color: #007BFF; }
-        #statusMessage { font-size: 12px; margin: 5px 10px; display: none; padding: 5px; border-radius: 4px; }
+        #statusMessage {
+            font-size: 12px; margin: 5px 10px; display: none; padding: 5px; border-radius: 4px;
+        }
         #statusMessage.success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
         #statusMessage.error { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
-        @media screen and (max-width:768px) { #qaPopup { width:90%; right:5%; bottom:10px; max-width:none; } #qaPopup textarea { width: calc(100% - 20px); } }
+        @media screen and (max-width:768px) {
+            #qaPopup { width:90%; right:5%; bottom:10px; max-width:none; }
+            #qaPopup textarea { width: calc(100% - 20px); }
+        }
     </style>
 </head>
 <body style="margin:0; padding:0;">
@@ -60,17 +75,18 @@
     </div>
 
     <script>
-        let googleUserId = '';
+        let googleUserId = ''; // zadrzavamo postojeću logiku
         const statusMessage = document.getElementById('statusMessage');
         const chatHistory = document.getElementById('chatHistory');
         const userQuestion = document.getElementById('userQuestion');
 
+        // Funkcija za parsiranje URL parametara
         function getUrlParameter(name) {
             name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-            const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-            const results = regex.exec(location.search);
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
             return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-        }
+        };
 
         window.onload = function() {
             googleUserId = getUrlParameter('site');
@@ -79,7 +95,7 @@
                 statusMessage.className = 'error';
                 statusMessage.style.display = 'block';
             }
-        }
+        };
 
         function appendMessage(sender, text) {
             const div = document.createElement("div");
@@ -89,21 +105,16 @@
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
 
-        async function checkOutbox(filename) {
-            try {
-                const response = await fetch('https://botanica.ngrok.app/get_outbox', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ filename })
-                });
-                if (response.ok) {
-                    const text = await response.text();
-                    if (text.trim()) return text;
-                }
-            } catch (err) {
-                console.error('Polling error:', err);
-            }
-            return null;
+        async function fetchAnswer(question) {
+            const response = await fetch('https://botanica.ngrok.app/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    google_user_id: googleUserId,
+                    question: question
+                }),
+            });
+            return await response.json();
         }
 
         async function sendQuestion() {
@@ -112,57 +123,64 @@
 
             appendMessage("user", question);
             userQuestion.value = '';
+
             statusMessage.style.display = 'none';
             statusMessage.className = '';
 
             if (!googleUserId) {
-                appendMessage("bot", "Greška: User ID nije definisan.");
+                appendMessage("bot", "Greška: User ID nije definisan. Proverite embed kod.");
                 return;
             }
 
+            const loadingDiv = document.createElement("div");
+            loadingDiv.className = "chat-message bot";
+            loadingDiv.textContent = "Učitavanje odgovora...";
+            chatHistory.appendChild(loadingDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
             try {
-                appendMessage("bot", "Učitavanje odgovora...");
+                let data = await fetchAnswer(question);
 
-                const timestampStr = new Date().toISOString().replace(/[-:T.]/g,'').slice(0,14);
-                const filename = `${googleUserId}_${timestampStr}.txt`;
-
-                const response = await fetch('https://botanica.ngrok.app/ask', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ google_user_id: googleUserId, question })
-                });
-
-                const data = await response.json();
-                chatHistory.lastChild.remove();
-
-                if (data.status === 'success') {
+                // Ako nema odmah uspeha, probaj ponovo nakon 1 minut
+                if (data.status !== 'success') {
+                    setTimeout(async () => {
+                        try {
+                            let retryData = await fetchAnswer(question);
+                            chatHistory.removeChild(loadingDiv); // ukloni "Učitavanje odgovora..."
+                            if (retryData.status === 'success') {
+                                appendMessage("bot", retryData.answer);
+                                statusMessage.textContent = 'Uspešno primljen odgovor!';
+                                statusMessage.className = 'success';
+                            } else if (retryData.status === 'not_found') {
+                                appendMessage("bot", retryData.answer);
+                                statusMessage.textContent = 'Nije pronađen direktan odgovor.';
+                                statusMessage.className = 'error';
+                            } else {
+                                appendMessage("bot", 'Greška: ' + (retryData.message || 'Nepoznata greška.'));
+                                statusMessage.textContent = 'Došlo je do greške prilikom obrade vašeg zahteva.';
+                                statusMessage.className = 'error';
+                            }
+                            statusMessage.style.display = 'block';
+                        } catch (error) {
+                            console.error('Retry greška:', error);
+                            chatHistory.removeChild(loadingDiv);
+                            appendMessage("bot", 'Došlo je do greške prilikom komunikacije sa serverom.');
+                            statusMessage.textContent = 'Došlo je do greške prilikom komunikacije sa serverom.';
+                            statusMessage.className = 'error';
+                            statusMessage.style.display = 'block';
+                        }
+                    }, 60000); // čekanje 1 minut
+                } else {
+                    chatHistory.removeChild(loadingDiv); // odmah ukloni "Učitavanje odgovora..."
                     appendMessage("bot", data.answer);
                     statusMessage.textContent = 'Uspešno primljen odgovor!';
                     statusMessage.className = 'success';
                     statusMessage.style.display = 'block';
-                    return;
                 }
-
-                // Ako nema odmah odgovora, čeka 1 minut pa proverava outbox
-                appendMessage("bot", "Odgovor se obrađuje, proveriću za minut...");
-
-                setTimeout(async () => {
-                    const answerFromOutbox = await checkOutbox(filename);
-                    if (answerFromOutbox) {
-                        appendMessage("bot", answerFromOutbox);
-                        statusMessage.textContent = 'Odgovor primljen iz outbox-a.';
-                        statusMessage.className = 'success';
-                    } else {
-                        appendMessage("bot", "Nema odgovora za vaše pitanje.");
-                        statusMessage.textContent = 'Odgovor nije pronađen nakon čekanja.';
-                        statusMessage.className = 'error';
-                    }
-                    statusMessage.style.display = 'block';
-                }, 60000); // 1 minut
 
             } catch (error) {
                 console.error('Došlo je do greške:', error);
-                chatHistory.lastChild.remove();
+                chatHistory.removeChild(loadingDiv);
                 appendMessage("bot", 'Došlo je do greške prilikom komunikacije sa serverom.');
                 statusMessage.textContent = 'Došlo je do greške prilikom komunikacije sa serverom.';
                 statusMessage.className = 'error';
@@ -176,13 +194,29 @@
         const closeChatBtn = document.getElementById("closeChatBtn");
         const sendBtn = document.getElementById("sendBtn");
 
-        function openChat() { qaPopup.classList.add("active"); }
-        function closeChat() { qaPopup.classList.remove("active"); }
+        function openChat() {
+            qaPopup.classList.add("active");
+        }
+        function closeChat() {
+            qaPopup.classList.remove("active");
+        }
 
-        openChatBtn.addEventListener("click", () => { qaPopup.classList.contains("active") ? closeChat() : openChat(); });
+        openChatBtn.addEventListener("click", () => {
+            if (qaPopup.classList.contains("active")) {
+                closeChat();
+            } else {
+                openChat();
+            }
+        });
+
         closeChatBtn.addEventListener("click", closeChat);
         sendBtn.addEventListener("click", sendQuestion);
-        userQuestion.addEventListener("keydown", e => { if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); sendQuestion(); } });
+        userQuestion.addEventListener("keydown", e => {
+            if(e.key === "Enter" && !e.shiftKey){
+                e.preventDefault();
+                sendQuestion();
+            }
+        });
     </script>
 
 </body>

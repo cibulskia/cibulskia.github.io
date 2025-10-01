@@ -3,29 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Botanica Admin Panel</title>
+    <title>Botanica - Upravljanje</title>
     <!-- Google Platform Library za prijavu -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
-        .container { max-width: 900px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .container { max-width: 800px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         h1, h2 { color: #0056b3; }
         #g_id_onload { margin-bottom: 20px; }
         #auth-info { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; background-color: #e9e9e9; border-radius: 5px; }
-        form label { display: block; margin-bottom: 5px; font-weight: bold; }
-        form input[type="text"],
-        form input[type="email"],
-        form input[type="number"],
-        form select,
-        form textarea {
+        #category-form label,
+        #discord-settings-form label { display: block; margin-bottom: 5px; font-weight: bold; }
+        #category-form input[type="text"],
+        #category-form input[type="email"],
+        #category-form input[type="number"],
+        #category-form select,
+        #category-form textarea,
+        #discord-settings-form input[type="text"] {
             width: calc(100% - 22px);
             padding: 10px;
             margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-        form button,
-        .control-buttons button,
+        #discord-settings-form input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        #category-form button,
+        #discord-settings-form button,
         #generate-widget-btn,
         #embed-widget-btn {
             background-color: #007bff;
@@ -38,8 +43,8 @@
             margin-top: 5px;
             margin-right: 10px;
         }
-        form button:hover,
-        .control-buttons button:hover,
+        #category-form button:hover,
+        #discord-settings-form button:hover,
         #generate-widget-btn:hover,
         #embed-widget-btn:hover {
             background-color: #0056b3;
@@ -47,53 +52,10 @@
         #message { margin-top: 20px; padding: 10px; border-radius: 5px; }
         .success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
         .error { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
-        .info { background-color: #e2e3e5; color: #383d41; border-color: #d6d8db; }
-
-        #categories-list, #discord-settings-section { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+        #categories-list { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
         .category-item { background-color: #f9f9f9; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
         .category-item strong { color: #007bff; }
 
-        /* Stil za Discord sekciju */
-        #discord-settings-section {
-            background-color: #e0f2f7;
-            border: 1px solid #b3e0ed;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 30px;
-        }
-        #discord-settings-section h2 {
-            color: #007bff;
-            border-bottom: 1px solid #a6d9eb;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-        #discord-status-message {
-            font-weight: bold;
-            margin-bottom: 15px;
-            padding: 8px;
-            border-radius: 4px;
-            background-color: #fff;
-            border: 1px solid #ddd;
-        }
-        .discord-status-active { color: #155724; background-color: #d4edda; border-color: #c3e6cb; }
-        .discord-status-inactive { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
-        .control-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .control-buttons button {
-            flex-grow: 1;
-        }
-        .control-buttons button.start { background-color: #28a745; }
-        .control-buttons button.start:hover { background-color: #218838; }
-        .control-buttons button.stop { background-color: #dc3545; }
-        .control-buttons button.stop:hover { background-color: #c82333; }
-        .control-buttons button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        
         /* Novi stil za widget sekciju */
         #widget-code { width: calc(100% - 22px); padding: 10px; border: 1px solid #ccc; border-radius: 4px; background-color: #f1f1f1; font-family: monospace; white-space: pre-wrap; word-break: break-word; margin-top: 10px; }
 
@@ -103,7 +65,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Upravljanje Botanicom i Discord Botom</h1>
+        <h1>Upravljanje Botanicom</h1>
 
         <div id="g_id_onload"
              data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
@@ -125,93 +87,76 @@
             <button onclick="signOut()">Odjava</button>
         </div>
 
-        <div id="main-content-sections" style="display: none;">
-            <!-- Sekcija za Discord Bot podešavanja (NOVO) -->
-            <div id="discord-settings-section">
-                <h2>Discord Bot Podešavanja</h2>
-                <div id="discord-status-message">Status: Nije učitano...</div>
+        <div id="category-section" style="display: none;">
+            <h2>Discord Postavke</h2>
+            <form id="discord-settings-form">
+                <label for="discord_token">Discord Bot Token:</label>
+                <input type="text" id="discord_token" placeholder="Unesite Discord bot token">
 
-                <form id="discord-form">
-                    <label for="discord_bot_token">Discord Bot Token:</label>
-                    <input type="text" id="discord_bot_token" placeholder="Unesite vaš Discord Bot Token">
-
-                    <label for="discord_channel_id">Discord Kanal ID:</label>
-                    <input type="text" id="discord_channel_id" placeholder="Unesite ID kanala gde bot radi">
-                    
-                    <label for="discord_allowed_roles">Dozvoljene Role (odvojene zarezima, npr. Admin, Member):</label>
-                    <input type="text" id="discord_allowed_roles" placeholder="Admin, Moderator">
-
-                    <label for="discord_prefix">Prefiks komandi (npr. !):</label>
-                    <input type="text" id="discord_prefix" value="!">
-
-                    <label for="discord_instructions">Instrukcije za Discord Bota:</label>
-                    <textarea id="discord_instructions" rows="5" placeholder="Dodatne instrukcije za ponašanje Discord bota..."></textarea>
-                    
-                    <button type="submit">Sačuvaj Discord Podešavanja</button>
-                </form>
-
-                <div class="control-buttons">
-                    <button class="start" id="discord-start-btn" onclick="toggleDiscordBot(true)" disabled>Pokreni Bota</button>
-                    <button class="stop" id="discord-stop-btn" onclick="toggleDiscordBot(false)" disabled>Zaustavi Bota</button>
+                <div>
+                    <input type="checkbox" id="discord_bot_active">
+                    <label for="discord_bot_active" style="display: inline;">Aktiviraj Discord Bota</label>
                 </div>
-                <div id="discord-message" class="message" style="display: none;"></div>
+                <button type="submit">Sačuvaj Discord Postavke</button>
+            </form>
+
+            <hr>
+
+            <h2>Dodaj/Ažuriraj u Botanicu</h2>
+            <form id="category-form">
+                <label for="client_email">Email klijenta:</label>
+                <input type="email" id="client_email" required readonly>
+
+                <label for="sequence_number">Redni broj (1-99):</label>
+                <input type="number" id="sequence_number" min="1" max="99">
+
+                <label for="priority">Prioritet (0-9):</label>
+                <input type="number" id="priority" min="0" max="9" required>
+
+                <label for="rule">Pravilo:</label>
+                <select id="rule" required>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                </select>
+
+                <label for="response">Odgovor (Unesi tekst):</label>
+                <textarea id="response" rows="5" required></textarea>
+
+                <label for="tags">Tagovi (odvojeni zarezima, npr. tag1, tag2, tag3):</label>
+                <input type="text" id="tags" placeholder="tag1, tag2, tag3">
+
+                <button type="submit">Sačuvaj Botanicu</button>
+                <button type="button" id="load-category-btn">Učitaj Botanicu</button>
+            </form>
+
+            <!-- Novo dugme za embedovanje direktno na stranicu -->
+            <button id="embed-widget-btn">Embeduj widget na ovu stranicu</button>
+
+            <!-- Dugme za generisanje widgeta za kopiranje -->
+            <button id="generate-widget-btn">Prikaži kod za embedovanje</button>
+            <div id="widget-code" style="display: none;"></div>
+
+            <div id="message"></div>
+
+            <div id="categories-list">
+                <h2>Vaša Botanica</h2>
+                <div id="no-categories" style="display: none;">Nema sačuvanih kategorija za ovog korisnika.</div>
+                <div id="categories-container"></div>
             </div>
 
-            <!-- Postojeća sekcija za Botanicu -->
-            <div id="category-section">
-                <h2>Dodaj/Ažuriraj u Botanicu</h2>
-                <form id="category-form">
-                    <label for="client_email">Email klijenta:</label>
-                    <input type="email" id="client_email" required readonly>
-
-                    <label for="sequence_number">Redni broj (1-99):</label>
-                    <input type="number" id="sequence_number" min="1" max="99">
-
-                    <label for="priority">Prioritet (0-9):</label>
-                    <input type="number" id="priority" min="0" max="9" required>
-
-                    <label for="rule">Pravilo:</label>
-                    <select id="rule" required>
-                        <option value="A">A</option>
-                        <option value="B">B</option>
-                        <option value="C">C</option>
-                    </select>
-
-                    <label for="response">Odgovor (Unesi tekst):</label>
-                    <textarea id="response" rows="5" required></textarea>
-
-                    <label for="tags">Tagovi (odvojeni zarezima, npr. tag1, tag2, tag3):</label>
-                    <input type="text" id="tags" placeholder="tag1, tag2, tag3">
-
-                    <button type="submit">Sačuvaj Botanicu</button>
-                    <button type="button" id="load-category-btn">Učitaj Botanicu</button>
-                </form>
-
-                <!-- Novo dugme za embedovanje direktno na stranicu -->
-                <button id="embed-widget-btn">Embeduj widget na ovu stranicu</button>
-
-                <!-- Dugme za generisanje widgeta za kopiranje -->
-                <button id="generate-widget-btn">Prikaži kod za embedovanje</button>
-                <div id="widget-code" style="display: none;"></div>
-
-                <div id="message"></div>
-
-                <div id="categories-list">
-                    <h2>Vaša Botanica</h2>
-                    <div id="no-categories" style="display: none;">Nema sačuvanih kategorija za ovog korisnika.</div>
-                    <div id="categories-container"></div>
-                </div>
-
-                <!-- Container gde će se embedovati widget direktno -->
-                <div id="embedded-widget-container"></div>
-            </div>
+            <!-- Container gde će se embedovati widget direktno -->
+            <div id="embedded-widget-container"></div>
         </div>
     </div>
 
     <script>
-        const BACKEND_URL = 'https://botanica.ngrok.app'; // Ažurirajte ako je potrebno
-        let currentUser = null;
-        let discordSettings = {}; // Čuva trenutna Discord podešavanja za prikaz
+        const BACKEND_URL = 'https://botanica.ngrok.app'; // Proverite da li je URL ispravan!
+        let currentUser = null; // Sadrži id, email, name
+        let currentUserSettings = { // Sadrži discord_token, discord_bot_active, client_email
+            discord_token: '',
+            discord_bot_active: 0
+        };
 
         function handleCredentialResponse(response) {
             console.log("Google Credential Response:", response);
@@ -231,9 +176,9 @@
                             name: data.user_name
                         };
                         displayAuthInfo();
-                        showMainContentSections();
+                        showCategorySection();
                         fetchCategories();
-                        fetchDiscordSettings(); // Dohvati Discord podešavanja
+                        fetchUserSettings(); // Dohvati i Discord postavke
                         saveSession();
                     } else {
                         alert('Greška pri prijavi: ' + data.message);
@@ -260,28 +205,26 @@
             }
         }
 
-        function showMainContentSections() {
-            document.getElementById('main-content-sections').style.display = 'block';
+        function showCategorySection() {
+            document.getElementById('category-section').style.display = 'block';
         }
 
         function signOut() {
             google.accounts.id.disableAutoSelect();
             currentUser = null;
-            discordSettings = {}; // Resetuj Discord podešavanja
+            currentUserSettings = { discord_token: '', discord_bot_active: 0 };
             document.getElementById('auth-info').style.display = 'none';
             document.querySelector('.g_id_signin').style.display = 'block';
-            document.getElementById('main-content-sections').style.display = 'none';
+            document.getElementById('category-section').style.display = 'none';
             document.getElementById('categories-container').innerHTML = '';
             document.getElementById('no-categories').style.display = 'block';
             document.getElementById('widget-code').style.display = 'none';
             document.getElementById('embedded-widget-container').innerHTML = '';
             localStorage.removeItem("userSession");
+            localStorage.removeItem("userSettings"); // Ukloni i Discord postavke iz sesije
             console.log("Korisnik odjavljen.");
-            resetDiscordForm();
-            updateDiscordStatusMessage(false, "Nije učitano..."); // Resetuj status poruku
         }
 
-        // --- Funkcije za Kategorije (postojeće, sa manjim izmenama) ---
         document.getElementById('category-form').addEventListener('submit', function(event) {
             event.preventDefault();
             if (!currentUser) {
@@ -329,6 +272,81 @@
             });
         });
 
+        // Nova forma za Discord postavke
+        document.getElementById('discord-settings-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            if (!currentUser) {
+                showMessage('Morate biti prijavljeni da biste sačuvali Discord postavke.', 'error');
+                return;
+            }
+
+            const discordToken = document.getElementById('discord_token').value;
+            const discordBotActive = document.getElementById('discord_bot_active').checked ? 1 : 0;
+
+            const settingsData = {
+                google_user_id: currentUser.id,
+                discord_token: discordToken,
+                discord_bot_active: discordBotActive
+            };
+
+            fetch(`${BACKEND_URL}/user_settings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(settingsData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showMessage(data.message, 'success');
+                    currentUserSettings.discord_token = discordToken;
+                    currentUserSettings.discord_bot_active = discordBotActive;
+                    saveUserSettings(); // Sačuvaj ažurirane postavke
+                } else {
+                    showMessage('Greška pri čuvanju Discord postavki: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Greška pri slanju Discord postavki:', error);
+                showMessage('Došlo je do greške pri čuvanju Discord postavki.', 'error');
+            });
+        });
+
+        // Funkcija za dohvatanje Discord postavki
+        function fetchUserSettings() {
+            if (!currentUser) return;
+            fetch(`${BACKEND_URL}/get_user_settings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ google_user_id: currentUser.id })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    currentUserSettings = {
+                        discord_token: data.discord_token,
+                        discord_bot_active: data.discord_bot_active
+                    };
+                    document.getElementById('discord_token').value = currentUserSettings.discord_token;
+                    document.getElementById('discord_bot_active').checked = currentUserSettings.discord_bot_active === 1;
+                    saveUserSettings(); // Sačuvaj u lokalnu sesiju
+                } else if (data.status === 'not_found') {
+                    console.log('Korisničke Discord postavke nisu pronađene, korišćenje podrazumevanih.');
+                    // Ako nisu pronađene, forma će prikazati prazna polja, što je ok
+                    currentUserSettings = { discord_token: '', discord_bot_active: 0 };
+                    document.getElementById('discord_token').value = '';
+                    document.getElementById('discord_bot_active').checked = false;
+                    saveUserSettings();
+                } else {
+                    showMessage('Greška pri dohvatanju Discord postavki: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Greška pri dohvatanju Discord postavki:', error);
+                showMessage('Došlo je do greške pri učitavanju Discord postavki.', 'error');
+            });
+        }
+
+
         function fetchCategories() {
             if (!currentUser) return Promise.resolve([]);
             return fetch(`${BACKEND_URL}/get_categories`, {
@@ -370,7 +388,41 @@
             });
         }
 
-        // Dugme "Učitaj Botanicu" (isto kao pre)
+        function showMessage(msg, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = msg;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => { messageDiv.style.display = 'none'; }, 5000);
+        }
+
+        // Dugme za generisanje kod za kopiranje
+        document.getElementById('generate-widget-btn').addEventListener('click', function() {
+            if (currentUser) {
+                const widgetCode = `<iframe \n  src="https://cibulskia.github.io/widget?site=${currentUser.id}"  \n  style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;"\n  scrolling="no"\n></iframe>`;
+                const codeDiv = document.getElementById('widget-code');
+                codeDiv.textContent = widgetCode;
+                codeDiv.style.display = 'block';
+                navigator.clipboard.writeText(widgetCode)
+                    .then(() => alert('Kod je kopiran u clipboard!'))
+                    .catch(() => alert('Greška pri kopiranju u clipboard.'));
+            } else {
+                alert('Morate biti prijavljeni da biste generisali kod.');
+            }
+        });
+
+        // Novo dugme: embedovanje widgeta direktno na stranicu
+        document.getElementById('embed-widget-btn').addEventListener('click', function() {
+            if (currentUser) {
+                const container = document.getElementById('embedded-widget-container');
+                container.innerHTML = `<iframe src="https://cibulskia.github.io/widget?site=${currentUser.id}" style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;" scrolling="no"></iframe>`;
+                showMessage('Widget je uspešno embedovan na stranicu.', 'success');
+            } else {
+                alert('Morate biti prijavljeni da biste embedovali widget.');
+            }
+        });
+
+        // Dugme "Učitaj Botanicu"
         document.getElementById('load-category-btn').addEventListener('click', async function() {
             if (!currentUser) {
                 showMessage('Morate biti prijavljeni da biste učitali kategoriju.', 'error');
@@ -378,7 +430,7 @@
             }
 
             const seqInput = document.getElementById('sequence_number').value;
-            const categories = await fetchCategories();
+            const categories = await fetchCategories(); // Osiguraj da su kategorije učitane
 
             if (categories.length === 0) {
                 showMessage('Botanica je prazna.', 'error');
@@ -388,7 +440,7 @@
             let categoryToLoad = null;
 
             if (seqInput === '') {
-                // Učitaj kategoriju sa najmanjim rednim brojem
+                // Učitaj kategoriju sa najmanjim rednim brojem ako polje za broj nije popunjeno
                 categoryToLoad = categories.reduce((prev, curr) => prev.sequence_number < curr.sequence_number ? prev : curr);
             } else {
                 const seqNumber = parseInt(seqInput);
@@ -410,216 +462,39 @@
             }
         });
 
-        // --- Funkcije za Discord Bot Podešavanja (NOVO) ---
-
-        function fetchDiscordSettings() {
-            if (!currentUser) return;
-            fetch(`${BACKEND_URL}/get_discord_settings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ google_user_id: currentUser.id })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success' && data.discord_settings) {
-                    discordSettings = data.discord_settings;
-                    populateDiscordForm(discordSettings);
-                    updateDiscordStatusMessage(discordSettings.user_discord_enabled, "Učitano.");
-                } else if (data.status === 'not_found') {
-                    // Nema postojećih podešavanja, popuni sa defaultima ili ostavi prazno
-                    resetDiscordForm();
-                    updateDiscordStatusMessage(false, "Nema sačuvanih Discord podešavanja. Molimo popunite i sačuvajte.");
-                } else {
-                    showDiscordMessage('Greška pri dohvatanju Discord podešavanja: ' + data.message, 'error');
-                    updateDiscordStatusMessage(false, "Greška pri učitavanju.");
-                }
-            })
-            .catch(error => {
-                console.error('Greška pri dohvatanju Discord podešavanja:', error);
-                showDiscordMessage('Došlo je do greške pri učitavanju Discord podešavanja.', 'error');
-                updateDiscordStatusMessage(false, "Greška pri učitavanju.");
-            });
-        }
-
-        function populateDiscordForm(settings) {
-            document.getElementById('discord_bot_token').value = settings.discord_bot_token || '';
-            document.getElementById('discord_channel_id').value = settings.discord_channel_id || '';
-            document.getElementById('discord_allowed_roles').value = (settings.discord_allowed_roles && settings.discord_allowed_roles.length > 0) ? settings.discord_allowed_roles.join(', ') : '';
-            document.getElementById('discord_prefix').value = settings.discord_prefix || '!';
-            document.getElementById('discord_instructions').value = settings.discord_instructions || '';
-            
-            // Omogući/Onemogući dugmad na osnovu prisustva tokena i kanala
-            const hasRequiredFields = settings.discord_bot_token && settings.discord_channel_id;
-            document.getElementById('discord-start-btn').disabled = !hasRequiredFields || settings.user_discord_enabled;
-            document.getElementById('discord-stop-btn').disabled = !hasRequiredFields || !settings.user_discord_enabled;
-        }
-
-        function resetDiscordForm() {
-            document.getElementById('discord_bot_token').value = '';
-            document.getElementById('discord_channel_id').value = '';
-            document.getElementById('discord_allowed_roles').value = '';
-            document.getElementById('discord_prefix').value = '!';
-            document.getElementById('discord_instructions').value = '';
-            document.getElementById('discord-start-btn').disabled = true;
-            document.getElementById('discord-stop-btn').disabled = true;
-        }
-
-        function updateDiscordStatusMessage(isEnabled, msg) {
-            const statusDiv = document.getElementById('discord-status-message');
-            statusDiv.textContent = `Status: ${isEnabled ? 'Aktivan' : 'Neaktivan'} - ${msg}`;
-            statusDiv.className = `message ${isEnabled ? 'discord-status-active' : 'discord-status-inactive'}`;
-        }
-
-        document.getElementById('discord-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            if (!currentUser) {
-                showDiscordMessage('Morate biti prijavljeni da biste sačuvali Discord podešavanja.', 'error');
-                return;
-            }
-
-            const discordBotToken = document.getElementById('discord_bot_token').value;
-            const discordChannelId = document.getElementById('discord_channel_id').value;
-            const discordAllowedRolesInput = document.getElementById('discord_allowed_roles').value;
-            const discordAllowedRoles = discordAllowedRolesInput.split(',').map(role => role.trim()).filter(role => role !== '');
-            const discordPrefix = document.getElementById('discord_prefix').value;
-            const discordInstructions = document.getElementById('discord_instructions').value;
-
-            // Minimalna validacija pre slanja
-            if (!discordBotToken || !discordChannelId) {
-                showDiscordMessage('Token i ID kanala su obavezni za Discord bota.', 'error');
-                return;
-            }
-
-            const discordData = {
-                google_user_id: currentUser.id,
-                user_email: currentUser.email, // šaljemo i email za lakše beleženje
-                discord_bot_token: discordBotToken,
-                discord_channel_id: discordChannelId,
-                discord_allowed_roles: discordAllowedRoles,
-                discord_prefix: discordPrefix,
-                discord_instructions: discordInstructions,
-                // user_discord_enabled se ne menja direktno preko submit forme, već preko dugmadi
-                user_discord_enabled: discordSettings.user_discord_enabled || false 
-            };
-
-            fetch(`${BACKEND_URL}/discord_settings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(discordData)
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    showDiscordMessage(data.message, 'success');
-                    fetchDiscordSettings(); // Ponovo dohvati podešavanja da osveži status
-                } else {
-                    showDiscordMessage('Greška pri čuvanju Discord podešavanja: ' + data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Greška pri slanju Discord podešavanja:', error);
-                showDiscordMessage('Došlo je do greške pri čuvanju Discord podešavanja.', 'error');
-            });
-        });
-
-        function toggleDiscordBot(enable) {
-            if (!currentUser) {
-                showDiscordMessage('Morate biti prijavljeni.', 'error');
-                return;
-            }
-            if (!discordSettings.discord_bot_token || !discordSettings.discord_channel_id) {
-                 showDiscordMessage('Popunite Token i ID kanala pre pokretanja/zaustavljanja bota.', 'error');
-                 return;
-            }
-
-            const action = enable ? "pokretanje" : "zaustavljanje";
-            const newStatus = enable;
-
-            showDiscordMessage(`Šaljem zahtev za ${action} Discord bota...`, 'info');
-
-            const discordData = {
-                google_user_id: currentUser.id,
-                user_discord_enabled: newStatus
-            };
-
-            fetch(`${BACKEND_URL}/discord_settings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(discordData)
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    showDiscordMessage(`Discord bot je uspešno ${newStatus ? 'pokrenut' : 'zaustavljen'}.`, 'success');
-                    fetchDiscordSettings(); // Osveži UI
-                } else {
-                    showDiscordMessage(`Greška pri ${action} Discord bota: ` + data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error(`Greška pri ${action} Discord bota:`, error);
-                showDiscordMessage(`Došlo je do greške pri ${action} Discord bota.`, 'error');
-            });
-        }
-
-        function showDiscordMessage(msg, type) {
-            const messageDiv = document.getElementById('discord-message');
-            messageDiv.textContent = msg;
-            messageDiv.className = `message ${type}`;
-            messageDiv.style.display = 'block';
-            setTimeout(() => { messageDiv.style.display = 'none'; }, 5000);
-        }
-
-        function showMessage(msg, type) { // Opšta funkcija za poruke
-            const messageDiv = document.getElementById('message');
-            messageDiv.textContent = msg;
-            messageDiv.className = `message ${type}`;
-            messageDiv.style.display = 'block';
-            setTimeout(() => { messageDiv.style.display = 'none'; }, 5000);
-        }
-
-        // --- Ostale funkcije (widgeti) ---
-        document.getElementById('generate-widget-btn').addEventListener('click', function() {
-            if (currentUser) {
-                const widgetCode = `<iframe \n  src="https://cibulskia.github.io/widget?site=${currentUser.id}"  \n  style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;"\n  scrolling="no"\n></iframe>`;
-                const codeDiv = document.getElementById('widget-code');
-                codeDiv.textContent = widgetCode;
-                codeDiv.style.display = 'block';
-                navigator.clipboard.writeText(widgetCode)
-                    .then(() => alert('Kod je kopiran u clipboard!'))
-                    .catch(() => alert('Greška pri kopiranju u clipboard.'));
-            } else {
-                alert('Morate biti prijavljeni da biste generisali kod.');
-            }
-        });
-
-        document.getElementById('embed-widget-btn').addEventListener('click', function() {
-            if (currentUser) {
-                const container = document.getElementById('embedded-widget-container');
-                container.innerHTML = `<iframe src="https://cibulskia.github.io/widget?site=${currentUser.id}" style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;" scrolling="no"></iframe>`;
-                showMessage('Widget je uspešno embedovan na stranicu.', 'success');
-            } else {
-                alert('Morate biti prijavljeni da biste embedovali widget.');
-            }
-        });
-        
-        // Sesija i inicijalizacija
-        window.onload = function() {
-            const savedUser = localStorage.getItem("userSession");
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                displayAuthInfo();
-                showMainContentSections();
-                fetchCategories();
-                fetchDiscordSettings(); // Dohvati Discord podešavanja pri učitavanju
-            }
-        };
-
+        // Čuvanje sesije (Google info)
         function saveSession() {
             if (currentUser) {
                 localStorage.setItem("userSession", JSON.stringify(currentUser));
             }
         }
+
+        // Čuvanje korisničkih postavki (Discord info)
+        function saveUserSettings() {
+            if (currentUserSettings) {
+                localStorage.setItem("userSettings", JSON.stringify(currentUserSettings));
+            }
+        }
+
+        // Učitavanje sesije i postavki pri učitavanju stranice
+        window.onload = function() {
+            const savedUser = localStorage.getItem("userSession");
+            const savedUserSettings = localStorage.getItem("userSettings");
+
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                displayAuthInfo();
+                showCategorySection();
+                fetchCategories();
+                // Pokušaj da učitaš Discord postavke iz localStorage-a, ako postoje
+                if (savedUserSettings) {
+                    currentUserSettings = JSON.parse(savedUserSettings);
+                    document.getElementById('discord_token').value = currentUserSettings.discord_token;
+                    document.getElementById('discord_bot_active').checked = currentUserSettings.discord_bot_active === 1;
+                }
+                fetchUserSettings(); // Uvek dohvati najnovije sa servera
+            }
+        };
     </script>
 </body>
 </html>

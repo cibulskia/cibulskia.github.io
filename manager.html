@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Botanica - Upravljanje</title>
+    <!-- Google Platform Library za prijavu -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome za ikone -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --primary-color: #4CAF50; /* Green for nature/botanica */
+            --secondary-color: #007bff; /* Blue for tech/AI */
+            --text-color: #333;
+            --light-text-color: #f4f4f4;
+            --background-light: #f9f9f9;
+            --background-dark: #2c3e50;
+            --gradient-start: #6dd5ed;
+            --gradient-end: #2193b0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-light);
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px; /* Dodato padding da ne bude zalepljeno za ivice */
+        }
+
+        /* Header */
+        header {
+            background: var(--background-dark);
+            color: var(--light-text-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        /* Sekcije */
+        section {
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        section:nth-of-type(even) {
+            background-color: var(--background-light);
+        }
+
+        section:nth-of-type(odd) {
+            background-color: #fff;
+        }
+
+        h1, h2 {
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            color: var(--text-color);
+            position: relative;
+            display: inline-block;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -10px;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: var(--background-dark);
+            margin-bottom: 60px;
+        }
+        h1::after {
+            background-color: var(--secondary-color);
+        }
+
+
+        /* Google Sign-in dugme */
+        .g_id_signin {
+            margin: 40px auto;
+            display: block; /* Centriranje */
+            width: fit-content;
+        }
+
+        /* Auth Info */
+        #auth-info {
+            background-color: #e8f5e9; /* Light green */
+            border: 1px solid #c8e6c9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            text-align: left;
+        }
+
+        #auth-info p {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        #auth-info strong {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        /* Form Styling */
+        #category-form {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        #category-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 1.05rem;
+            margin-top: 15px;
+        }
+
+        #category-form input[type="text"],
+        #category-form input[type="email"],
+        #category-form input[type="number"],
+        #category-form select,
+        #category-form textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        #category-form input[type="text"]:focus,
+        #category-form input[type="email"]:focus,
+        #category-form input[type="number"]:focus,
+        #category-form select:focus,
+        #category-form textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        #category-form button,
+        #generate-widget-btn,
+        #embed-widget-btn,
+        #load-category-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 20px;
+            margin-right: 15px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #auth-info button { /* Odjava dugme */
+            background-color: #dc3545; /* Red for sign out */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+        #auth-info button:hover {
+            background-color: #c82333;
+            transform: translateY(-1px);
+        }
+
+        #category-form button:hover,
+        #generate-widget-btn:hover,
+        #embed-widget-btn:hover,
+        #load-category-btn:hover {
+            background-color: #388e3c; /* Darker green */
+            transform: translateY(-2px);
+        }
+        #load-category-btn {
+            background-color: var(--secondary-color);
+        }
+        #load-category-btn:hover {
+            background-color: #0056b3;
+        }
+
+
+        /* Poruke */
+        #message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            text-align: center;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Lista Kategorija */
+        #categories-list {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+            text-align: left; /* Postavi tekst u listi levo */
+        }
+        #categories-list h2 {
+            text-align: center; /* Naslov centriraj */
+            margin-bottom: 30px;
+        }
+        #no-categories {
+            background-color: #ffeccf;
+            color: #8a6d3b;
+            padding: 15px;
+            border: 1px solid #faebcc;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+        .category-item {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .category-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .category-item p {
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+        .category-item strong {
+            color: var(--secondary-color);
+        }
+
+        /* Widget Code Sekcija */
+        #widget-code {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f1f1f1;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            text-align: left;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--background-dark);
+            color: var(--light-text-color);
+            padding: 40px 0;
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 80px;
+        }
+
+        footer p {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            h2 {
+                font-size: 1.8rem;
+            }
+            .container {
+                padding: 15px;
+            }
+            #category-form button,
+            #generate-widget-btn,
+            #embed-widget-btn,
+            #load-category-btn {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="#" class="logo">Botanica Manager</a>
+            <!-- Navigacija ako je potrebna, trenutno je prazna -->
+            <nav>
+                <ul>
+                    <!-- Mogu se dodati linkovi za navigaciju, npr. ka landing stranici -->
+                    <!-- <li><a href="index.html">Početna</a></li> -->
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section>
+        <div class="container">
+            <h1>Upravljanje Botanica AI Asistentom</h1>
+
+            <div id="g_id_onload"
+                 data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="true">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-size="large"
+                 data-theme="outline"
+                 data-text="sign_in_with"
+                 data-shape="rectangular"
+                 data-logo_alignment="left">
+            </div>
+
+            <div id="auth-info" style="display: none;">
+                <p>Prijavljeni ste kao: <strong id="user-name"></strong> (<span id="user-email"></span>)</p>
+                <p>Vaš Google User ID: <strong id="user-id"></strong></p>
+                <button onclick="signOut()"><i class="fas fa-sign-out-alt"></i> Odjava</button>
+            </div>
+
+            <div id="category-section" style="display: none;">
+                <h2>Dodaj ili Ažuriraj Pravila</h2>
+                <form id="category-form">
+                    <label for="client_email">Email klijenta:</label>
+                    <input type="email" id="client_email" required readonly>
+
+                    <label for="sequence_number">Redni broj (1-99) - koristi se za učitavanje ili ažuriranje:</label>
+                    <input type="number" id="sequence_number" min="1" max="99" placeholder="Unesite redni broj (opciono za novu, obavezno za update)">
+
+                    <label for="priority">Prioritet (0-9):</label>
+                    <input type="number" id="priority" min="0" max="9" required placeholder="0 je najviši prioritet">
+
+                    <label for="rule">Pravilo za odgovor:</label>
+                    <select id="rule" required>
+                        <option value="A">Pravilo A (Direktan odgovor)</option>
+                        <option value="B">Pravilo B (AI sa podacima)</option>
+                        <option value="C">Pravilo C (AI generisan odgovor)</option>
+                    </select>
+
+                    <label for="response">Odgovor (Tekst koji AI treba da koristi ili generiše):</label>
+                    <textarea id="response" rows="7" required placeholder="Unesite detaljan odgovor ili instrukcije za AI"></textarea>
+
+                    <label for="tags">Tagovi (odvojeni zarezima, npr. cena, dostava, reklamacija):</label>
+                    <input type="text" id="tags" placeholder="tag1, tag2, tag3">
+
+                    <button type="submit"><i class="fas fa-save"></i> Sačuvaj/Ažuriraj pravilo</button>
+                    <button type="button" id="load-category-btn"><i class="fas fa-cloud-download-alt"></i> Učitaj pravilo</button>
+                </form>
+
+                <div id="message"></div>
+
+                <h2>Widget za Vaš Sajt</h2>
+                <p style="margin-bottom: 20px; font-size: 1.1rem; color: #555;">Jednostavno integrišite Botanica widget na vašu veb stranicu.</p>
+
+                <!-- Novo dugme za embedovanje direktno na stranicu -->
+                <button id="embed-widget-btn"><i class="fas fa-code"></i> Embeduj widget na ovu stranicu</button>
+
+                <!-- Dugme za generisanje widgeta za kopiranje -->
+                <button id="generate-widget-btn"><i class="fas fa-copy"></i> Prikaži i kopiraj kod za embedovanje</button>
+                <div id="widget-code" style="display: none;"></div>
+
+                <div id="categories-list">
+                    <h2>Vaša Aktivna Pravila</h2>
+                    <div id="no-categories" style="display: none;">Trenutno nemate sačuvanih pravila. Počnite dodavanjem prvog!</div>
+                    <div id="categories-container"></div>
+                </div>
+
+                <!-- Container gde će se embedovati widget direktno -->
+                <div id="embedded-widget-container"></div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Botanica. Sva prava zadržana.</p>
+            <div class="footer-links">
+                <a href="#">Politika Privatnosti</a>
+                <a href="#">Uslovi Korišćenja</a>
+                <a href="mailto:info@botanica.com">Kontaktirajte Nas</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const BACKEND_URL = 'https://botanica.ngrok.app'; // Proverite da li je ovo i dalje ispravan URL
+        let currentUser = null;
+
+        function handleCredentialResponse(response) {
+            console.log("Google Credential Response:", response);
+            if (response.credential) {
+                fetch(`${BACKEND_URL}/oauth_callback`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ credential: response.credential })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log("Backend OAuth Response:", data);
+                    if (data.status === 'success') {
+                        currentUser = {
+                            id: data.user_id,
+                            email: data.user_email,
+                            name: data.user_name
+                        };
+                        displayAuthInfo();
+                        showCategorySection();
+                        fetchCategories();
+                        saveSession();
+                    } else {
+                        showMessage('Greška pri prijavi: ' + data.message, 'error');
+                        console.error('Google prijava neuspešna:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Greška pri komunikaciji sa backendom za OAuth:', error);
+                    showMessage('Došlo je do greške pri prijavi. Pokušajte ponovo.', 'error');
+                });
+            } else {
+                console.error('Nema credentiala u Google odgovoru.');
+            }
+        }
+
+        function displayAuthInfo() {
+            if (currentUser) {
+                document.getElementById('user-name').textContent = currentUser.name;
+                document.getElementById('user-email').textContent = currentUser.email;
+                document.getElementById('user-id').textContent = currentUser.id;
+                document.getElementById('auth-info').style.display = 'block';
+                document.querySelector('.g_id_signin').style.display = 'none';
+                document.getElementById('client_email').value = currentUser.email;
+            }
+        }
+
+        function showCategorySection() {
+            document.getElementById('category-section').style.display = 'block';
+        }
+
+        function signOut() {
+            google.accounts.id.disableAutoSelect();
+            currentUser = null;
+            document.getElementById('auth-info').style.display = 'none';
+            document.querySelector('.g_id_signin').style.display = 'block';
+            document.getElementById('category-section').style.display = 'none';
+            document.getElementById('categories-container').innerHTML = '';
+            document.getElementById('no-categories').style.display = 'block';
+            document.getElementById('widget-code').style.display = 'none';
+            document.getElementById('embedded-widget-container').innerHTML = '';
+            localStorage.removeItem("userSession");
+            console.log("Korisnik odjavljen.");
+        }
+
+        document.getElementById('category-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            if (!currentUser) {
+                showMessage('Morate biti prijavljeni da biste sačuvali kategorije.', 'error');
+                return;
+            }
+
+            const clientEmail = document.getElementById('client_email').value;
+            const sequenceNumber = document.getElementById('sequence_number').value; // Može biti prazan string za "dodaj novu"
+            const priority = parseInt(document.getElementById('priority').value);
+            const rule = document.getElementById('rule').value;
+            const response = document.getElementById('response').value;
+            const tagsInput = document.getElementById('tags').value;
+            const tags = tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+
+            const categoryData = {
+                google_user_id: currentUser.id,
+                client_email: clientEmail,
+                priority: priority,
+                rule: rule,
+                response: response,
+                tags: tags
+            };
+
+            // Ako je unet sequence_number, to je ažuriranje
+            if (sequenceNumber !== '') {
+                categoryData.sequence_number = parseInt(sequenceNumber);
+            }
+
+            fetch(`${BACKEND_URL}/categories`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(categoryData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showMessage(data.message, 'success');
+                    document.getElementById('category-form').reset();
+                    document.getElementById('client_email').value = currentUser.email;
+                    fetchCategories();
+                } else {
+                    showMessage('Greška: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Greška pri slanju kategorije:', error);
+                showMessage('Došlo je do greške pri čuvanju kategorije.', 'error');
+            });
+        });
+
+        function fetchCategories() {
+            if (!currentUser) return Promise.resolve([]);
+            return fetch(`${BACKEND_URL}/get_categories`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ google_user_id: currentUser.id })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('categories-container');
+                container.innerHTML = '';
+
+                if (data.status === 'success' && data.categories.length > 0) {
+                    document.getElementById('no-categories').style.display = 'none';
+                    data.categories.forEach(category => {
+                        const item = document.createElement('div');
+                        item.classList.add('category-item');
+                        item.innerHTML = `
+                            <p><strong>Redni broj:</strong> ${category.sequence_number}</p>
+                            <p><strong>Email klijenta:</strong> ${category.client_email}</p>
+                            <p><strong>Prioritet:</strong> ${category.priority}</p>
+                            <p><strong>Pravilo:</strong> ${category.rule}</p>
+                            <p><strong>Odgovor:</strong> ${category.response.length > 150 ? category.response.substring(0, 150) + '...' : category.response}</p>
+                            <p><strong>Tagovi:</strong> ${category.tags.join(', ')}</p>
+                        `;
+                        container.appendChild(item);
+                    });
+                    return data.categories;
+                } else {
+                    document.getElementById('no-categories').style.display = 'block';
+                    return [];
+                }
+            })
+            .catch(error => {
+                console.error('Greška pri dohvatanju kategorija:', error);
+                showMessage('Došlo je do greške pri učitavanju kategorija.', 'error');
+                document.getElementById('no-categories').style.display = 'block';
+                return [];
+            });
+        }
+
+        function showMessage(msg, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = msg;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => { messageDiv.style.display = 'none'; }, 5000);
+        }
+
+        // Dugme za generisanje kod za kopiranje
+        document.getElementById('generate-widget-btn').addEventListener('click', function() {
+            if (currentUser) {
+                const widgetCode = `<iframe \n  src="https://cibulskia.github.io/widget?site=${currentUser.id}"  \n  style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;"\n  scrolling="no"\n></iframe>`;
+                const codeDiv = document.getElementById('widget-code');
+                codeDiv.textContent = widgetCode;
+                codeDiv.style.display = 'block';
+                navigator.clipboard.writeText(widgetCode)
+                    .then(() => showMessage('Kod je kopiran u clipboard!', 'success'))
+                    .catch(() => showMessage('Greška pri kopiranju u clipboard.', 'error'));
+            } else {
+                showMessage('Morate biti prijavljeni da biste generisali kod.', 'error');
+            }
+        });
+
+        // Novo dugme: embedovanje widgeta direktno na stranicu
+        document.getElementById('embed-widget-btn').addEventListener('click', function() {
+            if (currentUser) {
+                const container = document.getElementById('embedded-widget-container');
+                container.innerHTML = `<iframe src="https://cibulskia.github.io/widget?site=${currentUser.id}" style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;" scrolling="no"></iframe>`;
+                showMessage('Widget je uspešno embedovan na stranicu (vidljiv u donjem desnom uglu).', 'success');
+            } else {
+                showMessage('Morate biti prijavljeni da biste embedovali widget.', 'error');
+            }
+        });
+
+        // Dugme "Učitaj Botanicu"
+        document.getElementById('load-category-btn').addEventListener('click', async function() {
+            if (!currentUser) {
+                showMessage('Morate biti prijavljeni da biste učitali kategoriju.', 'error');
+                return;
+            }
+
+            const seqInput = document.getElementById('sequence_number').value;
+            const categories = await fetchCategories();
+
+            if (categories.length === 0) {
+                showMessage('Botanica je prazna. Nema pravila za učitavanje.', 'error');
+                return;
+            }
+
+            let categoryToLoad = null;
+
+            if (seqInput === '') {
+                // Učitaj kategoriju sa najmanjim rednim brojem ako je input prazan
+                categoryToLoad = categories.reduce((prev, curr) => (prev.sequence_number < curr.sequence_number ? prev : curr));
+            } else {
+                const seqNumber = parseInt(seqInput);
+                categoryToLoad = categories.find(cat => cat.sequence_number === seqNumber);
+                if (!categoryToLoad) {
+                    showMessage('Nema pravila sa unetim rednim brojem.', 'error');
+                    return;
+                }
+            }
+
+            if (categoryToLoad) {
+                document.getElementById('client_email').value = categoryToLoad.client_email;
+                document.getElementById('sequence_number').value = categoryToLoad.sequence_number;
+                document.getElementById('priority').value = categoryToLoad.priority;
+                document.getElementById('rule').value = categoryToLoad.rule;
+                document.getElementById('response').value = categoryToLoad.response;
+                document.getElementById('tags').value = categoryToLoad.tags.join(', ');
+                showMessage(`Pravilo sa rednim brojem ${categoryToLoad.sequence_number} je uspešno učitano.`, 'success');
+            }
+        });
+
+        // Ako je korisnik već ulogovan, odmah prikaži stranicu
+        window.onload = function() {
+            const savedUser = localStorage.getItem("userSession");
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                displayAuthInfo();
+                showCategorySection();
+                fetchCategories();
+            }
+        };
+
+        function saveSession() {
+            if (currentUser) {
+                localStorage.setItem("userSession", JSON.stringify(currentUser));
+            }
+        }
+    </script>
+</body>
+</html>

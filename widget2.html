@@ -106,15 +106,22 @@
         }
 
         async function fetchAnswer(question) {
-            const response = await fetch('https://botanica.ngrok.app/ask', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    google_user_id: googleUserId,
-                    question: question
-                }),
-            });
-            return await response.json();
+            try {
+                const response = await fetch('https://botanica.ngrok.app/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        google_user_id: googleUserId,
+                        question: question
+                    }),
+                });
+
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Došlo je do greške:', error);
+                return { status: 'error', message: 'Došlo je do greške prilikom komunikacije sa serverom.' };
+            }
         }
 
         async function sendQuestion() {
@@ -132,59 +139,39 @@
                 return;
             }
 
-            const loadingDiv = document.createElement("div");
-            loadingDiv.className = "chat-message bot";
-            loadingDiv.textContent = "Učitavanje odgovora...";
-            chatHistory.appendChild(loadingDiv);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
+            appendMessage("bot", "Učitavanje odgovora...");
+            let firstMessage = chatHistory.lastChild;
 
-            try {
-                let data = await fetchAnswer(question);
+            let data = await fetchAnswer(question);
 
-                // Ako nema odmah uspeha, probaj ponovo nakon 1 minut
-                if (data.status !== 'success') {
-                    setTimeout(async () => {
-                        try {
-                            let retryData = await fetchAnswer(question);
-                            chatHistory.removeChild(loadingDiv); // ukloni "Učitavanje odgovora..."
-                            if (retryData.status === 'success') {
-                                appendMessage("bot", retryData.answer);
-                                statusMessage.textContent = 'Uspešno primljen odgovor!';
-                                statusMessage.className = 'success';
-                            } else if (retryData.status === 'not_found') {
-                                appendMessage("bot", retryData.answer);
-                                statusMessage.textContent = 'Nije pronađen direktan odgovor.';
-                                statusMessage.className = 'error';
-                            } else {
-                                appendMessage("bot", 'Greška: ' + (retryData.message || 'Nepoznata greška.'));
-                                statusMessage.textContent = 'Došlo je do greške prilikom obrade vašeg zahteva.';
-                                statusMessage.className = 'error';
-                            }
-                            statusMessage.style.display = 'block';
-                        } catch (error) {
-                            console.error('Retry greška:', error);
-                            chatHistory.removeChild(loadingDiv);
-                            appendMessage("bot", 'Došlo je do greške prilikom komunikacije sa serverom.');
-                            statusMessage.textContent = 'Došlo je do greške prilikom komunikacije sa serverom.';
-                            statusMessage.className = 'error';
-                            statusMessage.style.display = 'block';
-                        }
-                    }, 60000); // čekanje 1 minut
-                } else {
-                    chatHistory.removeChild(loadingDiv); // odmah ukloni "Učitavanje odgovora..."
-                    appendMessage("bot", data.answer);
-                    statusMessage.textContent = 'Uspešno primljen odgovor!';
-                    statusMessage.className = 'success';
-                    statusMessage.style.display = 'block';
-                }
-
-            } catch (error) {
-                console.error('Došlo je do greške:', error);
-                chatHistory.removeChild(loadingDiv);
-                appendMessage("bot", 'Došlo je do greške prilikom komunikacije sa serverom.');
-                statusMessage.textContent = 'Došlo je do greške prilikom komunikacije sa serverom.';
-                statusMessage.className = 'error';
+            // Ako odmah dobije odgovor, prikaži odmah
+            if(data.status === 'success') {
+                firstMessage.remove();
+                appendMessage("bot", data.answer);
+                statusMessage.textContent = 'Uspešno primljen odgovor!';
+                statusMessage.className = 'success';
                 statusMessage.style.display = 'block';
+            } else {
+                // Ako nije odmah uspeo, ostavi poruku i pokuša ponovo za 1 minut
+                firstMessage.textContent = "Učitavanje odgovora... (ponovni pokušaj za 1 minut)";
+                setTimeout(async () => {
+                    let retryData = await fetchAnswer(question);
+                    firstMessage.remove(); // ukloni staru poruku
+                    if(retryData.status === 'success') {
+                        appendMessage("bot", retryData.answer);
+                        statusMessage.textContent = 'Uspešno primljen odgovor!';
+                        statusMessage.className = 'success';
+                    } else if(retryData.status === 'not_found') {
+                        appendMessage("bot", retryData.answer);
+                        statusMessage.textContent = 'Nije pronađen direktan odgovor.';
+                        statusMessage.className = 'error';
+                    } else {
+                        appendMessage("bot", 'Greška: ' + (retryData.message || 'Nepoznata greška.'));
+                        statusMessage.textContent = 'Došlo je do greške prilikom obrade vašeg zahteva.';
+                        statusMessage.className = 'error';
+                    }
+                    statusMessage.style.display = 'block';
+                }, 60000); // 60000ms = 1 minut
             }
         }
 

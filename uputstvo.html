@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kako napraviti Discord bota</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome za ikone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4CAF50; /* Green for nature/botanica */
+            --secondary-color: #007bff; /* Blue for tech/AI */
+            --text-color: #333;
+            --light-text-color: #f4f4f4;
+            --background-light: #f9f9f9;
+            --background-dark: #2c3e50;
+            --gradient-start: #6dd5ed;
+            --gradient-end: #2193b0;
+            --discord-color: #7289DA; /* Discord brand color */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-light);
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 900px; /* Prilagođena širina za sadržaj uputstva */
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--discord-color);
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background-color: var(--discord-color);
+            border-radius: 2px;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: var(--text-color);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #555;
+        }
+
+        strong {
+            color: var(--discord-color);
+        }
+
+        a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Specifični stilovi za korake ili važne delove */
+        .step-section {
+            background-color: #f8f8f8;
+            border-left: 5px solid var(--discord-color);
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .step-section h3 {
+            font-size: 1.5rem;
+            color: var(--discord-color);
+            margin-bottom: 10px;
+        }
+
+        .highlight {
+            background-color: #e6f7ff;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .icon-copy {
+            color: var(--discord-color);
+            margin-left: 5px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            p {
+                font-size: 1rem;
+            }
+            .container {
+                margin-top: 20px;
+                margin-bottom: 20px;
+                border-radius: 0;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kako napraviti i dodati Discord bota na server</h1>
+
+        <div class="step-section">
+            <h3>Kreiranje Aplikacije</h3>
+            <p>Da biste kreirali Discord bota, potrebno je da koristite zvanični <a href="https://discord.com/developers/applications" target="_blank">Discord Developer Portal</a>. Kada se prijavite svojim nalogom, prvo kreirate novu aplikaciju klikom na opciju <span class="highlight">New Application</span> i unosom imena. Aplikacija predstavlja osnovu vašeg bota.</p>
+        </div>
+
+        <div class="step-section">
+            <h3>Kreiranje Bot Naloga</h3>
+            <p>Zatim otvorite meni sa leve strane i izaberete sekciju <span class="highlight">Bot</span>. Klikom na <span class="highlight">Add Bot</span> potvrđujete izbor i time se kreira bot nalog koji je povezan sa vašom aplikacijom. Na ovom mestu možete promeniti ime i sliku bota ukoliko želite da izgleda prepoznatljivo.</p>
+        </div>
+
+        <div class="step-section">
+            <h3>Pronađite Token Bota</h3>
+            <p>Token bota je najvažniji podatak jer služi kao ključ koji omogućava vašoj skripti ili programu da se prijavi kao bot na Discord. Da biste ga videli, u okviru sekcije <span class="highlight">Bot</span> postoji deo <span class="highlight">Token</span>. Kliknite na dugme <span class="highlight">View Token</span> i pojaviće se vrednost. Pored vrednosti nalazi se ikonica Copy (<i class="fas fa-clipboard icon-copy"></i>). Kada kliknete na tu ikonicu, token se automatski kopira u clipboard i možete ga nalepiti bilo gde pomoću Ctrl + V.</p>
+        </div>
+
+        <div class="step-section">
+            <h3>Generisanje Pozivnog Linka</h3>
+            <p>Da bi bot mogao da se pridruži serveru, potrebno ga je pozvati putem posebnog linka. U meniju izaberite opciju <span class="highlight">OAuth2 &rarr; URL Generator</span>. U delu <span class="highlight">Scopes</span> označite opciju <span class="highlight">bot</span>, a u delu <span class="highlight">Bot Permissions</span> izaberite dozvole koje bot treba da ima, na primer administrativna prava ili samo osnovne dozvole poput slanja i čitanja poruka. Na dnu stranice automatski će se generisati pozivni link. Pored njega se takođe nalazi ikonica Copy (<i class="fas fa-clipboard icon-copy"></i>). Klikom na nju link se kopira u clipboard. Potrebno je da otvorite ovaj link u svom pregledaču, a zatim da izaberete server na kojem imate administratorska prava i potvrdite dodavanje bota klikom na <span class="highlight">Authorize</span>.</p>
+        </div>
+
+        <p>Na ovaj način vaš bot postaje član servera. Kada ga pokrenete pomoću odgovarajuće skripte ili aplikacije, pojaviće se online i spreman je da reaguje na komande i obavlja zadatke.</p>
+    </div>
+</body>
+</html>

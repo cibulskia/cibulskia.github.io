@@ -240,7 +240,8 @@
     </div>
 
     <script>
-        let googleUserId = ''; // zadrzavamo postojeću logiku
+        let googleUserId = ''; 
+        let sessionId = ''; // Dodajemo promenljivu za session ID
         const statusMessage = document.getElementById('statusMessage');
         const chatHistory = document.getElementById('chatHistory');
         const userQuestion = document.getElementById('userQuestion');
@@ -248,6 +249,11 @@
         const openChatBtn = document.getElementById("openChatBtn");
         const qaPopup = document.getElementById("qaPopup");
         const closeChatBtn = document.getElementById("closeChatBtn");
+
+        // Funkcija za generisanje jedinstvenog session ID-a
+        function generateSessionId() {
+            return 'sesh-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        }
 
         // Funkcija za parsiranje URL parametara
         function getUrlParameter(name) {
@@ -259,15 +265,16 @@
 
         window.onload = function() {
             googleUserId = getUrlParameter('site');
-            if (!googleUserId) {
-                // Prikazati grešku samo ako je chat otvoren ili ako želimo da uvek bude vidljivo
-                // Za sada, neka bude tiho, jer je widget možda embedovan na stranicu koja ne koristi site parametar direktno
-                console.warn('Upozorenje: User ID ("site" parametar) nije pronađen u URL-u. Komunikacija sa serverom možda neće raditi ispravno.');
-                // Možete i ovde dodati poruku u statusMessage ako želite da bude vidljiva korisniku:
-                // statusMessage.textContent = 'Greška: User ID nije pronađen. Kontaktirajte podršku.';
-                // statusMessage.className = 'error';
-                // statusMessage.style.display = 'block';
+            sessionId = localStorage.getItem('botanicaSessionId'); // Pokušaj da učitaš ID iz lokalnog skladišta
+            if (!sessionId) {
+                sessionId = generateSessionId(); // Generiši novi ako ne postoji
+                localStorage.setItem('botanicaSessionId', sessionId); // Sačuvaj ga
             }
+            
+            if (!googleUserId) {
+                console.warn('Upozorenje: User ID ("site" parametar) nije pronađen u URL-u. Komunikacija sa serverom možda neće raditi ispravno.');
+            }
+            console.log('Session ID:', sessionId); // Za debagovanje
         };
 
         function appendMessage(sender, text) {
@@ -285,6 +292,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         google_user_id: googleUserId,
+                        session_id: sessionId, // Dodajemo session_id
                         question: question
                     }),
                 });
@@ -299,11 +307,11 @@
 
         async function sendQuestion() {
             const question = userQuestion.value.trim();
-            if(!question) return; // Ne šalji prazna pitanja
+            if(!question) return;
 
             appendMessage("user", question);
             userQuestion.value = '';
-            adjustTextareaHeight(); // Resetuj visinu tekstualnog polja
+            adjustTextareaHeight();
 
             statusMessage.style.display = 'none';
             statusMessage.className = '';
@@ -311,6 +319,14 @@
             if (!googleUserId) {
                 appendMessage("bot", "Greška: User ID nije definisan. Proverite embed kod.");
                 statusMessage.textContent = 'Greška: User ID nije definisan.';
+                statusMessage.className = 'error';
+                statusMessage.style.display = 'block';
+                return;
+            }
+
+            if (!sessionId) {
+                appendMessage("bot", "Greška: Session ID nije definisan.");
+                statusMessage.textContent = 'Greška: Session ID nije definisan.';
                 statusMessage.className = 'error';
                 statusMessage.style.display = 'block';
                 return;
@@ -325,18 +341,15 @@
 
             let data = await fetchAnswer(question);
 
-            // Ukloni privremenu poruku "Učitavanje odgovora..."
             if (loadingMessageElement) {
                 loadingMessageElement.remove();
             }
 
-            // Ako odmah dobije odgovor, prikaži odmah
             if(data.status === 'success') {
                 appendMessage("bot", data.answer);
                 statusMessage.textContent = 'Uspešno primljen odgovor!';
                 statusMessage.className = 'success';
             } else {
-                // Ako nije odmah uspeo ili je status drugačiji
                 if(data.status === 'not_found') {
                     appendMessage("bot", data.answer);
                     statusMessage.textContent = 'Nije pronađen direktan odgovor.';
@@ -346,17 +359,13 @@
                     statusMessage.textContent = 'Došlo je do greške prilikom obrade vašeg zahteva.';
                     statusMessage.className = 'error';
                 }
-                // Bez ponovnog pokušaja za 1 minut, samo prikaži grešku odmah
-                // Ako želite ponovne pokušaje, treba implementirati logiku sa setTimeout ovde
             }
             statusMessage.style.display = 'block';
         }
 
-        // Automatsko podešavanje visine textarea
         function adjustTextareaHeight() {
-            userQuestion.style.height = 'auto'; // Resetuje visinu
+            userQuestion.style.height = 'auto';
             userQuestion.style.height = (userQuestion.scrollHeight) + 'px';
-            // Ograničite maksimalnu visinu na 100px ili po želji
             if (userQuestion.scrollHeight > 100) {
                 userQuestion.style.height = '100px';
                 userQuestion.style.overflowY = 'auto';
@@ -369,11 +378,11 @@
 
         function openChat() {
             qaPopup.classList.add("active");
-            openChatBtn.style.display = "none"; // Sakrij dugme kad je chat otvoren
+            openChatBtn.style.display = "none";
         }
         function closeChat() {
             qaPopup.classList.remove("active");
-            openChatBtn.style.display = "flex"; // Pokaži dugme kad je chat zatvoren
+            openChatBtn.style.display = "flex";
         }
 
         openChatBtn.addEventListener("click", openChat);
@@ -381,12 +390,11 @@
         sendBtn.addEventListener("click", sendQuestion);
         userQuestion.addEventListener("keydown", e => {
             if(e.key === "Enter" && !e.shiftKey){
-                e.preventDefault(); // Sprečava novi red u textarea
+                e.preventDefault();
                 sendQuestion();
             }
         });
 
-        // Inicijalno podešavanje visine textarea
         adjustTextareaHeight();
     </script>
 

@@ -3,58 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Backend Frontend</title>
+    <title>Minimalistička Aplikacija</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        h1, h2 {
-            color: #0056b3;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            margin-top: 20px;
-        }
-        .section {
-            margin-bottom: 30px;
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 5px;
-            background-color: #fafafa;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input[type="text"],
-        input[type="number"],
-        input[type="email"],
-        textarea,
-        select {
-            width: calc(100% - 12px);
-            padding: 8px;
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1, h2 { color: #0056b3; }
+        .user-info, .settings-section { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #e9f7ff; }
+        .user-info p, .settings-section p { margin: 5px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="number"], textarea, select {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
-            font-size: 14px;
         }
-        input[type="checkbox"] {
-            margin-right: 5px;
-        }
+        input[type="checkbox"] { margin-right: 5px; }
         button {
             background-color: #007bff;
             color: white;
@@ -63,323 +29,347 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            margin-top: 10px;
             margin-right: 10px;
+            margin-bottom: 10px;
         }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .output {
-            background-color: #e9ecef;
-            border: 1px solid #ced4da;
-            padding: 15px;
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        .response-area {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border: 1px solid #ddd;
             border-radius: 4px;
-            max-height: 300px;
-            overflow-y: auto;
+            min-height: 50px;
             white-space: pre-wrap;
-            font-family: monospace;
-            font-size: 14px;
+            font-size: 0.9em;
         }
-        .error {
-            color: red;
-            font-weight: bold;
-        }
-        .success {
-            color: green;
-            font-weight: bold;
-        }
-        .json-viewer {
-            background-color: #333;
-            color: #f8f8f2;
-            padding: 15px;
-            border-radius: 4px;
-            max-height: 400px;
-            overflow-y: auto;
-            font-family: "Courier New", Courier, monospace;
-            font-size: 13px;
-            white-space: pre-wrap;
-        }
-        .json-key { color: #8d4aed; }
-        .json-string { color: #e6db74; }
-        .json-number { color: #ae81ff; }
-        .json-boolean { color: #fd971f; }
-        .json-null { color: #f92672; }
+        .error-message { color: red; font-weight: bold; }
+        .success-message { color: green; font-weight: bold; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Backend Frontend Demonstracija</h1>
-        <p>Pre nego što počnete, pokrenite Python backend skriptu na portu 8080.</p>
-        <p><strong>Napomena:</strong> Za Google OAuth token, morali biste da integrišete Google Sign-In button ili da koristite token ručno. Ovde simuliramo unosom.</p>
+        <h1>Moja Minimalistička Aplikacija</h1>
 
-        <div class="section">
-            <h2>Globalna podešavanja</h2>
-            <div class="form-group">
-                <label for="backendUrl">Backend URL:</label>
-                <input type="text" id="backendUrl" value="https://botanica.ngrok.app" disabled>
-            </div>
-            <div class="form-group">
-                <label for="googleUserId">Google User ID (sub):</label>
-                <input type="text" id="googleUserId" placeholder="Unesite Google User ID nakon prijave">
-            </div>
-            <div class="form-group">
-                <label for="clientEmail">Client Email:</label>
-                <input type="email" id="clientEmail" placeholder="Unesite email (opciono, može se popuniti)">
-            </div>
-            <button onclick="clearOutput()">Očisti Izlaz</button>
+        <!-- Google One Tap / Sign-in div -->
+        <div id="g_id_onload"
+             data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
+             data-callback="handleCredentialResponse"
+             data-auto_select="true"
+             data-itp_support="true">
+        </div>
+        <div class="g_id_signin" data-type="standard"></div>
+
+        <div class="user-info hidden" id="userInfoDisplay">
+            <h2>Prijavljeni Korisnik</h2>
+            <p><strong>Email:</strong> <span id="userEmail"></span></p>
+            <p><strong>Ime:</strong> <span id="userName"></span></p>
+            <p><strong>Google ID:</strong> <span id="googleUserId"></span></p>
+            <button onclick="signOut()">Odjavi se</button>
         </div>
 
-        <div class="section">
-            <h2>1. Google OAuth2 Callback (Simulacija)</h2>
-            <div class="form-group">
-                <label for="oauthCredential">Simulirani Google OAuth Token (credential):</label>
-                <textarea id="oauthCredential" rows="3" placeholder="Paste your Google ID Token here (e.g., from a real OAuth flow)"></textarea>
-            </div>
-            <button onclick="handleOAuthCallback()">Simuliraj OAuth Prijava</button>
-        </div>
+        <div class="settings-section hidden" id="mainAppSection">
+            <h2>Korisnička Podešavanja</h2>
+            <form id="userSettingsForm">
+                <label for="settingsGoogleUserId">Google User ID (Automatski):</label>
+                <input type="text" id="settingsGoogleUserId" name="google_user_id" readonly>
 
-        <div class="section">
-            <h2>2. Upravljanje kategorijama (/categories & /get_categories)</h2>
-            <h3>Dodaj/Ažuriraj Kategoriju</h3>
-            <div class="form-group">
-                <label for="catSequenceNumber">Sequence Number (1-99):</label>
-                <input type="number" id="catSequenceNumber" value="1">
-            </div>
-            <div class="form-group">
-                <label for="catPriority">Priority (0-9):</label>
-                <input type="number" id="catPriority" value="0">
-            </div>
-            <div class="form-group">
-                <label for="catRule">Rule (A, B, C):</label>
-                <select id="catRule">
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="catResponse">Response:</label>
-                <textarea id="catResponse" rows="2" placeholder="Unesite odgovor"></textarea>
-            </div>
-            <div class="form-group">
-                <label for="catTags">Tags (comma separated):</label>
-                <input type="text" id="catTags" placeholder="tag1,tag2,tag3">
-            </div>
-            <button onclick="saveCategory()">Sačuvaj Kategoriju</button>
+                <label for="settingsClientEmail">Email Klijenta (Automatski):</label>
+                <input type="text" id="settingsClientEmail" name="client_email" readonly>
 
-            <h3>Dohvati Kategorije</h3>
-            <button onclick="getCategories()">Dohvati Sve Kategorije</button>
-            <div id="categoriesOutput" class="json-viewer" style="margin-top: 15px;"></div>
-        </div>
-
-        <div class="section">
-            <h2>3. Korisnička podešavanja (/user_settings & /get_user_settings)</h2>
-            <h3>Dodaj/Ažuriraj Korisnička Podešavanja</h3>
-            <div class="form-group">
                 <label for="discordToken">Discord Token:</label>
-                <input type="text" id="discordToken" placeholder="Unesite Discord token">
-            </div>
-            <div class="form-group">
-                <input type="checkbox" id="isWebhookEnabled">
-                <label for="isWebhookEnabled" style="display: inline;">Webhook Enabled</label>
-            </div>
-            <div class="form-group">
-                <label for="defaultResponse">Default Response:</label>
-                <textarea id="defaultResponse" rows="2" placeholder="Unesite podrazumevani odgovor za korisnika"></textarea>
-            </div>
-            <div class="form-group">
-                <label for="userRule">User Rule (A, B, C, D):</label>
-                <select id="userRule">
+                <input type="text" id="discordToken" name="discord_token" placeholder="Unesite Discord Token">
+
+                <label>
+                    <input type="checkbox" id="isCheckboxChecked" name="is_checkbox_checked">
+                    Čekboks je štikliran
+                </label>
+                <br>
+                <label for="generalResponse">Opšti Odgovor:</label>
+                <textarea id="generalResponse" name="general_response" rows="3" placeholder="Unesite opšti odgovor"></textarea>
+
+                <label for="userRule">Pravilo Korisnika:</label>
+                <select id="userRule" name="user_rule">
+                    <option value="">Izaberite Pravilo</option>
                     <option value="A">A</option>
                     <option value="B">B</option>
                     <option value="C">C</option>
                     <option value="D">D</option>
                 </select>
-            </div>
-            <button onclick="saveUserSettings()">Sačuvaj Korisnička Podešavanja</button>
+                <button type="submit">Sačuvaj Podešavanja</button>
+                <button type="button" onclick="getUserSettings()">Učitaj Podešavanja</button>
+            </form>
+            <div id="userSettingsResponse" class="response-area"></div>
 
-            <h3>Dohvati Korisnička Podešavanja</h3>
-            <button onclick="getUserSettings()">Dohvati Korisnička Podešavanja</button>
-            <div id="userSettingsOutput" class="json-viewer" style="margin-top: 15px;"></div>
-        </div>
+            <h2>Kategorije</h2>
+            <form id="categoryForm">
+                <label for="categoryGoogleUserId">Google User ID (Automatski):</label>
+                <input type="text" id="categoryGoogleUserId" name="google_user_id" readonly>
 
-        <h2>Izlaz:</h2>
-        <div id="output" class="output">
-            <p>Ovde će se prikazivati serverski odgovori i poruke o greškama.</p>
+                <label for="categoryClientEmail">Email Klijenta (Automatski):</label>
+                <input type="text" id="categoryClientEmail" name="client_email" readonly>
+
+                <label for="sequenceNumber">Redni Broj (1-99):</label>
+                <input type="number" id="sequenceNumber" name="sequence_number" min="1" max="99" value="1" required>
+
+                <label for="priority">Prioritet (0-9):</label>
+                <input type="number" id="priority" name="priority" min="0" max="9" value="5" required>
+
+                <label for="rule">Pravilo (A, B, C):</label>
+                <select id="rule" name="rule" required>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                </select>
+
+                <label for="response">Odgovor:</label>
+                <textarea id="response" name="response" rows="3" placeholder="Unesite odgovor" required></textarea>
+
+                <label for="tags">Tagovi (odvojeni zarezom):</label>
+                <input type="text" id="tags" name="tags" placeholder="tag1, tag2, tag3" required>
+
+                <button type="submit">Sačuvaj Kategoriju</button>
+                <button type="button" onclick="getCategories()">Učitaj Kategorije</button>
+            </form>
+            <div id="categoryResponse" class="response-area"></div>
         </div>
     </div>
 
     <script>
-        const BACKEND_URL = document.getElementById('backendUrl').value;
-        const outputDiv = document.getElementById('output');
-        const googleUserIdInput = document.getElementById('googleUserId');
-        const clientEmailInput = document.getElementById('clientEmail');
+        const BACKEND_URL = 'https://botanica.ngrok.app'; // Prilagodite ako se backend pokreće na drugom portu/hostu
 
-        function appendOutput(message, type = 'info') {
-            const p = document.createElement('p');
-            p.className = type;
-            p.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-            outputDiv.prepend(p); // Add to top
-        }
+        let currentUser = {
+            id: null,
+            email: null,
+            name: null
+        };
 
-        function clearOutput() {
-            outputDiv.innerHTML = '<p>Ovde će se prikazivati serverski odgovori i poruke o greškama.</p>';
-        }
+        // Google OAuth Callback Handler
+        function handleCredentialResponse(response) {
+            console.log("Google token received:", response.credential);
+            fetch(`${BACKEND_URL}/oauth_callback`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ credential: response.credential }),
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    currentUser.id = data.user_id;
+                    currentUser.email = data.user_email;
+                    currentUser.name = data.user_name;
+                    updateUI();
+                    console.log("Korisnik prijavljen:", currentUser);
 
-        // Helper za prikaz JSON-a
-        function syntaxHighlight(json) {
-            if (typeof json != 'string') {
-                json = JSON.stringify(json, undefined, 2);
-            }
-            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-                var cls = 'json-number';
-                if (/^"/.test(match)) {
-                    if (/:$/.test(match)) {
-                        cls = 'json-key';
-                    } else {
-                        cls = 'json-string';
-                    }
-                } else if (/true|false/.test(match)) {
-                    cls = 'json-boolean';
-                } else if (/null/.test(match)) {
-                    cls = 'json-null';
+                    // Automatski dohvati postojeća podešavanja korisnika i kategorije
+                    getUserSettings();
+                    getCategories();
+
+                } else {
+                    console.error("Greška pri Google prijavi:", data.message);
+                    alert("Greška pri prijavi: " + data.message);
                 }
-                return '<span class="' + cls + '">' + match + '</span>';
+            })
+            .catch(error => {
+                console.error('Greška pri komunikaciji sa backendom:', error);
+                alert("Greška pri komunikaciji sa serverom.");
             });
         }
 
+        // Ažurira UI na osnovu prijavljenog korisnika
+        function updateUI() {
+            const userInfoDisplay = document.getElementById('userInfoDisplay');
+            const mainAppSection = document.getElementById('mainAppSection');
+            const gIdSignIn = document.querySelector('.g_id_signin');
 
-        async function postData(path, data) {
-            try {
-                appendOutput(`Slanje POST zahteva na: ${BACKEND_URL}${path} sa podacima: ${JSON.stringify(data)}`);
-                const response = await fetch(`${BACKEND_URL}${path}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    appendOutput(`Uspeh sa ${path}: ${JSON.stringify(result)}`, 'success');
-                    return result;
+            if (currentUser.id) {
+                document.getElementById('userEmail').textContent = currentUser.email;
+                document.getElementById('userName').textContent = currentUser.name;
+                document.getElementById('googleUserId').textContent = currentUser.id;
+                userInfoDisplay.classList.remove('hidden');
+                mainAppSection.classList.remove('hidden');
+                if (gIdSignIn) gIdSignIn.classList.add('hidden'); // Sakrij Google dugme
+
+                // Automatski popuni Google ID i Email u obe forme
+                document.getElementById('settingsGoogleUserId').value = currentUser.id;
+                document.getElementById('settingsClientEmail').value = currentUser.email;
+                document.getElementById('categoryGoogleUserId').value = currentUser.id;
+                document.getElementById('categoryClientEmail').value = currentUser.email;
+            } else {
+                userInfoDisplay.classList.add('hidden');
+                mainAppSection.classList.add('hidden');
+                if (gIdSignIn) gIdSignIn.classList.remove('hidden'); // Prikaži Google dugme
+            }
+        }
+
+        // Odjava korisnika
+        function signOut() {
+            // Google odjava - briše sesiju u pregledaču
+            google.accounts.id.disableAutoSelect(); // Isključi automatsku prijavu
+            google.accounts.id.revoke(currentUser.email, done => {
+                console.log('Google odjava kompletna:', done);
+                currentUser.id = null;
+                currentUser.email = null;
+                currentUser.name = null;
+                updateUI();
+                alert("Uspešno ste se odjavili.");
+                // Resetovanje formi
+                document.getElementById('userSettingsForm').reset();
+                document.getElementById('categoryForm').reset();
+                document.getElementById('userSettingsResponse').textContent = '';
+                document.getElementById('categoryResponse').textContent = '';
+            });
+        }
+
+        // Sačuvaj korisnička podešavanja
+        document.getElementById('userSettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!currentUser.id) {
+                alert('Molimo prijavite se prvo.');
+                return;
+            }
+
+            const discordToken = document.getElementById('discordToken').value;
+            const isCheckboxChecked = document.getElementById('isCheckboxChecked').checked;
+            const generalResponse = document.getElementById('generalResponse').value;
+            const userRule = document.getElementById('userRule').value;
+
+            const postData = {
+                google_user_id: currentUser.id,
+                client_email: currentUser.email, // Saljemo email, iako backend moze popuniti
+                discord_token: discordToken || null, // Salji null ako je prazno
+                is_checkbox_checked: isCheckboxChecked,
+                general_response: generalResponse || null,
+                user_rule: userRule || null
+            };
+
+            fetch(`${BACKEND_URL}/user_settings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(postData),
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('userSettingsResponse').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                console.error('Greška pri čuvanju podešavanja:', error);
+                document.getElementById('userSettingsResponse').textContent = 'Greška: ' + error.message;
+            });
+        });
+
+        // Dohvati korisnička podešavanja
+        function getUserSettings() {
+            if (!currentUser.id) return;
+
+            fetch(`${BACKEND_URL}/get_user_settings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ google_user_id: currentUser.id }),
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success' && data.user_settings) {
+                    const settings = data.user_settings;
+                    document.getElementById('discordToken').value = settings.discord_token || '';
+                    document.getElementById('isCheckboxChecked').checked = settings.is_checkbox_checked || false;
+                    document.getElementById('generalResponse').value = settings.general_response || '';
+                    document.getElementById('userRule').value = settings.user_rule || '';
+                    document.getElementById('userSettingsResponse').textContent = 'Podešavanja učitana.';
                 } else {
-                    appendOutput(`Greška sa ${path}: ${JSON.stringify(result)}`, 'error');
-                    return null;
+                    document.getElementById('userSettingsResponse').textContent = data.message || 'Nema sačuvanih podešavanja.';
+                    // Ako nema podešavanja, resetuj formu na podrazumevane vrednosti ili prazno
+                    document.getElementById('userSettingsForm').reset();
+                    document.getElementById('isCheckboxChecked').checked = false;
+                    // Ponovo popuni automatska polja
+                    document.getElementById('settingsGoogleUserId').value = currentUser.id;
+                    document.getElementById('settingsClientEmail').value = currentUser.email;
                 }
-            } catch (error) {
-                appendOutput(`Greška pri slanju POST zahteva na ${path}: ${error.message}`, 'error');
-                return null;
-            }
+            })
+            .catch(error => {
+                console.error('Greška pri dohvatanju podešavanja:', error);
+                document.getElementById('userSettingsResponse').textContent = 'Greška: ' + error.message;
+            });
         }
 
-        // --- OAuth Callback Handler ---
-        async function handleOAuthCallback() {
-            const credential = document.getElementById('oauthCredential').value.trim();
-            if (!credential) {
-                appendOutput('Molimo unesite Google ID Token.', 'error');
+        // Sačuvaj kategoriju
+        document.getElementById('categoryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!currentUser.id) {
+                alert('Molimo prijavite se prvo.');
                 return;
             }
 
-            const result = await postData('/oauth_callback', { credential: credential });
-            if (result && result.status === 'success') {
-                googleUserIdInput.value = result.user_id;
-                clientEmailInput.value = result.user_email;
-                appendOutput(`Prijavljen korisnik: ${result.user_name} (${result.user_email})`, 'success');
-            }
-        }
-
-        // --- Category Handlers ---
-        async function saveCategory() {
-            const googleUserId = googleUserIdInput.value.trim();
-            const clientEmail = clientEmailInput.value.trim();
-
-            if (!googleUserId || !clientEmail) {
-                appendOutput('Molimo popunite Google User ID i Client Email.', 'error');
-                return;
-            }
-
-            const sequence_number = document.getElementById('catSequenceNumber').value;
-            const priority = document.getElementById('catPriority').value;
-            const rule = document.getElementById('catRule').value;
-            const response = document.getElementById('catResponse').value;
-            const tagsInput = document.getElementById('catTags').value;
+            const sequenceNumber = document.getElementById('sequenceNumber').value;
+            const priority = document.getElementById('priority').value;
+            const rule = document.getElementById('rule').value;
+            const response = document.getElementById('response').value;
+            const tagsInput = document.getElementById('tags').value;
             const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()) : [];
 
-            const data = {
-                google_user_id: googleUserId,
-                client_email: clientEmail,
-                sequence_number: parseInt(sequence_number),
+            const postData = {
+                google_user_id: currentUser.id,
+                client_email: currentUser.email, // Saljemo email, iako backend moze popuniti
+                sequence_number: parseInt(sequenceNumber),
                 priority: parseInt(priority),
                 rule: rule,
                 response: response,
                 tags: tags
             };
-            await postData('/categories', data);
+
+            fetch(`${BACKEND_URL}/categories`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(postData),
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('categoryResponse').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                console.error('Greška pri čuvanju kategorije:', error);
+                document.getElementById('categoryResponse').textContent = 'Greška: ' + error.message;
+            });
+        });
+
+        // Dohvati kategorije
+        function getCategories() {
+            if (!currentUser.id) return;
+
+            fetch(`${BACKEND_URL}/get_categories`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ google_user_id: currentUser.id }),
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success' && data.categories.length > 0) {
+                    const categoriesHtml = data.categories.map(cat => `
+                        <div>
+                            <strong>Email:</strong> ${cat.client_email}<br>
+                            <strong>Seq:</strong> ${cat.sequence_number},
+                            <strong>Pri:</strong> ${cat.priority},
+                            <strong>Rule:</strong> ${cat.rule}<br>
+                            <strong>Resp:</strong> ${cat.response}<br>
+                            <strong>Tags:</strong> ${cat.tags.join(', ')}
+                        </div><hr>
+                    `).join('');
+                    document.getElementById('categoryResponse').innerHTML = "<h3>Učitane Kategorije:</h3>" + categoriesHtml;
+                } else {
+                    document.getElementById('categoryResponse').textContent = data.message || 'Nema sačuvanih kategorija.';
+                }
+            })
+            .catch(error => {
+                console.error('Greška pri dohvatanju kategorija:', error);
+                document.getElementById('categoryResponse').textContent = 'Greška: ' + error.message;
+            });
         }
 
-        async function getCategories() {
-            const googleUserId = googleUserIdInput.value.trim();
-            if (!googleUserId) {
-                appendOutput('Molimo popunite Google User ID.', 'error');
-                document.getElementById('categoriesOutput').innerHTML = '';
-                return;
-            }
-
-            const result = await postData('/get_categories', { google_user_id: googleUserId });
-            const categoriesOutputDiv = document.getElementById('categoriesOutput');
-            if (result && result.status === 'success') {
-                categoriesOutputDiv.innerHTML = syntaxHighlight(result.categories);
-            } else {
-                categoriesOutputDiv.innerHTML = '<span class="error">Greška pri dohvatanju kategorija ili nisu pronađene.</span>';
-            }
-        }
-
-        // --- User Settings Handlers ---
-        async function saveUserSettings() {
-            const googleUserId = googleUserIdInput.value.trim();
-            if (!googleUserId) {
-                appendOutput('Molimo popunite Google User ID.', 'error');
-                return;
-            }
-
-            const discordToken = document.getElementById('discordToken').value;
-            const isWebhookEnabled = document.getElementById('isWebhookEnabled').checked ? 1 : 0;
-            const defaultResponse = document.getElementById('defaultResponse').value;
-            const userRule = document.getElementById('userRule').value;
-
-            const data = {
-                google_user_id: googleUserId,
-                discord_token: discordToken,
-                is_webhook_enabled: isWebhookEnabled,
-                default_response: defaultResponse,
-                user_rule: userRule
-            };
-            await postData('/user_settings', data);
-        }
-
-        async function getUserSettings() {
-            const googleUserId = googleUserIdInput.value.trim();
-            if (!googleUserId) {
-                appendOutput('Molimo popunite Google User ID.', 'error');
-                document.getElementById('userSettingsOutput').innerHTML = '';
-                return;
-            }
-
-            const result = await postData('/get_user_settings', { google_user_id: googleUserId });
-            const userSettingsOutputDiv = document.getElementById('userSettingsOutput');
-            if (result && result.status === 'success') {
-                userSettingsOutputDiv.innerHTML = syntaxHighlight(result.user_settings);
-                // Opciono, popunite formu sa dohvaćenim podacima
-                document.getElementById('discordToken').value = result.user_settings.discord_token || '';
-                document.getElementById('isWebhookEnabled').checked = result.user_settings.is_webhook_enabled;
-                document.getElementById('defaultResponse').value = result.user_settings.default_response || '';
-                document.getElementById('userRule').value = result.user_settings.user_rule || 'A';
-            } else {
-                userSettingsOutputDiv.innerHTML = '<span class="error">Greška pri dohvatanju korisničkih podešavanja ili nisu pronađena.</span>';
-            }
-        }
+        // Inicijalizacija UI-a
+        document.addEventListener('DOMContentLoaded', updateUI);
     </script>
 </body>
 </html>

@@ -6,92 +6,118 @@
     <title>Botanica - Upravljanje</title>
     <!-- Google Platform Library za prijavu -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- Font Awesome za ikone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Upravljanje Botanicom</h1>
+        <header>
+            <h1><i class="fas fa-leaf"></i> Botanica Upravljanje</h1>
+        </header>
 
-        <div id="g_id_onload"
-             data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
-             data-callback="handleCredentialResponse"
-             data-auto_prompt="true">
-        </div>
-        <div class="g_id_signin"
-             data-type="standard"
-             data-size="large"
-             data-theme="outline"
-             data-text="sign_in_with"
-             data-shape="rectangular"
-             data-logo_alignment="left">
-        </div>
-
-        <div id="auth-info" style="display: none;">
-            <p>Prijavljeni ste kao: <strong id="user-name"></strong> (<span id="user-email"></span>)</p>
-            <p>Vaš Google User ID: <strong id="user-id"></strong></p>
-            <button onclick="signOut()">Odjava</button>
-        </div>
-
-        <div id="category-section" style="display: none;">
-            <h2>Discord Postavke</h2>
-            <form id="discord-settings-form">
-                <label for="discord_token">Discord Bot Token:</label>
-                <input type="text" id="discord_token" placeholder="Unesite Discord bot token">
-
-                <div>
-                    <input type="checkbox" id="discord_bot_active">
-                    <label for="discord_bot_active" style="display: inline;">Aktiviraj Discord Bota</label>
-                </div>
-                <button type="submit">Sačuvaj Discord Postavke</button>
-            </form>
-
-            <hr>
-
-            <h2>Dodaj/Ažuriraj u Botanicu</h2>
-            <form id="category-form">
-                <label for="client_email">Email klijenta:</label>
-                <input type="email" id="client_email" required readonly>
-
-                <label for="sequence_number">Redni broj (1-99):</label>
-                <input type="number" id="sequence_number" min="1" max="99">
-
-                <label for="priority">Prioritet (0-9):</label>
-                <input type="number" id="priority" min="0" max="9" required>
-
-                <label for="rule">Pravilo:</label>
-                <select id="rule" required>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                </select>
-
-                <label for="response">Odgovor (Unesi tekst):</label>
-                <textarea id="response" rows="5" required></textarea>
-
-                <label for="tags">Tagovi (odvojeni zarezima, npr. tag1, tag2, tag3):</label>
-                <input type="text" id="tags" placeholder="tag1, tag2, tag3">
-
-                <button type="submit">Sačuvaj Botanicu</button>
-                <button type="button" id="load-category-btn">Učitaj Botanicu</button>
-            </form>
-
-            <!-- Novo dugme za embedovanje direktno na stranicu -->
-            <button id="embed-widget-btn">Embeduj widget na ovu stranicu</button>
-
-            <!-- Dugme za generisanje widgeta za kopiranje -->
-            <button id="generate-widget-btn">Prikaži kod za embedovanje</button>
-            <div id="widget-code" style="display: none;"></div>
-
-            <div id="message"></div>
-
-            <div id="categories-list">
-                <h2>Vaša Botanica</h2>
-                <div id="no-categories" style="display: none;">Nema sačuvanih kategorija za ovog korisnika.</div>
-                <div id="categories-container"></div>
+        <section class="auth-section card">
+            <h2>Prijava</h2>
+            <div id="g_id_onload"
+                 data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="true">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-size="large"
+                 data-theme="outline"
+                 data-text="sign_in_with"
+                 data-shape="rectangular"
+                 data-logo_alignment="left">
             </div>
 
+            <div id="auth-info" class="user-info" style="display: none;">
+                <p><i class="fas fa-user-circle"></i> Prijavljeni ste kao: <strong id="user-name"></strong> (<span id="user-email"></span>)</p>
+                <p><i class="fas fa-id-badge"></i> Vaš Google User ID: <strong id="user-id"></strong></p>
+                <button class="btn btn-outline" onclick="signOut()"><i class="fas fa-sign-out-alt"></i> Odjava</button>
+            </div>
+        </section>
+
+        <div id="category-section" style="display: none;">
+            <section class="discord-settings card">
+                <h2><i class="fab fa-discord"></i> Discord Postavke</h2>
+                <form id="discord-settings-form">
+                    <div class="form-group">
+                        <label for="discord_token"><i class="fas fa-key"></i> Discord Bot Token:</label>
+                        <input type="text" id="discord_token" placeholder="Unesite Discord bot token">
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="discord_bot_active">
+                        <label for="discord_bot_active"><i class="fas fa-toggle-on"></i> Aktiviraj Discord Bota</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Sačuvaj Discord Postavke</button>
+                </form>
+            </section>
+
+            <section class="botanica-entry card">
+                <h2><i class="fas fa-plus-circle"></i> Dodaj/Ažuriraj u Botanicu</h2>
+                <form id="category-form">
+                    <div class="form-group">
+                        <label for="client_email"><i class="fas fa-envelope"></i> Email klijenta:</label>
+                        <input type="email" id="client_email" required readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sequence_number"><i class="fas fa-list-ol"></i> Redni broj (1-99):</label>
+                        <input type="number" id="sequence_number" min="1" max="99">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="priority"><i class="fas fa-star"></i> Prioritet (0-9):</label>
+                        <input type="number" id="priority" min="0" max="9" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rule"><i class="fas fa-gavel"></i> Pravilo:</label>
+                        <select id="rule" required>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="response"><i class="fas fa-comment-dots"></i> Odgovor (Unesi tekst):</label>
+                        <textarea id="response" rows="5" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tags"><i class="fas fa-tags"></i> Tagovi (odvojeni zarezima, npr. tag1, tag2, tag3):</label>
+                        <input type="text" id="tags" placeholder="tag1, tag2, tag3">
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Sačuvaj Botanicu</button>
+                        <button type="button" id="load-category-btn" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Učitaj Botanicu</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="widget-section card">
+                <h2><i class="fas fa-code"></i> Widget Alati</h2>
+                <div class="button-group">
+                    <button id="embed-widget-btn" class="btn btn-info"><i class="fas fa-embed"></i> Embeduj widget na ovu stranicu</button>
+                    <button id="generate-widget-btn" class="btn btn-info"><i class="fas fa-clipboard"></i> Prikaži kod za embedovanje</button>
+                </div>
+                <div id="widget-code" class="code-block" style="display: none;"></div>
+                <div id="message" class="message-box"></div>
+            </section>
+
+            <section class="categories-list card">
+                <h2><i class="fas fa-list"></i> Vaša Botanica</h2>
+                <div id="no-categories" class="info-message" style="display: none;">Nema sačuvanih kategorija za ovog korisnika.</div>
+                <div id="categories-container" class="category-grid"></div>
+            </section>
+
             <!-- Container gde će se embedovati widget direktno -->
-            <div id="embedded-widget-container"></div>
+            <div id="embedded-widget-container" class="card embedded-widget-preview"></div>
         </div>
     </div>
 

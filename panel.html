@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minimalistička Aplikacija</title>
+    <title>Backend Frontend</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
-        .container { max-width: 800px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { max-width: 800px; margin: auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         h1, h2 { color: #0056b3; }
-        .user-info, .settings-section { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #e9f7ff; }
-        .user-info p, .settings-section p { margin: 5px 0; }
+        .section { margin-bottom: 30px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9; }
         label { display: block; margin-bottom: 5px; font-weight: bold; }
         input[type="text"], input[type="number"], textarea, select {
             width: calc(100% - 22px);
@@ -18,7 +17,6 @@
             margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            box-sizing: border-box;
         }
         input[type="checkbox"] { margin-right: 5px; }
         button {
@@ -29,346 +27,329 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            margin-top: 5px;
             margin-right: 10px;
-            margin-bottom: 10px;
         }
         button:hover { background-color: #0056b3; }
-        button:disabled { background-color: #cccccc; cursor: not-allowed; }
-        .response-area {
-            background-color: #f0f0f0;
+        #google-sign-in-button { width: 100%; margin-bottom: 20px; }
+        #user-info, #response-log, #categories-display, #user-settings-display {
+            background-color: #e2e2e2;
             padding: 10px;
-            border: 1px solid #ddd;
             border-radius: 4px;
-            min-height: 50px;
-            white-space: pre-wrap;
-            font-size: 0.9em;
+            margin-top: 10px;
+            white-space: pre-wrap; /* Omogućava prelom teksta */
+            word-wrap: break-word; /* Omogućava prelom dugih reči */
+            overflow-x: auto; /* Horizontalni scroll za duge linije */
+            max-height: 200px;
+            overflow-y: auto;
         }
-        .error-message { color: red; font-weight: bold; }
-        .success-message { color: green; font-weight: bold; }
-        .hidden { display: none; }
+        .logged-out { display: none; }
+        .logged-in { display: none; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Moja Minimalistička Aplikacija</h1>
+        <h1>Minimalistički Frontend za Backend</h1>
 
-        <!-- Google One Tap / Sign-in div -->
-        <div id="g_id_onload"
-             data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
-             data-callback="handleCredentialResponse"
-             data-auto_select="true"
-             data-itp_support="true">
+        <div id="logged-out-view" class="logged-out">
+            <h2>Prijava</h2>
+            <div id="g_id_onload"
+                 data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                 data-callback="handleCredentialResponse">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-size="large"
+                 data-theme="outline"
+                 data-text="sign_in_with"
+                 data-shape="rectangular"
+                 data-logo_alignment="left"
+                 id="google-sign-in-button">
+            </div>
         </div>
-        <div class="g_id_signin" data-type="standard"></div>
 
-        <div class="user-info hidden" id="userInfoDisplay">
-            <h2>Prijavljeni Korisnik</h2>
-            <p><strong>Email:</strong> <span id="userEmail"></span></p>
-            <p><strong>Ime:</strong> <span id="userName"></span></p>
-            <p><strong>Google ID:</strong> <span id="googleUserId"></span></p>
-            <button onclick="signOut()">Odjavi se</button>
+        <div id="logged-in-view" class="logged-in">
+            <h2>Korisničke Informacije</h2>
+            <div id="user-info">
+                Niste prijavljeni.
+            </div>
+            <button onclick="logout()">Odjavi se</button>
+
+            <hr style="margin: 20px 0;">
+
+            <div class="section">
+                <h2>Dodaj/Ažuriraj Kategoriju</h2>
+                <form id="category-form">
+                    <label for="cat-sequence">Redni broj (1-99):</label>
+                    <input type="number" id="cat-sequence" min="1" max="99" required><br>
+                    <label for="cat-priority">Prioritet (0-9):</label>
+                    <input type="number" id="cat-priority" min="0" max="9" required><br>
+                    <label for="cat-rule">Pravilo (A, B, C):</label>
+                    <select id="cat-rule" required>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                    </select><br>
+                    <label for="cat-response">Odgovor:</label>
+                    <textarea id="cat-response" required></textarea><br>
+                    <label for="cat-tags">Tagovi (JSON lista, npr. ["tag1", "tag2"]):</label>
+                    <input type="text" id="cat-tags" placeholder='["tag1", "tag2"]' required><br>
+                    <button type="submit">Sačuvaj Kategoriju</button>
+                </form>
+                <button onclick="fetchCategories()">Dohvati Sve Kategorije</button>
+                <h3>Trenutne Kategorije:</h3>
+                <div id="categories-display"></div>
+            </div>
+
+            <hr style="margin: 20px 0;">
+
+            <div class="section">
+                <h2>Korisnička Podešavanja</h2>
+                <form id="settings-form">
+                    <label for="discord-token">Discord Token:</label>
+                    <input type="text" id="discord-token"><br>
+                    <label for="is-checkbox-checked">
+                        <input type="checkbox" id="is-checkbox-checked"> Da li je čekirano?
+                    </label><br>
+                    <label for="general-response">Generalni Odgovor:</label>
+                    <textarea id="general-response"></textarea><br>
+                    <label for="user-rule">Pravilo Korisnika (A, B, C, D):</label>
+                    <select id="user-rule">
+                        <option value="">Nijedno</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select><br>
+                    <button type="submit">Sačuvaj Podešavanja</button>
+                </form>
+                <button onclick="fetchUserSettings()">Dohvati Podešavanja</button>
+                <h3>Trenutna Podešavanja:</h3>
+                <div id="user-settings-display"></div>
+            </div>
         </div>
 
-        <div class="settings-section hidden" id="mainAppSection">
-            <h2>Korisnička Podešavanja</h2>
-            <form id="userSettingsForm">
-                <label for="settingsGoogleUserId">Google User ID (Automatski):</label>
-                <input type="text" id="settingsGoogleUserId" name="google_user_id" readonly>
-
-                <label for="settingsClientEmail">Email Klijenta (Automatski):</label>
-                <input type="text" id="settingsClientEmail" name="client_email" readonly>
-
-                <label for="discordToken">Discord Token:</label>
-                <input type="text" id="discordToken" name="discord_token" placeholder="Unesite Discord Token">
-
-                <label>
-                    <input type="checkbox" id="isCheckboxChecked" name="is_checkbox_checked">
-                    Čekboks je štikliran
-                </label>
-                <br>
-                <label for="generalResponse">Opšti Odgovor:</label>
-                <textarea id="generalResponse" name="general_response" rows="3" placeholder="Unesite opšti odgovor"></textarea>
-
-                <label for="userRule">Pravilo Korisnika:</label>
-                <select id="userRule" name="user_rule">
-                    <option value="">Izaberite Pravilo</option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                    <option value="D">D</option>
-                </select>
-                <button type="submit">Sačuvaj Podešavanja</button>
-                <button type="button" onclick="getUserSettings()">Učitaj Podešavanja</button>
-            </form>
-            <div id="userSettingsResponse" class="response-area"></div>
-
-            <h2>Kategorije</h2>
-            <form id="categoryForm">
-                <label for="categoryGoogleUserId">Google User ID (Automatski):</label>
-                <input type="text" id="categoryGoogleUserId" name="google_user_id" readonly>
-
-                <label for="categoryClientEmail">Email Klijenta (Automatski):</label>
-                <input type="text" id="categoryClientEmail" name="client_email" readonly>
-
-                <label for="sequenceNumber">Redni Broj (1-99):</label>
-                <input type="number" id="sequenceNumber" name="sequence_number" min="1" max="99" value="1" required>
-
-                <label for="priority">Prioritet (0-9):</label>
-                <input type="number" id="priority" name="priority" min="0" max="9" value="5" required>
-
-                <label for="rule">Pravilo (A, B, C):</label>
-                <select id="rule" name="rule" required>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                </select>
-
-                <label for="response">Odgovor:</label>
-                <textarea id="response" name="response" rows="3" placeholder="Unesite odgovor" required></textarea>
-
-                <label for="tags">Tagovi (odvojeni zarezom):</label>
-                <input type="text" id="tags" name="tags" placeholder="tag1, tag2, tag3" required>
-
-                <button type="submit">Sačuvaj Kategoriju</button>
-                <button type="button" onclick="getCategories()">Učitaj Kategorije</button>
-            </form>
-            <div id="categoryResponse" class="response-area"></div>
+        <div class="section">
+            <h2>Log</h2>
+            <div id="response-log"></div>
         </div>
     </div>
 
     <script>
-        const BACKEND_URL = 'https://botanica.ngrok.app'; // Prilagodite ako se backend pokreće na drugom portu/hostu
+        const API_BASE_URL = 'https://botanica.ngrok.app'; // PRILAGODI AKO JE POTREBNO
+        const googleClientId = "252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"; // PRILAGODI SA VAŠIM KLIJENT ID-JEM
 
-        let currentUser = {
+        let userCredential = null;
+        let userInfo = {
             id: null,
             email: null,
             name: null
         };
 
-        // Google OAuth Callback Handler
-        function handleCredentialResponse(response) {
-            console.log("Google token received:", response.credential);
-            fetch(`${BACKEND_URL}/oauth_callback`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ credential: response.credential }),
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    currentUser.id = data.user_id;
-                    currentUser.email = data.user_email;
-                    currentUser.name = data.user_name;
-                    updateUI();
-                    console.log("Korisnik prijavljen:", currentUser);
+        const loggedOutView = document.getElementById('logged-out-view');
+        const loggedInView = document.getElementById('logged-in-view');
+        const userInfoDisplay = document.getElementById('user-info');
+        const responseLog = document.getElementById('response-log');
+        const categoriesDisplay = document.getElementById('categories-display');
+        const userSettingsDisplay = document.getElementById('user-settings-display');
 
-                    // Automatski dohvati postojeća podešavanja korisnika i kategorije
-                    getUserSettings();
-                    getCategories();
-
-                } else {
-                    console.error("Greška pri Google prijavi:", data.message);
-                    alert("Greška pri prijavi: " + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Greška pri komunikaciji sa backendom:', error);
-                alert("Greška pri komunikaciji sa serverom.");
-            });
-        }
-
-        // Ažurira UI na osnovu prijavljenog korisnika
         function updateUI() {
-            const userInfoDisplay = document.getElementById('userInfoDisplay');
-            const mainAppSection = document.getElementById('mainAppSection');
-            const gIdSignIn = document.querySelector('.g_id_signin');
-
-            if (currentUser.id) {
-                document.getElementById('userEmail').textContent = currentUser.email;
-                document.getElementById('userName').textContent = currentUser.name;
-                document.getElementById('googleUserId').textContent = currentUser.id;
-                userInfoDisplay.classList.remove('hidden');
-                mainAppSection.classList.remove('hidden');
-                if (gIdSignIn) gIdSignIn.classList.add('hidden'); // Sakrij Google dugme
-
-                // Automatski popuni Google ID i Email u obe forme
-                document.getElementById('settingsGoogleUserId').value = currentUser.id;
-                document.getElementById('settingsClientEmail').value = currentUser.email;
-                document.getElementById('categoryGoogleUserId').value = currentUser.id;
-                document.getElementById('categoryClientEmail').value = currentUser.email;
+            if (userCredential && userInfo.id) {
+                loggedOutView.style.display = 'none';
+                loggedInView.style.display = 'block';
+                userInfoDisplay.textContent = `Prijavljeni ste kao: ${userInfo.name} (${userInfo.email})\nID: ${userInfo.id}`;
+                fetchCategories(); // Automatski dohvati kategorije nakon prijave
+                fetchUserSettings(); // Automatski dohvati podešavanja nakon prijave
             } else {
-                userInfoDisplay.classList.add('hidden');
-                mainAppSection.classList.add('hidden');
-                if (gIdSignIn) gIdSignIn.classList.remove('hidden'); // Prikaži Google dugme
+                loggedOutView.style.display = 'block';
+                loggedInView.style.display = 'none';
+                userInfoDisplay.textContent = 'Niste prijavljeni.';
+                categoriesDisplay.textContent = '';
+                userSettingsDisplay.textContent = '';
             }
         }
 
-        // Odjava korisnika
-        function signOut() {
-            // Google odjava - briše sesiju u pregledaču
-            google.accounts.id.disableAutoSelect(); // Isključi automatsku prijavu
-            google.accounts.id.revoke(currentUser.email, done => {
-                console.log('Google odjava kompletna:', done);
-                currentUser.id = null;
-                currentUser.email = null;
-                currentUser.name = null;
-                updateUI();
-                alert("Uspešno ste se odjavili.");
-                // Resetovanje formi
-                document.getElementById('userSettingsForm').reset();
-                document.getElementById('categoryForm').reset();
-                document.getElementById('userSettingsResponse').textContent = '';
-                document.getElementById('categoryResponse').textContent = '';
-            });
+        function logResponse(message, type = 'info') {
+            const entry = document.createElement('p');
+            entry.textContent = `[${new Date().toLocaleTimeString()}] [${type.toUpperCase()}] ${message}`;
+            if (type === 'error') {
+                entry.style.color = 'red';
+            } else if (type === 'success') {
+                entry.style.color = 'green';
+            }
+            responseLog.prepend(entry); // Dodaj na vrh
+            if (responseLog.children.length > 50) { // Ograniči broj poruka
+                responseLog.removeChild(responseLog.lastChild);
+            }
         }
 
-        // Sačuvaj korisnička podešavanja
-        document.getElementById('userSettingsForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (!currentUser.id) {
-                alert('Molimo prijavite se prvo.');
-                return;
-            }
+        async function handleCredentialResponse(response) {
+            logResponse("Primljen Google credential. Slanje na backend za verifikaciju...");
+            const idToken = response.credential;
 
-            const discordToken = document.getElementById('discordToken').value;
-            const isCheckboxChecked = document.getElementById('isCheckboxChecked').checked;
-            const generalResponse = document.getElementById('generalResponse').value;
-            const userRule = document.getElementById('userRule').value;
+            try {
+                const apiResponse = await fetch(`${API_BASE_URL}/oauth_callback`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ credential: idToken })
+                });
+                const data = await apiResponse.json();
 
-            const postData = {
-                google_user_id: currentUser.id,
-                client_email: currentUser.email, // Saljemo email, iako backend moze popuniti
-                discord_token: discordToken || null, // Salji null ako je prazno
-                is_checkbox_checked: isCheckboxChecked,
-                general_response: generalResponse || null,
-                user_rule: userRule || null
-            };
-
-            fetch(`${BACKEND_URL}/user_settings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(postData),
-            })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('userSettingsResponse').textContent = JSON.stringify(data, null, 2);
-            })
-            .catch(error => {
-                console.error('Greška pri čuvanju podešavanja:', error);
-                document.getElementById('userSettingsResponse').textContent = 'Greška: ' + error.message;
-            });
-        });
-
-        // Dohvati korisnička podešavanja
-        function getUserSettings() {
-            if (!currentUser.id) return;
-
-            fetch(`${BACKEND_URL}/get_user_settings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ google_user_id: currentUser.id }),
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success' && data.user_settings) {
-                    const settings = data.user_settings;
-                    document.getElementById('discordToken').value = settings.discord_token || '';
-                    document.getElementById('isCheckboxChecked').checked = settings.is_checkbox_checked || false;
-                    document.getElementById('generalResponse').value = settings.general_response || '';
-                    document.getElementById('userRule').value = settings.user_rule || '';
-                    document.getElementById('userSettingsResponse').textContent = 'Podešavanja učitana.';
+                if (apiResponse.ok) {
+                    userCredential = idToken; // Sačuvaj credential za buduće zahteve
+                    userInfo.id = data.user_id;
+                    userInfo.email = data.user_email;
+                    userInfo.name = data.user_name;
+                    logResponse(`Prijava uspešna: ${data.user_email}`, 'success');
+                    updateUI();
                 } else {
-                    document.getElementById('userSettingsResponse').textContent = data.message || 'Nema sačuvanih podešavanja.';
-                    // Ako nema podešavanja, resetuj formu na podrazumevane vrednosti ili prazno
-                    document.getElementById('userSettingsForm').reset();
-                    document.getElementById('isCheckboxChecked').checked = false;
-                    // Ponovo popuni automatska polja
-                    document.getElementById('settingsGoogleUserId').value = currentUser.id;
-                    document.getElementById('settingsClientEmail').value = currentUser.email;
+                    logResponse(`Greška pri prijavi: ${data.message || 'Nepoznata greška'}`, 'error');
                 }
-            })
-            .catch(error => {
-                console.error('Greška pri dohvatanju podešavanja:', error);
-                document.getElementById('userSettingsResponse').textContent = 'Greška: ' + error.message;
-            });
+            } catch (error) {
+                logResponse(`Greška pri komunikaciji sa backendom za prijavu: ${error.message}`, 'error');
+            }
         }
 
-        // Sačuvaj kategoriju
-        document.getElementById('categoryForm').addEventListener('submit', function(e) {
+        function logout() {
+            userCredential = null;
+            userInfo = { id: null, email: null, name: null };
+            logResponse("Odjavljeni ste.");
+            updateUI();
+            // Google ima i 'revoke' opciju ako želite da potpuno opozovete token
+        }
+
+        async function sendAuthenticatedRequest(path, method = 'POST', payload = {}) {
+            if (!userCredential) {
+                logResponse("Morate biti prijavljeni da biste izvršili ovu akciju.", 'error');
+                return null;
+            }
+
+            const fullPayload = { ...payload, credential: userCredential };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}${path}`, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(fullPayload)
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    logResponse(`Greška na ruti ${path}: ${data.message || 'Nepoznata greška'}`, 'error');
+                    return null;
+                }
+                return data;
+            } catch (error) {
+                logResponse(`Greška pri komunikaciji sa backendom na ruti ${path}: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        // --- Funkcije za Kategorije ---
+        document.getElementById('category-form').addEventListener('submit', async function(e) {
             e.preventDefault();
-            if (!currentUser.id) {
-                alert('Molimo prijavite se prvo.');
+            const sequence_number = document.getElementById('cat-sequence').value;
+            const priority = document.getElementById('cat-priority').value;
+            const rule = document.getElementById('cat-rule').value;
+            const response = document.getElementById('cat-response').value;
+            const tagsInput = document.getElementById('cat-tags').value;
+            let tags;
+            try {
+                tags = JSON.parse(tagsInput);
+                if (!Array.isArray(tags)) throw new Error("Tags must be a JSON array.");
+            } catch (e) {
+                logResponse(`Greška u formatu tagova: ${e.message}. Molimo koristite JSON format za niz, npr. ["tag1", "tag2"]`, 'error');
                 return;
             }
 
-            const sequenceNumber = document.getElementById('sequenceNumber').value;
-            const priority = document.getElementById('priority').value;
-            const rule = document.getElementById('rule').value;
-            const response = document.getElementById('response').value;
-            const tagsInput = document.getElementById('tags').value;
-            const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()) : [];
-
-            const postData = {
-                google_user_id: currentUser.id,
-                client_email: currentUser.email, // Saljemo email, iako backend moze popuniti
-                sequence_number: parseInt(sequenceNumber),
+            logResponse("Slanje kategorije...");
+            const result = await sendAuthenticatedRequest('/categories', 'POST', {
+                sequence_number: parseInt(sequence_number),
                 priority: parseInt(priority),
                 rule: rule,
                 response: response,
                 tags: tags
-            };
-
-            fetch(`${BACKEND_URL}/categories`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(postData),
-            })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('categoryResponse').textContent = JSON.stringify(data, null, 2);
-            })
-            .catch(error => {
-                console.error('Greška pri čuvanju kategorije:', error);
-                document.getElementById('categoryResponse').textContent = 'Greška: ' + error.message;
             });
+            if (result) {
+                logResponse(result.message, 'success');
+                fetchCategories(); // Ažuriraj listu kategorija
+            }
         });
 
-        // Dohvati kategorije
-        function getCategories() {
-            if (!currentUser.id) return;
-
-            fetch(`${BACKEND_URL}/get_categories`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ google_user_id: currentUser.id }),
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success' && data.categories.length > 0) {
-                    const categoriesHtml = data.categories.map(cat => `
-                        <div>
-                            <strong>Email:</strong> ${cat.client_email}<br>
-                            <strong>Seq:</strong> ${cat.sequence_number},
-                            <strong>Pri:</strong> ${cat.priority},
-                            <strong>Rule:</strong> ${cat.rule}<br>
-                            <strong>Resp:</strong> ${cat.response}<br>
-                            <strong>Tags:</strong> ${cat.tags.join(', ')}
-                        </div><hr>
-                    `).join('');
-                    document.getElementById('categoryResponse').innerHTML = "<h3>Učitane Kategorije:</h3>" + categoriesHtml;
+        async function fetchCategories() {
+            logResponse("Dohvatanje kategorija...");
+            const data = await sendAuthenticatedRequest('/get_categories', 'POST', {}); // Prazan payload jer backend uzima iz tokena
+            if (data && data.categories) {
+                categoriesDisplay.innerHTML = ''; // Očisti prethodni prikaz
+                if (data.categories.length === 0) {
+                    categoriesDisplay.textContent = 'Nema sačuvanih kategorija za ovog korisnika.';
                 } else {
-                    document.getElementById('categoryResponse').textContent = data.message || 'Nema sačuvanih kategorija.';
+                    data.categories.forEach(cat => {
+                        const p = document.createElement('p');
+                        p.textContent = `Email: ${cat.client_email}, Seq: ${cat.sequence_number}, Prio: ${cat.priority}, Rule: ${cat.rule}, Resp: "${cat.response}", Tags: ${JSON.stringify(cat.tags)}`;
+                        categoriesDisplay.appendChild(p);
+                    });
                 }
-            })
-            .catch(error => {
-                console.error('Greška pri dohvatanju kategorija:', error);
-                document.getElementById('categoryResponse').textContent = 'Greška: ' + error.message;
-            });
+                logResponse("Kategorije uspešno dohvaćene.", 'success');
+            } else if (data) {
+                categoriesDisplay.textContent = data.message || 'Nema kategorija za prikaz.';
+            }
         }
 
-        // Inicijalizacija UI-a
+        // --- Funkcije za Korisnička Podešavanja ---
+        document.getElementById('settings-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const discord_token = document.getElementById('discord-token').value;
+            const is_checkbox_checked = document.getElementById('is-checkbox-checked').checked;
+            const general_response = document.getElementById('general-response').value;
+            const user_rule = document.getElementById('user-rule').value || null; // Postavi na null ako je prazno
+
+            logResponse("Slanje korisničkih podešavanja...");
+            const result = await sendAuthenticatedRequest('/user_settings', 'POST', {
+                discord_token: discord_token,
+                is_checkbox_checked: is_checkbox_checked,
+                general_response: general_response,
+                user_rule: user_rule
+            });
+            if (result) {
+                logResponse(result.message, 'success');
+                fetchUserSettings(); // Ažuriraj prikaz podešavanja
+            }
+        });
+
+        async function fetchUserSettings() {
+            logResponse("Dohvatanje korisničkih podešavanja...");
+            const data = await sendAuthenticatedRequest('/get_user_settings', 'POST', {});
+            if (data && data.user_settings) {
+                const settings = data.user_settings;
+                userSettingsDisplay.innerHTML = '';
+                if (settings.discord_token || settings.is_checkbox_checked || settings.general_response || settings.user_rule || settings.client_email) {
+                    userSettingsDisplay.innerHTML = `
+                        <p><strong>Discord Token:</strong> ${settings.discord_token || 'Nije postavljen'}</p>
+                        <p><strong>Čekirano:</strong> ${settings.is_checkbox_checked ? 'Da' : 'Ne'}</p>
+                        <p><strong>Generalni Odgovor:</strong> ${settings.general_response || 'Nije postavljen'}</p>
+                        <p><strong>Pravilo Korisnika:</strong> ${settings.user_rule || 'Nije postavljeno'}</p>
+                        <p><strong>Email (iz baze):</strong> ${settings.client_email || 'Nije postavljen'}</p>
+                    `;
+                    // Popuni formu sa dohvaćenim podacima
+                    document.getElementById('discord-token').value = settings.discord_token || '';
+                    document.getElementById('is-checkbox-checked').checked = settings.is_checkbox_checked;
+                    document.getElementById('general-response').value = settings.general_response || '';
+                    document.getElementById('user-rule').value = settings.user_rule || '';
+                } else {
+                    userSettingsDisplay.textContent = data.message || 'Nema sačuvanih podešavanja za ovog korisnika.';
+                    // Očisti formu
+                    document.getElementById('discord-token').value = '';
+                    document.getElementById('is-checkbox-checked').checked = false;
+                    document.getElementById('general-response').value = '';
+                    document.getElementById('user-rule').value = '';
+                }
+                logResponse("Korisnička podešavanja uspešno dohvaćena.", 'success');
+            } else if (data) {
+                userSettingsDisplay.textContent = data.message || 'Nema korisničkih podešavanja za prikaz.';
+            }
+        }
+
+        // Inicijalizuj UI prilikom učitavanja stranice
         document.addEventListener('DOMContentLoaded', updateUI);
     </script>
 </body>

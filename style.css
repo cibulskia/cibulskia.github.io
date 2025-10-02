@@ -289,6 +289,21 @@ textarea {
     overflow-y: auto;
 }
 
+/* Specific grid for main sections */
+.main-grid-area {
+    display: grid;
+    grid-template-columns: 1fr; /* Default: single column */
+    gap: 20px;
+}
+
+@media (min-width: 769px) { /* Two columns on larger screens */
+    .main-grid-area {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+/* Grid for category items */
 .category-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Ensures multiple columns */
@@ -402,6 +417,3 @@ textarea {
         grid-template-columns: 1fr; /* Single column for categories on small screens */
     }
 }
-
-/* Force specific colors if needed, but avoid !important when possible */
-/* h1 { color: white !important; } */

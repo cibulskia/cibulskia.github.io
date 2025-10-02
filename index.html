@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Botanica - Vaš Pametni Asistent</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome za ikone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
             --primary-color: #4CAF50; /* Green for nature/botanica */
@@ -15,6 +17,7 @@
             --background-dark: #2c3e50;
             --gradient-start: #6dd5ed;
             --gradient-end: #2193b0;
+            --discord-color: #7289DA; /* Discord brand color */
         }
 
         * {
@@ -266,6 +269,72 @@
             color: #555;
         }
 
+        /* Discord Integration Section */
+        #discord-integration {
+            background-color: var(--background-dark);
+            color: var(--light-text-color);
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        #discord-integration h2 {
+            color: var(--light-text-color);
+        }
+
+        #discord-integration h2::after {
+            background-color: var(--discord-color);
+        }
+
+        .discord-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .discord-feature-item {
+            background-color: #36454F; /* Darker background for contrast */
+            color: var(--light-text-color);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            text-align: left;
+            max-width: 800px;
+            width: 100%;
+            border-left: 5px solid var(--discord-color);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .discord-feature-item i {
+            font-size: 3.5rem;
+            color: var(--discord-color);
+            flex-shrink: 0;
+        }
+
+        .discord-feature-item h3 {
+            font-size: 1.6rem;
+            margin-bottom: 10px;
+            color: var(--light-text-color);
+        }
+
+        .discord-feature-item p {
+            font-size: 1rem;
+            color: #ccc;
+        }
+        .discord-buttons {
+            margin-top: 40px;
+        }
+        .btn-discord {
+            background-color: var(--discord-color);
+            margin: 0 10px;
+        }
+        .btn-discord:hover {
+            background-color: #5b6fb8; /* Darker Discord blue */
+        }
+
+
         /* Call to Action */
         .cta {
             background: linear-gradient(45deg, var(--primary-color), #2E7D32);
@@ -346,6 +415,14 @@
                 margin-right: 0;
                 margin-bottom: 20px;
             }
+
+            .discord-feature-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            .discord-feature-item i {
+                margin-bottom: 15px;
+            }
         }
     </style>
 </head>
@@ -358,6 +435,7 @@
                     <li><a href="#about">O nama</a></li>
                     <li><a href="#features">Karakteristike</a></li>
                     <li><a href="#how-it-works">Kako funkcioniše</a></li>
+                    <li><a href="#discord-integration">Discord</a></li>
                     <li><a href="#contact">Kontakt</a></li>
                 </ul>
             </nav>
@@ -457,6 +535,43 @@
         </div>
     </section>
 
+    <section id="discord-integration">
+        <div class="container">
+            <h2>Discord Integracija: Proširite Vašu Podršku</h2>
+            <p style="max-width: 800px; margin: 0 auto 40px auto; font-size: 1.15rem; color: #ccc;">
+                Ne ograničavajte se samo na veb stranicu! Uz Botanica Discord Manager, možete pokrenuti personalizovane AI botove za svaki svoj Discord server, pružajući instant podršku direktno tamo gde su vaši korisnici najaktivniji.
+            </p>
+
+            <div class="discord-content">
+                <div class="discord-feature-item">
+                    <i class="fab fa-discord"></i>
+                    <div>
+                        <h3>Bot po Korisniku/Serveru</h3>
+                        <p>Svaki klijent sa Botanica nalogom može da pokrene sopstvenog Discord bota. Konfigurisanje je jednostavno - samo unesite Discord token u našu platformu.</p>
+                    </div>
+                </div>
+                <div class="discord-feature-item">
+                    <i class="fas fa-bolt"></i>
+                    <div>
+                        <h3>Uvek Aktivan, Uvek Spreman</h3>
+                        <p>Naš Discord Manager automatski prati status vaših botova. Ako se token promeni ili bot prestane sa radom, sistem ga automatski restartuje, osiguravajući neprekidnu podršku.</p>
+                    </div>
+                </div>
+                <div class="discord-feature-item">
+                    <i class="fas fa-link"></i>
+                    <div>
+                        <h3>Besprekorna Sinhronizacija</h3>
+                        <p>Sva pravila, tagovi i odgovori koje definišete u Botanica platformi automatski se primenjuju na vaše Discord botove. Upravljajte svime sa jednog mesta!</p>
+                    </div>
+                </div>
+            </div>
+            <div class="discord-buttons">
+                <a href="manager.html" class="btn btn-discord">Postavite Discord Bota</a>
+                <a href="#how-it-works" class="btn btn-discord">Saznajte Više o Botovima</a>
+            </div>
+        </div>
+    </section>
+
     <section class="cta">
         <div class="container">
             <h2>Spremni da Unapredite Vašu Korisničku Podršku?</h2>
@@ -476,14 +591,7 @@
         </div>
     </footer>
 
-    <!-- FontAwesome za ikone (samo primer, potrebno je linkovati CDN) -->
-    <script src="https://kit.fontawesome.com/your-font-awesome-kit-id.js" crossorigin="anonymous"></script>
     <script>
-        // Example for FontAwesome Kit ID:
-        // Replace 'your-font-awesome-kit-id.js' with your actual Font Awesome Kit ID.
-        // If you don't have one, you can use a common CDN for basic icons, but it's not always stable.
-        // For demonstration purposes, I've put a placeholder. For production, register your own kit.
-
         // Smooth scrolling for navigation
         document.querySelectorAll('nav ul li a').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -493,8 +601,13 @@
                 const targetElement = document.querySelector(targetId);
 
                 if (targetElement) {
+                    // Adjust for fixed header height
+                    const headerOffset = document.querySelector('header').offsetHeight;
+                    const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                    const offsetPosition = elementPosition - headerOffset;
+
                     window.scrollTo({
-                        top: targetElement.offsetTop - document.querySelector('header').offsetHeight, // Adjust for fixed header
+                        top: offsetPosition,
                         behavior: 'smooth'
                     });
                 }

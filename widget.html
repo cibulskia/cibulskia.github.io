@@ -4,73 +4,238 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pitaj Botanicu - Chat Widget</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #4CAF50; /* Green for nature/botanica */
+            --secondary-color: #007bff; /* Blue for tech/AI */
+            --text-color: #333;
+            --light-text-color: #f4f4f4;
+            --background-light: #f9f9f9;
+            --background-dark: #2c3e50;
+            --gradient-start: #6dd5ed;
+            --gradient-end: #2193b0;
+            --discord-color: #7289DA; /* Discord brand color */
+            --chat-bubble-user: #e0f2f1; /* Light green-blue for user */
+            --chat-bubble-bot: #f1f1f1; /* Light grey for bot */
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
         #qaPopup {
-            position: fixed; bottom: 20px; right: 20px;
-            width: 100%; max-width: 400px;
-            border-radius: 10px; background: #f9f9f9;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            border: 1px solid #ccc; display: flex; flex-direction: column;
-            z-index: 1006; overflow: hidden;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            border: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            z-index: 1006;
+            overflow: hidden;
             transform: translateY(100%);
             opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            font-family: Arial, sans-serif;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+            font-family: 'Poppins', sans-serif;
+            max-height: 80vh; /* Ograničite visinu popup-a */
         }
         #qaPopup.active {
             transform: translateY(0);
             opacity: 1;
         }
+
+        #chatHeader {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 15px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #chatHeader button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 5px;
+            transition: transform 0.2s ease;
+        }
+        #chatHeader button:hover {
+            transform: scale(1.1);
+        }
+
         #chatHistory {
-            padding: 10px; max-height: 50vh; overflow-y: auto; font-size: 0.95em;
+            flex-grow: 1; /* Omogućava da zauzme dostupan prostor */
+            padding: 15px;
+            overflow-y: auto;
+            font-size: 0.95em;
+            background-color: #fdfdfd;
+            border-bottom: 1px solid #eee;
+        }
+        .chat-message {
+            margin-bottom: 12px;
+            word-wrap: break-word;
+            max-width: 85%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            line-height: 1.5;
+        }
+        .chat-message.user {
+            background-color: var(--chat-bubble-user);
+            color: var(--text-color);
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-message.bot {
+            background-color: var(--chat-bubble-bot);
+            color: var(--text-color);
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+
+        #messageInputContainer {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border-top: 1px solid #eee;
             background-color: #fff;
         }
-        .chat-message { margin-bottom: 10px; word-wrap: break-word; }
-        .chat-message.user { text-align: right; color: #007BFF; }
-        .chat-message.bot { text-align: left; color: #333333; white-space: pre-wrap; }
-        #qaPopup textarea {
-            padding:10px; width: calc(100% - 20px); font-size:1em;
-            margin:10px; display:block; resize:none; min-height:40px; overflow:hidden; box-sizing:border-box;
+
+        #userQuestion {
+            flex-grow: 1;
+            padding: 10px 12px;
+            font-size: 0.95em;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            resize: none;
+            min-height: 40px;
+            max-height: 100px; /* Ograničenje visine tekstualnog polja */
+            overflow-y: auto;
+            margin-right: 10px;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease;
         }
-        #chatControls {
-            display: flex; justify-content: flex-end; gap: 10px; margin: 0 10px 10px 10px;
+        #userQuestion:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
         }
-        #chatControls button {
-            padding:10px 15px; font-size:1em; cursor:pointer; border-radius: 5px; border: none;
+
+        #sendBtn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%; /* Okruglo dugme */
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background-color 0.2s ease, transform 0.2s ease;
         }
-        #sendBtn { background-color: #888; color: white; }
-        #sendBtn:hover { background-color: #007BFF; }
-        #closeChatBtn { background-color: #888; color: white; }
-        #closeChatBtn:hover { background-color: #FF0000; }
+        #sendBtn:hover {
+            background-color: #388e3c; /* Darker green */
+            transform: translateY(-1px);
+        }
+        #sendBtn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
         #openChatBtn {
-            position: fixed; bottom: 20px; right: 20px; z-index:1005;
-            padding: 15px 25px; font-size: 1.2em; cursor: pointer;
-            border-radius: 50px; border: none; background-color: #888; color: white;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1005;
+            padding: 15px 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 50px;
+            border: none;
+            background-color: var(--primary-color);
+            color: white;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
-        #openChatBtn:hover { background-color: #007BFF; }
+        #openChatBtn:hover {
+            background-color: #388e3c; /* Darker green */
+            transform: translateY(-2px);
+        }
+
         #statusMessage {
-            font-size: 12px; margin: 5px 10px; display: none; padding: 5px; border-radius: 4px;
+            font-size: 0.85em;
+            margin: 5px 15px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: none;
+            line-height: 1.4;
         }
-        #statusMessage.success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
-        #statusMessage.error { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
-        @media screen and (max-width:768px) {
-            #qaPopup { width:90%; right:5%; bottom:10px; max-width:none; }
-            #qaPopup textarea { width: calc(100% - 20px); }
+        #statusMessage.success {
+            background:#e6ffed;
+            color:#1f7a37;
+            border:1px solid #b3e6c3;
+        }
+        #statusMessage.error {
+            background:#ffe6e6;
+            color:#cc0000;
+            border:1px solid #e6b3b3;
+        }
+        #statusMessage.loading {
+            background: #e0f2f1;
+            color: #00796b;
+            border: 1px solid #b2dfdb;
+        }
+
+        @media screen and (max-width: 768px) {
+            #qaPopup {
+                width: 90%;
+                right: 5%;
+                bottom: 10px;
+                max-width: none;
+                max-height: 90vh;
+            }
+            #openChatBtn {
+                padding: 12px 20px;
+                font-size: 1em;
+            }
         }
     </style>
 </head>
 <body style="margin:0; padding:0;">
 
-    <button id="openChatBtn">Chat</button>
+    <button id="openChatBtn">
+        <i class="fas fa-comment-dots"></i> Chat
+    </button>
 
     <div id="qaPopup">
+        <div id="chatHeader">
+            <span>Botanica Asistent</span>
+            <button id="closeChatBtn"><i class="fas fa-times"></i></button>
+        </div>
         <div id="chatHistory"></div>
-        <textarea id="userQuestion" placeholder="Postavi pitanje..."></textarea>
         <div id="statusMessage"></div>
-        <div id="chatControls">
-            <button id="closeChatBtn">Zatvori</button>
-            <button id="sendBtn">Pošalji</button>
+        <div id="messageInputContainer">
+            <textarea id="userQuestion" placeholder="Postavi pitanje..."></textarea>
+            <button id="sendBtn"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
@@ -79,6 +244,10 @@
         const statusMessage = document.getElementById('statusMessage');
         const chatHistory = document.getElementById('chatHistory');
         const userQuestion = document.getElementById('userQuestion');
+        const sendBtn = document.getElementById('sendBtn');
+        const openChatBtn = document.getElementById("openChatBtn");
+        const qaPopup = document.getElementById("qaPopup");
+        const closeChatBtn = document.getElementById("closeChatBtn");
 
         // Funkcija za parsiranje URL parametara
         function getUrlParameter(name) {
@@ -91,9 +260,13 @@
         window.onload = function() {
             googleUserId = getUrlParameter('site');
             if (!googleUserId) {
-                statusMessage.textContent = 'Greška: User ID nije pronađen u URL-u.';
-                statusMessage.className = 'error';
-                statusMessage.style.display = 'block';
+                // Prikazati grešku samo ako je chat otvoren ili ako želimo da uvek bude vidljivo
+                // Za sada, neka bude tiho, jer je widget možda embedovan na stranicu koja ne koristi site parametar direktno
+                console.warn('Upozorenje: User ID ("site" parametar) nije pronađen u URL-u. Komunikacija sa serverom možda neće raditi ispravno.');
+                // Možete i ovde dodati poruku u statusMessage ako želite da bude vidljiva korisniku:
+                // statusMessage.textContent = 'Greška: User ID nije pronađen. Kontaktirajte podršku.';
+                // statusMessage.className = 'error';
+                // statusMessage.style.display = 'block';
             }
         };
 
@@ -126,84 +299,95 @@
 
         async function sendQuestion() {
             const question = userQuestion.value.trim();
-            if(!question) return;
+            if(!question) return; // Ne šalji prazna pitanja
 
             appendMessage("user", question);
             userQuestion.value = '';
+            adjustTextareaHeight(); // Resetuj visinu tekstualnog polja
 
             statusMessage.style.display = 'none';
             statusMessage.className = '';
 
             if (!googleUserId) {
                 appendMessage("bot", "Greška: User ID nije definisan. Proverite embed kod.");
+                statusMessage.textContent = 'Greška: User ID nije definisan.';
+                statusMessage.className = 'error';
+                statusMessage.style.display = 'block';
                 return;
             }
 
             appendMessage("bot", "Učitavanje odgovora...");
-            let firstMessage = chatHistory.lastChild;
+            let loadingMessageElement = chatHistory.lastChild;
+
+            statusMessage.textContent = 'Učitavanje odgovora...';
+            statusMessage.className = 'loading';
+            statusMessage.style.display = 'block';
 
             let data = await fetchAnswer(question);
 
+            // Ukloni privremenu poruku "Učitavanje odgovora..."
+            if (loadingMessageElement) {
+                loadingMessageElement.remove();
+            }
+
             // Ako odmah dobije odgovor, prikaži odmah
             if(data.status === 'success') {
-                firstMessage.remove();
                 appendMessage("bot", data.answer);
                 statusMessage.textContent = 'Uspešno primljen odgovor!';
                 statusMessage.className = 'success';
-                statusMessage.style.display = 'block';
             } else {
-                // Ako nije odmah uspeo, ostavi poruku i pokuša ponovo za 1 minut
-                firstMessage.textContent = "Učitavanje odgovora... (ponovni pokušaj za 1 minut)";
-                setTimeout(async () => {
-                    let retryData = await fetchAnswer(question);
-                    firstMessage.remove(); // ukloni staru poruku
-                    if(retryData.status === 'success') {
-                        appendMessage("bot", retryData.answer);
-                        statusMessage.textContent = 'Uspešno primljen odgovor!';
-                        statusMessage.className = 'success';
-                    } else if(retryData.status === 'not_found') {
-                        appendMessage("bot", retryData.answer);
-                        statusMessage.textContent = 'Nije pronađen direktan odgovor.';
-                        statusMessage.className = 'error';
-                    } else {
-                        appendMessage("bot", 'Greška: ' + (retryData.message || 'Nepoznata greška.'));
-                        statusMessage.textContent = 'Došlo je do greške prilikom obrade vašeg zahteva.';
-                        statusMessage.className = 'error';
-                    }
-                    statusMessage.style.display = 'block';
-                }, 60000); // 60000ms = 1 minut
+                // Ako nije odmah uspeo ili je status drugačiji
+                if(data.status === 'not_found') {
+                    appendMessage("bot", data.answer);
+                    statusMessage.textContent = 'Nije pronađen direktan odgovor.';
+                    statusMessage.className = 'error';
+                } else {
+                    appendMessage("bot", 'Greška: ' + (data.message || 'Nepoznata greška.'));
+                    statusMessage.textContent = 'Došlo je do greške prilikom obrade vašeg zahteva.';
+                    statusMessage.className = 'error';
+                }
+                // Bez ponovnog pokušaja za 1 minut, samo prikaži grešku odmah
+                // Ako želite ponovne pokušaje, treba implementirati logiku sa setTimeout ovde
+            }
+            statusMessage.style.display = 'block';
+        }
+
+        // Automatsko podešavanje visine textarea
+        function adjustTextareaHeight() {
+            userQuestion.style.height = 'auto'; // Resetuje visinu
+            userQuestion.style.height = (userQuestion.scrollHeight) + 'px';
+            // Ograničite maksimalnu visinu na 100px ili po želji
+            if (userQuestion.scrollHeight > 100) {
+                userQuestion.style.height = '100px';
+                userQuestion.style.overflowY = 'auto';
+            } else {
+                userQuestion.style.overflowY = 'hidden';
             }
         }
 
-        // Kontrole widgeta
-        const openChatBtn = document.getElementById("openChatBtn");
-        const qaPopup = document.getElementById("qaPopup");
-        const closeChatBtn = document.getElementById("closeChatBtn");
-        const sendBtn = document.getElementById("sendBtn");
+        userQuestion.addEventListener('input', adjustTextareaHeight);
 
         function openChat() {
             qaPopup.classList.add("active");
+            openChatBtn.style.display = "none"; // Sakrij dugme kad je chat otvoren
         }
         function closeChat() {
             qaPopup.classList.remove("active");
+            openChatBtn.style.display = "flex"; // Pokaži dugme kad je chat zatvoren
         }
 
-        openChatBtn.addEventListener("click", () => {
-            if (qaPopup.classList.contains("active")) {
-                closeChat();
-            } else {
-                openChat();
-            }
-        });
-
+        openChatBtn.addEventListener("click", openChat);
         closeChatBtn.addEventListener("click", closeChat);
         sendBtn.addEventListener("click", sendQuestion);
         userQuestion.addEventListener("keydown", e => {
             if(e.key === "Enter" && !e.shiftKey){
-                e.preventDefault();
+                e.preventDefault(); // Sprečava novi red u textarea
                 sendQuestion();
             }
         });
+
+        // Inicijalno podešavanje visine textarea
+        adjustTextareaHeight();
     </script>
 
 </body>

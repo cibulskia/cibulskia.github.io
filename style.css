@@ -1,132 +1,383 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #4CAF50; /* Green */
+    --secondary-color: #2196F3; /* Blue */
+    --accent-color: #FFC107; /* Amber */
+    --text-color: #333;
+    --light-text-color: #555;
+    --bg-color: #f0f2f5; /* Lighter grey background */
+    --card-bg: #ffffff;
+    --border-color: #e0e0e0;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --hover-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    --success-light: #d4edda;
+    --success-dark: #155724;
+    --error-light: #f8d7da;
+    --error-dark: #721c24;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    background-color: #f4f4f4;
-    color: #333;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
 }
 
 .container {
-    max-width: 800px;
+    max-width: 960px;
     margin: 0 auto;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-h1,
-h2 {
-    color: #0056b3;
-}
-
-#g_id_onload {
-    margin-bottom: 20px;
-}
-
-#auth-info {
-    margin-bottom: 20px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    background-color: #e9e9e9;
-    border-radius: 5px;
-}
-
-#category-form label,
-#discord-settings-form label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-#category-form input[type="text"],
-#category-form input[type="email"],
-#category-form input[type="number"],
-#category-form select,
-#category-form textarea,
-#discord-settings-form input[type="text"] {
-    width: calc(100% - 22px);
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-#discord-settings-form input[type="checkbox"] {
-    margin-right: 10px;
-}
-
-#category-form button,
-#discord-settings-form button,
-#generate-widget-btn,
-#embed-widget-btn {
-    background-color: #007bff;
+header {
+    background-color: var(--primary-color);
     color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
+    padding: 20px 30px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+header h1 {
+    margin: 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+header h1 .fas {
+    font-size: 1.8em;
+    color: white;
+}
+
+.card {
+    background-color: var(--card-bg);
+    padding: 25px 30px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.card:hover {
+    box-shadow: var(--hover-shadow);
+}
+
+h2 {
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+h2 .fas, h2 .fab {
+    color: var(--secondary-color);
+    font-size: 1.2em;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--light-text-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-group label .fas, .form-group label .fab {
+    color: var(--primary-color);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+select,
+textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1em;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box; /* Include padding in width */
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+    outline: none;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 12px;
+    width: auto; /* Override default width for inputs */
+    transform: scale(1.2);
+}
+
+.checkbox-group label {
+    margin-bottom: 0;
     cursor: pointer;
-    font-size: 16px;
-    margin-top: 5px;
-    margin-right: 10px;
+    user-select: none;
 }
 
-#category-form button:hover,
-#discord-settings-form button:hover,
-#generate-widget-btn:hover,
-#embed-widget-btn:hover {
-    background-color: #0056b3;
+.btn {
+    padding: 12px 22px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
 }
 
-#message {
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #43a047; /* Darker green */
+    box-shadow: var(--shadow);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #1976d2; /* Darker blue */
+    box-shadow: var(--shadow);
+}
+
+.btn-info {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+}
+
+.btn-info:hover {
+    background-color: #ffb300; /* Darker amber */
+    box-shadow: var(--shadow);
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.btn-outline:hover {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: var(--shadow);
+}
+
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
     margin-top: 20px;
-    padding: 10px;
-    border-radius: 5px;
+}
+
+.user-info {
+    background-color: #e8f5e9; /* Light green for user info */
+    border: 1px solid #c8e6c9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.user-info p {
+    margin: 0;
+    color: var(--success-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-info .fas {
+    color: var(--primary-color);
+}
+
+.message-box {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: 500;
 }
 
 .success {
-    background-color: #d4edda;
-    color: #155724;
-    border-color: #c3e6cb;
+    background-color: var(--success-light);
+    color: var(--success-dark);
+    border: 1px solid #a7d9b5;
 }
 
 .error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border-color: #f5c6cb;
+    background-color: var(--error-light);
+    color: var(--error-dark);
+    border: 1px solid #f2b8bd;
 }
 
-#categories-list {
-    margin-top: 30px;
-    border-top: 1px solid #eee;
-    padding-top: 20px;
+.info-message {
+    padding: 15px;
+    background-color: #e3f2fd; /* Light blue for info */
+    color: #1a237e; /* Darker blue */
+    border: 1px solid #bbdefb;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.code-block {
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+    font-family: 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.9em;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
 }
 
 .category-item {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.category-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .category-item strong {
-    color: #007bff;
+    color: var(--primary-color);
+    font-weight: 600;
 }
 
-/* Novi stil za widget sekciju */
-#widget-code {
-    width: calc(100% - 22px);
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #f1f1f1;
-    font-family: monospace;
-    white-space: pre-wrap;
-    word-break: break-word;
+.category-item p {
+    margin: 0;
+    color: var(--light-text-color);
+    font-size: 0.9em;
+}
+
+.category-item .tags-list {
+    font-style: italic;
+    color: #777;
+    font-size: 0.85em;
+}
+
+.category-item .delete-btn {
+    background-color: #f44336; /* Red */
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    align-self: flex-end; /* Puts button to the right */
     margin-top: 10px;
 }
 
-/* Za embedovani widget */
-#embedded-widget-container {
-    margin-top: 20px;
+.category-item .delete-btn:hover {
+    background-color: #d32f2f; /* Darker red */
+}
+
+.embedded-widget-preview {
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f8f8;
+    border-style: dashed;
+    border-color: #ccc;
+    color: #888;
+    font-style: italic;
+}
+
+/* Google Sign-in button customization */
+.g_id_signin {
+    margin-bottom: 20px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    body {
+        padding: 15px;
+    }
+    .container {
+        gap: 15px;
+    }
+    header {
+        padding: 15px 20px;
+        border-radius: 8px;
+    }
+    .card {
+        padding: 20px;
+        border-radius: 8px;
+    }
+    .btn {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 10px; /* Add margin for stacked buttons */
+    }
+    .button-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .category-grid {
+        grid-template-columns: 1fr;
+    }
 }

@@ -3,72 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Category & User Settings Management</title>
-    <!-- Google Identity Services Library -->
+    <title>Category Management</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 800px;
-            margin-bottom: 20px;
-        }
-        h1, h2 {
-            color: #0056b3;
-            text-align: center;
-        }
-        .auth-section {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        .auth-info {
-            margin-top: 10px;
-            font-weight: bold;
-            color: #007bff;
-        }
-        .section-title {
-            margin-top: 30px;
-            margin-bottom: 15px;
-            color: #0056b3;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
-        }
-        form div {
-            margin-bottom: 10px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input[type="text"],
-        input[type="number"],
-        textarea,
-        select {
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1, h2 { color: #0056b3; }
+        .section { margin-bottom: 30px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="number"], textarea {
             width: calc(100% - 22px);
             padding: 10px;
+            margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 1em;
         }
-        input[type="checkbox"] {
-            margin-right: 5px;
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
         button {
             background-color: #007bff;
@@ -77,92 +32,59 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 1em;
-            margin-right: 10px;
+            font-size: 16px;
         }
         button:hover {
             background-color: #0056b3;
         }
-        .logout-button {
-            background-color: #dc3545;
-        }
-        .logout-button:hover {
-            background-color: #c82333;
-        }
-        .message {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 4px;
-        }
-        .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .category-item, .settings-display {
-            border: 1px solid #eee;
+        .message { margin-top: 10px; padding: 10px; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        #categoriesList { margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
+        .category-item {
+            background-color: #e2f0fb;
+            border: 1px solid #b3d9ff;
             padding: 10px;
             margin-bottom: 10px;
             border-radius: 5px;
-            background-color: #fdfdfd;
         }
-        .category-item strong, .settings-display strong {
-            color: #0056b3;
-        }
-        .hidden {
-            display: none;
-        }
-        .tags-input-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            border: 1px solid #ccc;
-            padding: 5px;
-            border-radius: 4px;
-            min-height: 40px;
-        }
-        .tag {
-            background-color: #e0e0e0;
-            padding: 5px 8px;
-            border-radius: 3px;
-            display: flex;
-            align-items: center;
-        }
-        .tag-remove {
-            margin-left: 5px;
+        .category-item p { margin: 5px 0; }
+        .google-sign-in-button {
+            display: inline-block;
+            background: white;
+            color: #444;
+            width: 190px;
+            border-radius: 5px;
+            border: thin solid #888;
+            box-shadow: 1px 1px 1px grey;
+            white-space: nowrap;
+            margin-bottom: 20px;
             cursor: pointer;
+        }
+        .google-sign-in-button:hover {
+            box-shadow: 2px 2px 2px grey;
+        }
+        .google-sign-in-button img {
+            width: 48px;
+            height: 48px;
+            vertical-align: middle;
+        }
+        .google-sign-in-button span {
+            display: inline-block;
+            vertical-align: middle;
+            padding-left: 10px;
+            padding-right: 10px;
+            font-size: 14px;
             font-weight: bold;
-            color: #888;
-        }
-        .tags-input {
-            flex-grow: 1;
-            border: none;
-            outline: none;
-            padding: 0;
-            margin: 0;
-        }
-        @media (max-width: 600px) {
-            .container {
-                margin: 10px;
-                padding: 15px;
-            }
-            button {
-                width: 100%;
-                margin-bottom: 10px;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Category & User Settings</h1>
+        <h1>Category Management System</h1>
 
-        <div class="auth-section">
+        <div class="section" id="authSection">
+            <h2>Google Sign-In</h2>
             <div id="g_id_onload"
                  data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
                  data-callback="handleCredentialResponse"
@@ -176,345 +98,241 @@
                  data-shape="rectangular"
                  data-logo_alignment="left">
             </div>
-            <div id="authStatus" class="auth-info">Please sign in with Google.</div>
-            <button id="logoutButton" class="logout-button hidden">Logout</button>
+            <p id="authStatus"></p>
+            <p id="userInfo" style="font-weight: bold;"></p>
+            <button id="logoutButton" style="display: none;">Logout</button>
         </div>
 
-        <div id="appContent" class="hidden">
-            <p>Welcome, <span id="userName"></span> (<span id="userEmail"></span>)!</p>
+        <div class="section" id="categoryFormSection" style="display: none;">
+            <h2>Add/Update Category</h2>
+            <label for="clientEmail">Client Email:</label>
+            <input type="text" id="clientEmail" placeholder="Enter client email (autofilled if logged in)">
 
-            <h2 class="section-title">Categories</h2>
-            <form id="categoryForm">
-                <div>
-                    <label for="sequence_number">Sequence Number (1-99):</label>
-                    <input type="number" id="sequence_number" min="1" max="99" required>
-                </div>
-                <div>
-                    <label for="priority">Priority (0-9):</label>
-                    <input type="number" id="priority" min="0" max="9" required>
-                </div>
-                <div>
-                    <label for="rule">Rule (A, B, C):</label>
-                    <select id="rule" required>
-                        <option value="A">A</option>
-                        <option value="B">B</option>
-                        <option value="C">C</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="response">Response:</label>
-                    <textarea id="response" rows="3" required></textarea>
-                </div>
-                <div>
-                    <label>Tags (press Enter to add):</label>
-                    <div class="tags-input-container" id="tagsContainer">
-                        <input type="text" class="tags-input" id="tagInput" placeholder="Add tag...">
-                    </div>
-                    <input type="hidden" id="tagsHiddenInput" name="tags">
-                </div>
-                <button type="submit">Save Category</button>
-            </form>
-            <div id="categoryMessage" class="message hidden"></div>
+            <label for="sequenceNumber">Sequence Number (1-99):</label>
+            <input type="number" id="sequenceNumber" min="1" max="99" value="1">
 
-            <h3 class="section-title">My Categories</h3>
-            <button id="fetchCategoriesButton">Fetch Categories</button>
-            <div id="categoriesList"></div>
-            <div id="fetchCategoriesMessage" class="message hidden"></div>
+            <label for="priority">Priority (0-9):</label>
+            <input type="number" id="priority" min="0" max="9" value="5">
 
-            <h2 class="section-title">User Settings</h2>
-            <form id="userSettingsForm">
-                <div>
-                    <label for="discord_token">Discord Token:</label>
-                    <input type="text" id="discord_token">
-                </div>
-                <div>
-                    <label>
-                        <input type="checkbox" id="is_checkbox_checked"> Is Checkbox Checked?
-                    </label>
-                </div>
-                <div>
-                    <label for="general_response">General Response:</label>
-                    <textarea id="general_response" rows="3"></textarea>
-                </div>
-                <div>
-                    <label for="user_rule">User Rule (A, B, C, D):</label>
-                    <select id="user_rule">
-                        <option value="">(Optional)</option>
-                        <option value="A">A</option>
-                        <option value="B">B</option>
-                        <option value="C">C</option>
-                        <option value="D">D</option>
-                    </select>
-                </div>
-                <button type="submit">Save User Settings</button>
-            </form>
-            <div id="userSettingsMessage" class="message hidden"></div>
+            <label for="rule">Rule (A, B, or C):</label>
+            <select id="rule">
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+            </select>
 
-            <h3 class="section-title">My User Settings</h3>
-            <button id="fetchSettingsButton">Fetch User Settings</button>
-            <div id="userSettingsDisplay"></div>
-            <div id="fetchSettingsMessage" class="message hidden"></div>
+            <label for="response">Response:</label>
+            <textarea id="response" placeholder="Enter response text"></textarea>
+
+            <label for="tags">Tags (comma-separated):</label>
+            <input type="text" id="tags" placeholder="e.g., tag1, tag2, tag3">
+
+            <button onclick="addUpdateCategory()">Save Category</button>
+            <div id="formMessage" class="message" style="display: none;"></div>
+        </div>
+
+        <div class="section" id="getCategoriesSection" style="display: none;">
+            <h2>Your Categories</h2>
+            <button onclick="fetchCategories()">Refresh Categories</button>
+            <div id="categoriesList">
+                <p>No categories loaded yet.</p>
+            </div>
+            <div id="getCategoriesMessage" class="message" style="display: none;"></div>
         </div>
     </div>
 
     <script>
-        // BACKEND URL - Ažuriraj ako se ngrok URL promeni
-        const BACKEND_URL = 'https://botanica.ngrok.app';
-        const GOOGLE_CLIENT_ID = "252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com";
+        const BACKEND_URL = "https://botanica.ngrok.app"; // Proveri da li se ovo podudara sa portom tvog servera
 
-        let userCredential = null;
-        let googleUserId = null;
-        let clientEmail = null;
-        let userName = null;
-        let currentTags = []; // Array to hold current tags for category form
+        let currentUser = {
+            id: null,
+            email: null,
+            name: null,
+            jwt: null // JWT token (credential) za slanje backendu
+        };
 
-        const el = (id) => document.getElementById(id);
+        // Funkcija za Google prijavu
+        function handleCredentialResponse(response) {
+            console.log("Encoded JWT ID token: " + response.credential);
+            currentUser.jwt = response.credential; // Sačuvaj JWT token
 
-        const authStatusEl = el('authStatus');
-        const appContentEl = el('appContent');
-        const userNameEl = el('userName');
-        const userEmailEl = el('userEmail');
-        const logoutButton = el('logoutButton');
-
-        const categoryForm = el('categoryForm');
-        const categoryMessageEl = el('categoryMessage');
-        const categoriesListEl = el('categoriesList');
-        const fetchCategoriesButton = el('fetchCategoriesButton');
-        const fetchCategoriesMessageEl = el('fetchCategoriesMessage');
-
-        const userSettingsForm = el('userSettingsForm');
-        const userSettingsMessageEl = el('userSettingsMessage');
-        const userSettingsDisplayEl = el('userSettingsDisplay');
-        const fetchSettingsButton = el('fetchSettingsButton');
-        const fetchSettingsMessageEl = el('fetchSettingsMessage');
-
-        const tagInput = el('tagInput');
-        const tagsContainer = el('tagsContainer');
-        const tagsHiddenInput = el('tagsHiddenInput');
-
-        function showMessage(element, message, type) {
-            element.textContent = message;
-            element.className = `message ${type}`;
-            element.classList.remove('hidden');
-            setTimeout(() => element.classList.add('hidden'), 5000);
-        }
-
-        // --- Tag Input Logic ---
-        function renderTags() {
-            // Clear existing tags but keep the input field
-            const existingTags = tagsContainer.querySelectorAll('.tag');
-            existingTags.forEach(tag => tag.remove());
-
-            currentTags.forEach(tagText => {
-                const tagEl = document.createElement('span');
-                tagEl.className = 'tag';
-                tagEl.textContent = tagText;
-
-                const removeBtn = document.createElement('span');
-                removeBtn.className = 'tag-remove';
-                removeBtn.textContent = 'x';
-                removeBtn.onclick = () => {
-                    currentTags = currentTags.filter(t => t !== tagText);
-                    renderTags();
-                };
-                tagEl.appendChild(removeBtn);
-                tagsContainer.insertBefore(tagEl, tagInput); // Insert before the input field
-            });
-            tagsHiddenInput.value = JSON.stringify(currentTags);
-        }
-
-        tagInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && tagInput.value.trim() !== '') {
-                e.preventDefault(); // Prevent form submission
-                const newTag = tagInput.value.trim();
-                if (!currentTags.includes(newTag)) {
-                    currentTags.push(newTag);
-                    renderTags();
-                    tagInput.value = '';
-                }
-            }
-        });
-
-        // --- Authentication ---
-        async function handleCredentialResponse(response) {
-            userCredential = response.credential;
-            try {
-                const res = await fetch(`${BACKEND_URL}/oauth_callback`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ credential: userCredential })
-                });
-                const data = await res.json();
-
+            // Pošalji credential backendu radi verifikacije i dobijanja user informacija
+            fetch(`${BACKEND_URL}/oauth_callback`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ credential: response.credential })
+            })
+            .then(res => res.json())
+            .then(data => {
                 if (data.status === 'success') {
-                    googleUserId = data.user_id;
-                    clientEmail = data.user_email;
-                    userName = data.user_name;
-
-                    authStatusEl.textContent = `Logged in as: ${userName} (${clientEmail})`;
-                    authStatusEl.classList.add('success');
-                    appContentEl.classList.remove('hidden');
-                    logoutButton.classList.remove('hidden');
-                    document.querySelector('.g_id_signin').classList.add('hidden'); // Hide Google Sign-In button
-
-                    userNameEl.textContent = userName;
-                    userEmailEl.textContent = clientEmail;
-
-                    // Fetch user specific data on login
-                    fetchCategories();
-                    fetchUserSettings();
+                    currentUser.id = data.user_id;
+                    currentUser.email = data.user_email;
+                    currentUser.name = data.user_name;
+                    updateUIForLoggedInUser();
+                    showMessage('authStatus', `Logged in as: ${currentUser.name} (${currentUser.email})`, 'success');
+                    console.log("Backend verifikacija uspešna:", data);
                 } else {
-                    showMessage(authStatusEl, data.message || 'Login failed.', 'error');
+                    showMessage('authStatus', `Login failed: ${data.message}`, 'error');
+                    console.error("Backend verifikacija neuspešna:", data);
                 }
-            } catch (error) {
-                console.error('Error during Google OAuth callback:', error);
-                showMessage(authStatusEl, 'Network error during login.', 'error');
+            })
+            .catch(error => {
+                console.error('Error during OAuth callback:', error);
+                showMessage('authStatus', 'Error communicating with backend for OAuth.', 'error');
+            });
+        }
+
+        function updateUIForLoggedInUser() {
+            document.getElementById('g_id_onload').style.display = 'none';
+            document.querySelector('.g_id_signin').style.display = 'none';
+            document.getElementById('userInfo').innerText = `Logged in as: ${currentUser.name} (${currentUser.email})`;
+            document.getElementById('logoutButton').style.display = 'inline-block';
+            document.getElementById('categoryFormSection').style.display = 'block';
+            document.getElementById('getCategoriesSection').style.display = 'block';
+
+            // Postavi email u formu ako je dostupan
+            if (currentUser.email) {
+                document.getElementById('clientEmail').value = currentUser.email;
             }
+            fetchCategories(); // Automatski dohvati kategorije nakon prijave
         }
 
         function logout() {
-            userCredential = null;
-            googleUserId = null;
-            clientEmail = null;
-            userName = null;
-            authStatusEl.textContent = 'Please sign in with Google.';
-            authStatusEl.classList.remove('success', 'error');
-            appContentEl.classList.add('hidden');
-            logoutButton.classList.add('hidden');
-            document.querySelector('.g_id_signin').classList.remove('hidden');
-            categoriesListEl.innerHTML = '';
-            userSettingsDisplayEl.innerHTML = '';
-            // Clear forms
-            categoryForm.reset();
-            userSettingsForm.reset();
-            currentTags = [];
-            renderTags();
+            currentUser = { id: null, email: null, name: null, jwt: null };
+            document.getElementById('g_id_onload').style.display = 'block';
+            document.querySelector('.g_id_signin').style.display = 'block';
+            document.getElementById('userInfo').innerText = '';
+            document.getElementById('authStatus').innerText = '';
+            document.getElementById('logoutButton').style.display = 'none';
+            document.getElementById('categoryFormSection').style.display = 'none';
+            document.getElementById('getCategoriesSection').style.display = 'none';
+            document.getElementById('clientEmail').value = ''; // Obriši email iz forme
+            document.getElementById('categoriesList').innerHTML = '<p>No categories loaded yet.</p>';
+
+            // Clear Google session (optional, but good practice)
+            google.accounts.id.disableAutoSelect(); // Prevents auto-login on next visit
+            console.log("Logged out.");
         }
-        logoutButton.addEventListener('click', logout);
+
+        document.getElementById('logoutButton').addEventListener('click', logout);
 
 
-        // --- API Calls ---
-        async function apiRequest(path, method, body, messageElement) {
-            if (!userCredential || !googleUserId || !clientEmail) {
-                showMessage(messageElement, 'Please sign in first.', 'error');
-                return null;
+        // Funkcija za dodavanje/ažuriranje kategorije
+        async function addUpdateCategory() {
+            if (!currentUser.id) {
+                showMessage('formMessage', 'Please log in first.', 'error');
+                return;
+            }
+
+            const clientEmail = document.getElementById('clientEmail').value.trim();
+            const sequenceNumber = parseInt(document.getElementById('sequenceNumber').value);
+            const priority = parseInt(document.getElementById('priority').value);
+            const rule = document.getElementById('rule').value;
+            const response = document.getElementById('response').value.trim();
+            const tagsInput = document.getElementById('tags').value.trim();
+            const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()) : [];
+
+            const data = {
+                google_user_id: currentUser.id,
+                client_email: clientEmail,
+                sequence_number: sequenceNumber,
+                priority: priority,
+                rule: rule,
+                response: response,
+                tags: tags
+            };
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/categories`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Možeš dodati Authorization header ako backend zahteva, npr:
+                        // 'Authorization': `Bearer ${currentUser.jwt}`
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+
+                if (result.status === 'success') {
+                    showMessage('formMessage', result.message, 'success');
+                    fetchCategories(); // Osveži listu kategorija
+                } else {
+                    showMessage('formMessage', `Error: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error adding/updating category:', error);
+                showMessage('formMessage', 'An error occurred while saving the category.', 'error');
+            }
+        }
+
+        // Funkcija za dohvatanje kategorija
+        async function fetchCategories() {
+            if (!currentUser.id) {
+                showMessage('getCategoriesMessage', 'Please log in to view categories.', 'error');
+                return;
             }
 
             try {
-                const res = await fetch(`${BACKEND_URL}${path}`, {
-                    method: method,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...body, credential: userCredential })
+                const res = await fetch(`${BACKEND_URL}/get_categories`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // 'Authorization': `Bearer ${currentUser.jwt}`
+                    },
+                    body: JSON.stringify({ google_user_id: currentUser.id })
                 });
-                const data = await res.json();
-                if (data.status === 'success') {
-                    showMessage(messageElement, data.message || 'Operation successful!', 'success');
-                } else {
-                    showMessage(messageElement, data.message || 'An error occurred.', 'error');
-                }
-                return data;
-            } catch (error) {
-                console.error(`Error during API call to ${path}:`, error);
-                showMessage(messageElement, `Network error: ${error.message}`, 'error');
-                return null;
-            }
-        }
+                const result = await res.json();
 
-        // --- Category Management ---
-        categoryForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const sequence_number = el('sequence_number').value;
-            const priority = el('priority').value;
-            const rule = el('rule').value;
-            const response = el('response').value;
-            // tags are already in currentTags array and will be stringified by tagsHiddenInput.value
+                const categoriesListDiv = document.getElementById('categoriesList');
+                categoriesListDiv.innerHTML = ''; // Očisti prethodne kategorije
 
-            const data = await apiRequest('/categories', 'POST', {
-                sequence_number, priority, rule, response, tags: currentTags
-            }, categoryMessageEl);
-
-            if (data && data.status === 'success') {
-                categoryForm.reset();
-                currentTags = [];
-                renderTags(); // Clear tags display
-                fetchCategories(); // Refresh list
-            }
-        });
-
-        async function fetchCategories() {
-            const data = await apiRequest('/get_categories', 'POST', {}, fetchCategoriesMessageEl);
-            categoriesListEl.innerHTML = '';
-            if (data && data.status === 'success' && data.categories) {
-                if (data.categories.length === 0) {
-                    categoriesListEl.innerHTML = '<p>No categories found.</p>';
-                } else {
-                    data.categories.forEach(cat => {
+                if (result.status === 'success' && result.categories.length > 0) {
+                    result.categories.forEach(cat => {
                         const div = document.createElement('div');
                         div.className = 'category-item';
                         div.innerHTML = `
-                            <strong>Seq:</strong> ${cat.sequence_number},
-                            <strong>Prio:</strong> ${cat.priority},
-                            <strong>Rule:</strong> ${cat.rule},
-                            <strong>Response:</strong> ${cat.response},
-                            <strong>Tags:</strong> ${cat.tags.join(', ')}
+                            <p><strong>Client Email:</strong> ${cat.client_email}</p>
+                            <p><strong>Sequence:</strong> ${cat.sequence_number}</p>
+                            <p><strong>Priority:</strong> ${cat.priority}</p>
+                            <p><strong>Rule:</strong> ${cat.rule}</p>
+                            <p><strong>Response:</strong> ${cat.response}</p>
+                            <p><strong>Tags:</strong> ${cat.tags.join(', ')}</p>
                         `;
-                        categoriesListEl.appendChild(div);
+                        categoriesListDiv.appendChild(div);
                     });
+                    showMessage('getCategoriesMessage', `Loaded ${result.categories.length} categories.`, 'success');
+                } else if (result.status === 'success' && result.categories.length === 0) {
+                    categoriesListDiv.innerHTML = '<p>No categories found for this user.</p>';
+                    showMessage('getCategoriesMessage', 'No categories found.', 'info');
+                } else {
+                    showMessage('getCategoriesMessage', `Error: ${result.message}`, 'error');
                 }
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+                showMessage('getCategoriesMessage', 'An error occurred while fetching categories.', 'error');
             }
         }
-        fetchCategoriesButton.addEventListener('click', fetchCategories);
 
-        // --- User Settings Management ---
-        userSettingsForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const discord_token = el('discord_token').value;
-            const is_checkbox_checked = el('is_checkbox_checked').checked;
-            const general_response = el('general_response').value;
-            const user_rule = el('user_rule').value;
-
-            const data = await apiRequest('/user_settings', 'POST', {
-                discord_token, is_checkbox_checked, general_response, user_rule
-            }, userSettingsMessageEl);
-
-            if (data && data.status === 'success') {
-                fetchUserSettings(); // Refresh display
-            }
-        });
-
-        async function fetchUserSettings() {
-            const data = await apiRequest('/get_user_settings', 'POST', {}, fetchSettingsMessageEl);
-            userSettingsDisplayEl.innerHTML = '';
-            if (data && data.status === 'success' && data.user_settings) {
-                const settings = data.user_settings;
-                const div = document.createElement('div');
-                div.className = 'settings-display';
-                div.innerHTML = `
-                    <strong>Discord Token:</strong> ${settings.discord_token || 'N/A'}<br>
-                    <strong>Checkbox Checked:</strong> ${settings.is_checkbox_checked ? 'Yes' : 'No'}<br>
-                    <strong>General Response:</strong> ${settings.general_response || 'N/A'}<br>
-                    <strong>User Rule:</strong> ${settings.user_rule || 'N/A'}
-                `;
-                userSettingsDisplayEl.appendChild(div);
-
-                // Populate form fields with fetched settings
-                el('discord_token').value = settings.discord_token || '';
-                el('is_checkbox_checked').checked = settings.is_checkbox_checked;
-                el('general_response').value = settings.general_response || '';
-                el('user_rule').value = settings.user_rule || '';
-            } else if (data && data.status === 'success' && data.message.includes('No user settings found')) {
-                 userSettingsDisplayEl.innerHTML = '<p>No user settings found. Please save them.</p>';
-                 // Clear form fields
-                el('discord_token').value = '';
-                el('is_checkbox_checked').checked = false;
-                el('general_response').value = '';
-                el('user_rule').value = '';
-            }
+        function showMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerText = message;
+            element.className = `message ${type}`;
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000); // Poruka nestaje posle 5 sekundi
         }
-        fetchSettingsButton.addEventListener('click', fetchUserSettings);
 
-        // Initial render for tags input
-        renderTags();
+        // Initial check if user is already logged in (e.g., if Google One Tap is active)
+        window.onload = function() {
+            // This part is mostly handled by Google Identity Services directly now.
+            // If the user has a valid session from a previous visit, the `handleCredentialResponse`
+            // will be called automatically (if data-auto_select is true).
+            // For manual sign-in, the user clicks the button.
+        };
     </script>
 </body>
 </html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Andrej Cibulski - Kontakt i Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4CAF50; /* Green for nature/botanica */
+            --secondary-color: #007bff; /* Blue for tech/AI */
+            --text-color: #333;
+            --light-text-color: #f4f4f4;
+            --background-light: #f9f9f9;
+            --background-dark: #2c3e50;
+            --gradient-start: #6dd5ed;
+            --gradient-end: #2193b0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-light);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Da footer bude na dnu */
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header - preuzeto iz tvoje landing stranice */
+        header {
+            background: var(--background-dark);
+            color: var(--light-text-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+        }
+
+        nav ul li {
+            margin-left: 30px;
+        }
+
+        nav ul li a {
+            color: var(--light-text-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Glavni sadržaj stranice */
+        main {
+            flex-grow: 1; /* Omogućava da glavni sadržaj zauzme sav dostupan prostor */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 0;
+            text-align: center;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); /* Pozadina iz hero sekcije */
+            color: white; /* Tekst bele boje za kontrast */
+        }
+
+        .content-box {
+            background-color: rgba(255, 255, 255, 0.1); /* Blago providna bela pozadina za tekst */
+            padding: 40px 60px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 800px;
+            margin: 0 auto;
+            border: 2px solid var(--primary-color); /* Okvir u primary boji */
+        }
+
+        .main-text {
+            font-size: 2.2rem; /* Veći font */
+            font-weight: 700; /* Podebljan font */
+            line-height: 1.4;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.4); /* Diskretna senka za bolju čitljivost */
+        }
+
+        .email {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color); /* Email u primary boji */
+            text-decoration: none;
+            display: block;
+            margin-top: 20px;
+            transition: color 0.3s ease;
+        }
+
+        .email:hover {
+            color: #388e3c; /* Tamnija primary boja na hover */
+        }
+
+        /* Footer - preuzeto iz tvoje landing stranice */
+        footer {
+            background-color: var(--background-dark);
+            color: var(--light-text-color);
+            padding: 40px 0;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        footer p {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-text {
+                font-size: 1.8rem;
+            }
+            .email {
+                font-size: 1.2rem;
+            }
+            .content-box {
+                padding: 30px;
+            }
+            header .container {
+                flex-direction: column;
+                text-align: center;
+            }
+            nav ul {
+                flex-direction: column;
+                margin-top: 15px;
+            }
+            nav ul li {
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="#" class="logo">Andrej Cibulski</a>
+            <nav>
+                <ul>
+                    <li><a href="https://tvoja-landing-strana.com" target="_blank">Nazad na Portfolio</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="content-box">
+            <p class="main-text">
+                Ova stranica služi isključivo kao atachment za moj CV i portfolio.
+                <br>
+                Sa poštovanjem,
+                <br>
+                Andrej Cibulski
+                <br>
+                <a href="mailto:cibulskia@gmail.com" class="email">cibulskia@gmail.com</a>
+            </p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Andrej Cibulski. Sva prava zadržana.</p>
+            <div class="footer-links">
+                <a href="#">Privatnost</a>
+                <a href="#">Uslovi</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

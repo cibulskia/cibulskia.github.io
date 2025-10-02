@@ -4,674 +4,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Botanica - Upravljanje</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Google Platform Library za prijavu -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <style>
-        :root {
-            --primary-color: #007bff;
-            --primary-dark: #0056b3;
-            --secondary-color: #f4f4f4;
-            --text-color: #333;
-            --border-color: #ccc;
-            --success-bg: #d4edda;
-            --success-text: #155724;
-            --error-bg: #f8d7da;
-            --error-text: #721c24;
-            --spacing-unit: 10px;
-        }
-
-        body {
-            font-family: 'Roboto', Arial, sans-serif;
-            margin: 0;
-            padding: calc(var(--spacing-unit) * 2);
-            background-color: var(--secondary-color);
-            color: var(--text-color);
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: calc(var(--spacing-unit) * 2);
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        h1, h2 {
-            color: var(--primary-dark);
-            margin-bottom: calc(var(--spacing-unit) * 1.5);
-            font-weight: 700;
-        }
-
-        h1 { font-size: 2.2em; }
-        h2 { font-size: 1.8em; }
-
-        #g_id_onload {
-            margin-bottom: calc(var(--spacing-unit) * 2);
-        }
-
-        .g_id_signin {
-            display: flex;
-            justify-content: center;
-            margin-bottom: calc(var(--spacing-unit) * 2);
-        }
-
-        #auth-info {
-            margin-bottom: calc(var(--spacing-unit) * 2);
-            padding: var(--spacing-unit);
-            border: 1px solid var(--border-color);
-            background-color: #e9e9e9;
-            border-radius: 5px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        #auth-info p {
-            margin: 0;
-        }
-
-        form label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-
-        form input[type="text"],
-        form input[type="email"],
-        form input[type="number"],
-        form select,
-        form textarea {
-            width: 100%;
-            padding: var(--spacing-unit);
-            margin-bottom: var(--spacing-unit);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            box-sizing: border-box; /* Važno za responsive padding */
-        }
-
-        form input[type="checkbox"] {
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-
-        form button,
-        .action-buttons button {
-            background-color: var(--primary-color);
-            color: white;
-            padding: var(--spacing-unit) calc(var(--spacing-unit) * 1.5);
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1em;
-            margin-top: var(--spacing-unit);
-            margin-right: var(--spacing-unit);
-            transition: background-color 0.2s ease;
-        }
-
-        form button:hover,
-        .action-buttons button:hover {
-            background-color: var(--primary-dark);
-        }
-
-        .action-buttons {
-            display: flex;
-            flex-wrap: wrap; /* Omogućava prelamanje dugmadi na manjim ekranima */
-            gap: var(--spacing-unit);
-            margin-top: calc(var(--spacing-unit) * 2);
-            margin-bottom: calc(var(--spacing-unit) * 2);
-        }
-
-        hr {
-            border: 0;
-            border-top: 1px solid #eee;
-            margin: calc(var(--spacing-unit) * 3) 0;
-        }
-
-        #message {
-            margin-top: calc(var(--spacing-unit) * 2);
-            padding: var(--spacing-unit);
-            border-radius: 5px;
-            display: none; /* Sakriveno po defaultu */
-        }
-
-        .success {
-            background-color: var(--success-bg);
-            color: var(--success-text);
-            border: 1px solid #c3e6cb;
-        }
-
-        .error {
-            background-color: var(--error-bg);
-            color: var(--error-text);
-            border: 1px solid #f5c6cb;
-        }
-
-        #categories-list {
-            margin-top: calc(var(--spacing-unit) * 3);
-            border-top: 1px solid #eee;
-            padding-top: calc(var(--spacing-unit) * 2);
-        }
-
-        .category-item {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            padding: var(--spacing-unit) * 1.5;
-            margin-bottom: var(--spacing-unit);
-            border-radius: 5px;
-            transition: transform 0.1s ease;
-        }
-
-        .category-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
-        .category-item strong {
-            color: var(--primary-color);
-            margin-right: 5px;
-        }
-
-        #no-categories {
-            padding: var(--spacing-unit);
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
-            border-radius: 5px;
-            text-align: center;
-            display: none;
-        }
-
-        #widget-code {
-            width: 100%;
-            padding: var(--spacing-unit);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            background-color: #f1f1f1;
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-            white-space: pre-wrap;
-            word-break: break-word;
-            margin-top: var(--spacing-unit);
-            resize: vertical; /* Omogućava korisniku da menja visinu textarea */
-            min-height: 100px;
-            display: none;
-        }
-
-        #embedded-widget-container {
-            margin-top: calc(var(--spacing-unit) * 2);
-            border: 1px dashed var(--border-color);
-            min-height: 100px; /* Minimalna visina za prikaz */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #666;
-            background-color: #fcfcfc;
-            border-radius: 5px;
-            padding: var(--spacing-unit);
-            text-align: center;
-        }
-        #embedded-widget-container:empty:before {
-            content: "Ovde će se prikazati embedovani widget kada ga aktivirate.";
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 600px) {
-            body {
-                padding: var(--spacing-unit);
-            }
-            .container {
-                padding: var(--spacing-unit);
-            }
-            h1 { font-size: 1.8em; }
-            h2 { font-size: 1.5em; }
-            form button,
-            .action-buttons button {
-                width: 100%;
-                margin-right: 0;
-            }
-            .action-buttons {
-                flex-direction: column;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Upravljanje Botanicom</h1>
-        </header>
+        <h1>Upravljanje Botanicom</h1>
 
-        <main>
-            <section id="auth-section">
-                <div id="g_id_onload"
-                     data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
-                     data-callback="handleCredentialResponse"
-                     data-auto_prompt="true">
+        <div id="g_id_onload"
+             data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="true">
+        </div>
+        <div class="g_id_signin"
+             data-type="standard"
+             data-size="large"
+             data-theme="outline"
+             data-text="sign_in_with"
+             data-shape="rectangular"
+             data-logo_alignment="left">
+        </div>
+
+        <div id="auth-info" style="display: none;">
+            <p>Prijavljeni ste kao: <strong id="user-name"></strong> (<span id="user-email"></span>)</p>
+            <p>Vaš Google User ID: <strong id="user-id"></strong></p>
+            <button onclick="signOut()">Odjava</button>
+        </div>
+
+        <div id="category-section" style="display: none;">
+            <h2>Discord Postavke</h2>
+            <form id="discord-settings-form">
+                <label for="discord_token">Discord Bot Token:</label>
+                <input type="text" id="discord_token" placeholder="Unesite Discord bot token">
+
+                <div>
+                    <input type="checkbox" id="discord_bot_active">
+                    <label for="discord_bot_active" style="display: inline;">Aktiviraj Discord Bota</label>
                 </div>
-                <div class="g_id_signin"
-                     data-type="standard"
-                     data-size="large"
-                     data-theme="outline"
-                     data-text="sign_in_with"
-                     data-shape="rectangular"
-                     data-logo_alignment="left">
-                </div>
+                <button type="submit">Sačuvaj Discord Postavke</button>
+            </form>
 
-                <div id="auth-info" style="display: none;">
-                    <p>Prijavljeni ste kao: <strong id="user-name"></strong> (<span id="user-email"></span>)</p>
-                    <p>Vaš Google User ID: <strong id="user-id"></strong></p>
-                    <button onclick="signOut()">Odjava</button>
-                </div>
-            </section>
+            <hr>
 
-            <section id="category-section" style="display: none;">
-                <article>
-                    <h2>Discord Postavke</h2>
-                    <form id="discord-settings-form">
-                        <label for="discord_token">Discord Bot Token:</label>
-                        <input type="text" id="discord_token" placeholder="Unesite Discord bot token">
+            <h2>Dodaj/Ažuriraj u Botanicu</h2>
+            <form id="category-form">
+                <label for="client_email">Email klijenta:</label>
+                <input type="email" id="client_email" required readonly>
 
-                        <div>
-                            <input type="checkbox" id="discord_bot_active">
-                            <label for="discord_bot_active" style="display: inline;">Aktiviraj Discord Bota</label>
-                        </div>
-                        <button type="submit">Sačuvaj Discord Postavke</button>
-                    </form>
-                </article>
+                <label for="sequence_number">Redni broj (1-99):</label>
+                <input type="number" id="sequence_number" min="1" max="99">
 
-                <hr>
+                <label for="priority">Prioritet (0-9):</label>
+                <input type="number" id="priority" min="0" max="9" required>
 
-                <article>
-                    <h2>Dodaj/Ažuriraj u Botanicu</h2>
-                    <form id="category-form">
-                        <label for="client_email">Email klijenta:</label>
-                        <input type="email" id="client_email" required readonly>
+                <label for="rule">Pravilo:</label>
+                <select id="rule" required>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                </select>
 
-                        <label for="sequence_number">Redni broj (1-99):</label>
-                        <input type="number" id="sequence_number" min="1" max="99">
+                <label for="response">Odgovor (Unesi tekst):</label>
+                <textarea id="response" rows="5" required></textarea>
 
-                        <label for="priority">Prioritet (0-9):</label>
-                        <input type="number" id="priority" min="0" max="9" required>
+                <label for="tags">Tagovi (odvojeni zarezima, npr. tag1, tag2, tag3):</label>
+                <input type="text" id="tags" placeholder="tag1, tag2, tag3">
 
-                        <label for="rule">Pravilo:</label>
-                        <select id="rule" required>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                        </select>
+                <button type="submit">Sačuvaj Botanicu</button>
+                <button type="button" id="load-category-btn">Učitaj Botanicu</button>
+            </form>
 
-                        <label for="response">Odgovor (Unesi tekst):</label>
-                        <textarea id="response" rows="5" required></textarea>
+            <!-- Novo dugme za embedovanje direktno na stranicu -->
+            <button id="embed-widget-btn">Embeduj widget na ovu stranicu</button>
 
-                        <label for="tags">Tagovi (odvojeni zarezima, npr. tag1, tag2, tag3):</label>
-                        <input type="text" id="tags" placeholder="tag1, tag2, tag3">
+            <!-- Dugme za generisanje widgeta za kopiranje -->
+            <button id="generate-widget-btn">Prikaži kod za embedovanje</button>
+            <div id="widget-code" style="display: none;"></div>
 
-                        <div class="action-buttons">
-                            <button type="submit">Sačuvaj Botanicu</button>
-                            <button type="button" id="load-category-btn">Učitaj Botanicu</button>
-                        </div>
-                    </form>
-                </article>
+            <div id="message"></div>
 
-                <div class="action-buttons">
-                    <button id="embed-widget-btn">Embeduj widget na ovu stranicu</button>
-                    <button id="generate-widget-btn">Prikaži kod za embedovanje</button>
-                </div>
-                <textarea id="widget-code" readonly style="display: none;"></textarea>
+            <div id="categories-list">
+                <h2>Vaša Botanica</h2>
+                <div id="no-categories" style="display: none;">Nema sačuvanih kategorija za ovog korisnika.</div>
+                <div id="categories-container"></div>
+            </div>
 
-
-                <div id="message"></div>
-
-                <article id="categories-list">
-                    <h2>Vaša Botanica</h2>
-                    <div id="no-categories">Nema sačuvanih kategorija za ovog korisnika.</div>
-                    <div id="categories-container"></div>
-                </article>
-
-                <article id="embedded-widget-container"></article>
-            </section>
-        </main>
+            <!-- Container gde će se embedovati widget direktno -->
+            <div id="embedded-widget-container"></div>
+        </div>
     </div>
 
-    <script>
-        const BACKEND_URL = 'https://botanica.ngrok.app';
-        let currentUser = null;
-        let currentUserSettings = {
-            discord_token: '',
-            discord_bot_active: 0
-        };
-
-        function handleCredentialResponse(response) {
-            console.log("Google Credential Response:", response);
-            if (response.credential) {
-                fetch(`${BACKEND_URL}/oauth_callback`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ credential: response.credential })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    console.log("Backend OAuth Response:", data);
-                    if (data.status === 'success') {
-                        currentUser = {
-                            id: data.user_id,
-                            email: data.user_email,
-                            name: data.user_name
-                        };
-                        displayAuthInfo();
-                        showCategorySection();
-                        fetchCategories();
-                        fetchUserSettings();
-                        saveSession();
-                    } else {
-                        alert('Greška pri prijavi: ' + data.message);
-                        console.error('Google prijava neuspešna:', data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Greška pri komunikaciji sa backendom za OAuth:', error);
-                    alert('Došlo je do greške pri prijavi. Pokušajte ponovo.');
-                });
-            } else {
-                console.error('Nema credentiala u Google odgovoru.');
-            }
-        }
-
-        function displayAuthInfo() {
-            if (currentUser) {
-                document.getElementById('user-name').textContent = currentUser.name;
-                document.getElementById('user-email').textContent = currentUser.email;
-                document.getElementById('user-id').textContent = currentUser.id;
-                document.getElementById('auth-info').style.display = 'flex'; // Changed to flex for better layout
-                document.querySelector('.g_id_signin').style.display = 'none';
-                document.getElementById('client_email').value = currentUser.email;
-            }
-        }
-
-        function showCategorySection() {
-            document.getElementById('category-section').style.display = 'block';
-        }
-
-        function signOut() {
-            google.accounts.id.disableAutoSelect();
-            currentUser = null;
-            currentUserSettings = { discord_token: '', discord_bot_active: 0 };
-            document.getElementById('auth-info').style.display = 'none';
-            document.querySelector('.g_id_signin').style.display = 'flex'; // Changed to flex
-            document.getElementById('category-section').style.display = 'none';
-            document.getElementById('categories-container').innerHTML = '';
-            document.getElementById('no-categories').style.display = 'block';
-            document.getElementById('widget-code').style.display = 'none';
-            document.getElementById('embedded-widget-container').innerHTML = '';
-            localStorage.removeItem("userSession");
-            localStorage.removeItem("userSettings");
-            console.log("Korisnik odjavljen.");
-        }
-
-        document.getElementById('category-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            if (!currentUser) {
-                showMessage('Morate biti prijavljeni da biste sačuvali kategorije.', 'error');
-                return;
-            }
-
-            const clientEmail = document.getElementById('client_email').value;
-            const sequenceNumber = parseInt(document.getElementById('sequence_number').value);
-            const priority = parseInt(document.getElementById('priority').value);
-            const rule = document.getElementById('rule').value;
-            const response = document.getElementById('response').value;
-            const tagsInput = document.getElementById('tags').value;
-            const tags = tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
-
-            const categoryData = {
-                google_user_id: currentUser.id,
-                client_email: clientEmail,
-                sequence_number: sequenceNumber,
-                priority: priority,
-                rule: rule,
-                response: response,
-                tags: tags
-            };
-
-            fetch(`${BACKEND_URL}/categories`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(categoryData)
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    showMessage(data.message, 'success');
-                    document.getElementById('category-form').reset();
-                    document.getElementById('client_email').value = currentUser.email;
-                    fetchCategories();
-                } else {
-                    showMessage('Greška: ' + data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Greška pri slanju kategorije:', error);
-                showMessage('Došlo je do greške pri čuvanju kategorije.', 'error');
-            });
-        });
-
-
-        document.getElementById('discord-settings-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            if (!currentUser) {
-                showMessage('Morate biti prijavljeni da biste sačuvali Discord postavke.', 'error');
-                return;
-            }
-
-            const discordToken = document.getElementById('discord_token').value;
-            const discordBotActive = document.getElementById('discord_bot_active').checked ? 1 : 0;
-
-            const settingsData = {
-                google_user_id: currentUser.id,
-                discord_token: discordToken,
-                discord_bot_active: discordBotActive
-            };
-
-            fetch(`${BACKEND_URL}/user_settings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(settingsData)
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    showMessage(data.message, 'success');
-                    currentUserSettings.discord_token = discordToken;
-                    currentUserSettings.discord_bot_active = discordBotActive;
-                    saveUserSettings();
-                } else {
-                    showMessage('Greška pri čuvanju Discord postavki: ' + data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Greška pri slanju Discord postavki:', error);
-                showMessage('Došlo je do greške pri čuvanju Discord postavki.', 'error');
-            });
-        });
-
-
-        function fetchUserSettings() {
-            if (!currentUser) return;
-            fetch(`${BACKEND_URL}/get_user_settings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ google_user_id: currentUser.id })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    currentUserSettings = {
-                        discord_token: data.discord_token,
-                        discord_bot_active: data.discord_bot_active
-                    };
-                    document.getElementById('discord_token').value = currentUserSettings.discord_token;
-                    document.getElementById('discord_bot_active').checked = currentUserSettings.discord_bot_active === 1;
-                    saveUserSettings();
-                } else if (data.status === 'not_found') {
-                    console.log('Korisničke Discord postavke nisu pronađene, korišćenje podrazumevanih.');
-                    currentUserSettings = { discord_token: '', discord_bot_active: 0 };
-                    document.getElementById('discord_token').value = '';
-                    document.getElementById('discord_bot_active').checked = false;
-                    saveUserSettings();
-                } else {
-                    showMessage('Greška pri dohvatanju Discord postavki: ' + data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Greška pri dohvatanju Discord postavki:', error);
-                showMessage('Došlo je do greške pri učitavanju Discord postavki.', 'error');
-            });
-        }
-
-
-        function fetchCategories() {
-            if (!currentUser) return Promise.resolve([]);
-            return fetch(`${BACKEND_URL}/get_categories`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ google_user_id: currentUser.id })
-            })
-            .then(res => res.json())
-            .then(data => {
-                const container = document.getElementById('categories-container');
-                container.innerHTML = '';
-
-                if (data.status === 'success' && data.categories.length > 0) {
-                    document.getElementById('no-categories').style.display = 'none';
-                    data.categories.forEach(category => {
-                        const item = document.createElement('div');
-                        item.classList.add('category-item');
-                        item.innerHTML = `
-                            <p><strong>Email klijenta:</strong> ${category.client_email}</p>
-                            <p><strong>Redni broj:</strong> ${category.sequence_number}</p>
-                            <p><strong>Prioritet:</strong> ${category.priority}</p>
-                            <p><strong>Pravilo:</strong> ${category.rule}</p>
-                            <p><strong>Odgovor:</strong> ${category.response.length > 100 ? category.response.substring(0, 100) + '...' : category.response}</p>
-                            <p><strong>Tagovi:</strong> ${category.tags.join(', ')}</p>
-                        `;
-                        container.appendChild(item);
-                    });
-                    return data.categories;
-                } else {
-                    document.getElementById('no-categories').style.display = 'block';
-                    return [];
-                }
-            })
-            .catch(error => {
-                console.error('Greška pri dohvatanju kategorija:', error);
-                showMessage('Došlo je do greške pri učitavanju kategorija.', 'error');
-                document.getElementById('no-categories').style.display = 'block';
-                return [];
-            });
-        }
-
-        function showMessage(msg, type) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.textContent = msg;
-            messageDiv.className = `message ${type}`;
-            messageDiv.style.display = 'block';
-            setTimeout(() => { messageDiv.style.display = 'none'; }, 5000);
-        }
-
-        document.getElementById('generate-widget-btn').addEventListener('click', function() {
-            if (currentUser) {
-                const widgetCode = `<iframe \n  src="https://cibulskia.github.io/widget?site=${currentUser.id}"  \n  style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;"\n  scrolling="no"\n></iframe>`;
-                const codeDiv = document.getElementById('widget-code');
-                codeDiv.textContent = widgetCode;
-                codeDiv.style.display = 'block';
-                navigator.clipboard.writeText(widgetCode)
-                    .then(() => alert('Kod je kopiran u clipboard!'))
-                    .catch(() => alert('Greška pri kopiranju u clipboard.'));
-            } else {
-                alert('Morate biti prijavljeni da biste generisali kod.');
-            }
-        });
-
-        document.getElementById('embed-widget-btn').addEventListener('click', function() {
-            if (currentUser) {
-                const container = document.getElementById('embedded-widget-container');
-                container.innerHTML = `<iframe src="https://cibulskia.github.io/widget?site=${currentUser.id}" style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;" scrolling="no"></iframe>`;
-                showMessage('Widget je uspešno embedovan na stranicu.', 'success');
-            } else {
-                alert('Morate biti prijavljeni da biste embedovali widget.');
-            }
-        });
-
-        document.getElementById('load-category-btn').addEventListener('click', async function() {
-            if (!currentUser) {
-                showMessage('Morate biti prijavljeni da biste učitali kategoriju.', 'error');
-                return;
-            }
-
-            const seqInput = document.getElementById('sequence_number').value;
-            const categories = await fetchCategories();
-
-            if (categories.length === 0) {
-                showMessage('Botanica je prazna.', 'error');
-                return;
-            }
-
-            let categoryToLoad = null;
-
-            if (seqInput === '') {
-                categoryToLoad = categories.reduce((prev, curr) => prev.sequence_number < curr.sequence_number ? prev : curr);
-            } else {
-                const seqNumber = parseInt(seqInput);
-                categoryToLoad = categories.find(cat => cat.sequence_number === seqNumber);
-                if (!categoryToLoad) {
-                    showMessage('Nema takve Botanice.', 'error');
-                    return;
-                }
-            }
-
-            if (categoryToLoad) {
-                document.getElementById('client_email').value = categoryToLoad.client_email;
-                document.getElementById('sequence_number').value = categoryToLoad.sequence_number;
-                document.getElementById('priority').value = categoryToLoad.priority;
-                document.getElementById('rule').value = categoryToLoad.rule;
-                document.getElementById('response').value = categoryToLoad.response;
-                document.getElementById('tags').value = categoryToLoad.tags.join(', ');
-                showMessage('Botanica je uspešno učitana.', 'success');
-            }
-        });
-
-        function saveSession() {
-            if (currentUser) {
-                localStorage.setItem("userSession", JSON.stringify(currentUser));
-            }
-        }
-
-        function saveUserSettings() {
-            if (currentUserSettings) {
-                localStorage.setItem("userSettings", JSON.stringify(currentUserSettings));
-            }
-        }
-
-        window.onload = function() {
-            const savedUser = localStorage.getItem("userSession");
-            const savedUserSettings = localStorage.getItem("userSettings");
-
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                displayAuthInfo();
-                showCategorySection();
-                fetchCategories();
-                if (savedUserSettings) {
-                    currentUserSettings = JSON.parse(savedUserSettings);
-                    document.getElementById('discord_token').value = currentUserSettings.discord_token;
-                    document.getElementById('discord_bot_active').checked = currentUserSettings.discord_bot_active === 1;
-                }
-                fetchUserSettings();
-            }
-        };
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
